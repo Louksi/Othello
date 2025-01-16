@@ -1,0 +1,21 @@
+# https://docs.gitlab.com/ee/ci/quick_start/index.html
+# https://gitlab.com/gitlab-org/gitlab-foss/-/blob/master/lib/gitlab/ci/templates/Python.gitlab-ci.yml
+image: python:3.12
+
+stages:
+  - pre-commit
+  - test
+
+pre-commit-job:
+  tags:
+    - Debian
+    - Docker
+  stage: pre-commit
+  before_script:
+    - apt update
+    - apt install -y python3-lib2to3
+    - python -m pip install --upgrade pip
+    - pip install pre-commit
+  script:
+    - pre-commit install
+    - pre-commit run --all-files

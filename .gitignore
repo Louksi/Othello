@@ -1,0 +1,17 @@
+# this .gitignore uses the best practice described in this article: https://rgbcu.be/blog/gitignore/
+*
+
+!.gitignore
+!.gitlab-ci.yml
+!.pre-commit-config.yaml
+
+
+!README.md
+
+!specs/bitboard_methods_for_games-Cameron_Browne-2014.pdf
+!specs/othello_is_solved.pdf
+!specs/othello-specs.pdf
+
+!othello/.gitkeep
+!reports/final/.gitkeep
+!reports/preliminary/.gitkeep
