@@ -12,6 +12,12 @@
 !specs/othello_is_solved.pdf
 !specs/othello-specs.pdf
 
+!othello/
+!reports/
+!reports/preliminary
+!reports/final
+
 !othello/.gitkeep
 !reports/final/.gitkeep
 !reports/preliminary/.gitkeep
+!reports/preliminary/report.tex
