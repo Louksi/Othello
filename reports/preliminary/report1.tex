@@ -103,20 +103,17 @@ Idéalement, nous avons prévu d'implémenter les fonctionnalités suivantes :
   \paragraph{F4. Système cible:}
   Le programme devra fonctionner sur des systèmes d’exploitation GNU/Linux.
   \begin{itemize}
-    \item Besoin non fonctionnel
     \item Développer le logiciel sous une distribution Linux
     \item Tester sous une distribution Linux
   \end{itemize}
 
   \paragraph{F1. Langage de programmation:}
   \begin{itemize}
-    \item Besoin non fonctionnel
     \item Développer le logiciel en langage Python 3.7+
   \end{itemize}
 
   \paragraph{F9. Build-system:}
   \begin{itemize}
-    \item Besoin non fonctionnel
     \item Le build-system sera basé sur pyproject.toml et setuptools
   \end{itemize}
 
@@ -134,25 +131,27 @@ Idéalement, nous avons prévu d'implémenter les fonctionnalités suivantes :
 
   \paragraph{F11. Gestion des options:}
   \begin{itemize}
-    \item
+    \item Les options en lignes de commandes seront gérées par le module argparse
   \end{itemize}
 
 
   \paragraph{F12. Bibliothèque graphique:}
   \begin{itemize}
-    \item
+    \item La bibliothèque graphique utilisée sera basée sur PyGObjet
   \end{itemize}
 
 
-  \paragraph{F16. Aide en ligne de commande:}
+  \paragraph{F16. Aide en ligne de commande:} Les options '-h' et '--help' affichent l'aide puis quittent
   \begin{itemize}
-    \item
+    \item Tester que les deux commandes affichent bien l'aide
+    \item Tester que pour les deux terminent bien avec EXIT\_SUCCESS
   \end{itemize}
 
 
-  \paragraph{F17. Version:}
+  \paragraph{F17. Version:} Les options '-v' et '--version' affichent la version puis quittent
   \begin{itemize}
-    \item
+    \item Tester que les deux commandes affichent bien la version
+    \item Tester que pour les deux terminent bien avec EXIT\_SUCCESS
   \end{itemize}
 
 \subsection{Bitboard adapté à Othello}
@@ -162,12 +161,6 @@ Idéalement, nous avons prévu d'implémenter les fonctionnalités suivantes :
 \subsection{Partie configurable}
 \subsection{Parties jouables (logique)}
 
-
-%\subsection{Besoins fonctionnels}
-%Décrire ce que le système doit faire (par exemple : gestion des utilisateurs, génération de rapports, etc.).
-
-%\subsection{Besoins non fonctionnels}
-%Lister les exigences telles que les performances, la sécurité, l'évolutivité.
 
 \section{Méthodologie}
 %\subsection{Approche de développement}
