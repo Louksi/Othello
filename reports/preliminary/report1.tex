@@ -1,0 +1,160 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[francais]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage[backend=biber]{biblatex}
+\geometry{top=2cm, bottom=2cm, left=2cm, right=2cm}
+
+
+\addbibresource{bibliography.bib}
+
+
+\title{\textbf{Rapport Préliminaire}}
+\author{Jeu de plateau: Othello - Reversi}
+\date{\today}
+
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\newpage
+
+\section{Introduction}
+\subsection{Contexte}
+  Afin de nous familiariser avec la conduite de projet, nous devons cette année développer un logiciel permettant de jouer à un jeu de plateau.\\
+  Comme nous n'avons pas réellement de clients avec qui discuter de l'implémentation, nous avont été remis un cahier des charges listant des besoins généraux qu'il nous faudra décomposer en besoins plus spécifiques.\\
+  (Ceci n'est pas la version finale. Toutes les parties de ce rapport peuvent être amenées à être modifiées dans le futur)\\
+
+\subsection{Présentation du projet}
+  Pour ce projet, nous allons travailler en Python sur le jeu de plateau Othello.\\
+  Othello (ou Reversi) (Othello est une marque déposée) se joue à deux joueurs, sur un plateau carré de 8x8 cases.\\
+  Chaque joueur possède des pions de couleur blanche ou noire.\\
+  Notre but ici sera d'implémenter ce jeu en langage python, et de donner une interface graphique et des commandes additionnelles à l'utilisateur.\\
+
+
+\section{Description du Projet}
+\subsection{Règles du jeu}
+  Bases:\\
+  Othello se joue sur un plateau unicolore de 64 cases: l'othellier.\\
+  Les deux adversaires jouent avec 64 pions de couleur blanche d'un côté et noire de l'autre.\\
+  Au tout début de la partie, quatre pions sont placés au centre du plateau: deux pions noirs en E4 et D5, et deux pions blancs en E5 et D4.\\
+  (cf. Figure 1 pour une représentation du jeu dans son état initial)\\
+  Les cases de l'othellier sont numérotées par les lettres A à H pour les colonnes, et par les chiffres 1 à 8 pour les lignes.\\
+
+  Tour de jeu:\\
+  Les joueurs jouent chacun leur tour, en commençant par le joueur aux pions noirs.\\
+  Ils doivent capturer les pions de leur adversaire à chaque tour.\\
+  Si le joueur ne peut pas capturer de pion, il passe son tour.\\
+  Un pion placé doit être adjacent à au moins un autre pion (de même couleur ou de couleur adverse) dans sa ligne, colonne ou diagonale.\\
+
+  Capture et échange de pions:\\
+  Une capture se produit lorsque le joueur dont c'est le tour place un pion qui enferme un alignement (en colonne, ligne, ou diagonale) de pions adverses (l'autre extrémité étant fermée au cours d'un tour précédent).\\
+  En plaçant son pion, le joueur retourne les pions qu'il capture, les changeant en sa couleur.\\
+  Si le pion posé permet de capturer plusieurs alignements à la fois, le joueur capture tous ces pions adverses.\\
+  Par contre, en les retournant, ces pions ne permettent pas de capture, même si ils encadrent des pions adverses.\\
+
+  Fin du jeu:\\
+  Le jeu se termine lorsqu'aucun des deux joueurs ne peut poser de pion, ou que l'othellier n'a plus aucune case vide.\\
+  On compte le nombre de pions de chaque couleur sur le plateau pour déterminer le vainqueur: le joueur ayant le plus de pions de sa couleur présents sur l'othellier.
+
+
+\subsection{Fonctionnalités principales}
+Idéalement, nous avons prévu d'implémenter les fonctionnalités suivantes :
+\begin{itemize}
+    \item Fonctionnalité 1 : Jeu Reversi fonctionnel, jouable dans le terminal de commandes
+    \item Fonctionnalité 2 : Possibilité de sauvegarder et de charger des parties
+    \item Fonctionnalité 3 : Modes de jeu Blitz et Contest, ainsi qu'un historique des coups
+    \item Fonctionnalité 4 : Joueur IA basique
+    \item Fonctionnalité 5 : Interface graphique
+    \item Fonctionnalité 6 : Joueur IA amélioré
+\end{itemize}
+
+\subsection{Structures de données utilisées}
+  Afin de représenter le plateau et les pions placés, nous allons utiliser des Bitboards.\\
+  Nous prévoyons pour le moment d'utiliser quatre bitboards qui représenteront respectivement le plateau, les pions face blanche, les pions face noire, et les pions modifiés lors du dernier tour.\\
+  Ces bitboards seront stockées dans des tuples.\\
+  Les tuples des coups joués et de l'état du board seront stockés dans une queue.\\
+  Les parties et l'historique des coups seront sauvegardées dans des fichiers différents, en format ASCII, et de la forme suivante:\\ (insérer img/dessin de notre format de sauvegarde pour les deux fichiers)\\
+
+
+\subsection{Algorithmes utilisés}
+  Pour la partie Calcul des coups, nous prévoyons d'utiliser les algorithmes suivants:\\
+  \begin{itemize}
+    \item Line Cap Moves pour déterminer les coups possibles dans une direction\\
+    \item Surround Capture ou Flip Enemy Neighbours of LAst Move pour retourner les pions capturés\\
+  \end{itemize}
+
+  Pour la partie IA, nous allons dans un premier temps utiliser MiniMax pour choisir le prochain coup joué par le Joueur IA.\\
+  Si le temps nous le permet, nous souhaiterions améliorer cet algorithme en ajoutant un Alpha-Beta pruning, ou en implémentant Monte Carlo Tree Search.\\
+
+
+\section{Analyse des Besoins}
+  Nous avons pour le moment décrit ici les besoins jusqu'à la milestone: Game Barebones.
+
+\subsection{Dépôt configuré}
+  F4. Système cible:\\
+  \begin{itemize}
+    \item Besoin non fonctionnel
+    \item
+  \end{itemize}
+
+\subsection{Squelette du projet}
+\subsection{Bitboard adapté à Othello}
+\subsection{Logger configurable}
+\subsection{Module configurable}
+\subsection{IA configurable}
+\subsection{Partie configurable}
+\subsection{Parties jouables (logique)}
+
+
+%\subsection{Besoins fonctionnels}
+%Décrire ce que le système doit faire (par exemple : gestion des utilisateurs, génération de rapports, etc.).
+
+%\subsection{Besoins non fonctionnels}
+%Lister les exigences telles que les performances, la sécurité, l'évolutivité.
+
+\section{Méthodologie}
+%\subsection{Approche de développement}
+%Décrire la méthode de développement prévue (ex. : méthode Agile, cycle en V, etc.).
+
+\subsection{Outils de gestion de projet}
+  Du côté de la gestion de proget, nous utilisons GitLab comme dépot de code, afin de pouvoir travailler à plusieurs sur différentes ou sur les mêmes fonctionnalités de manière efficace.\\
+  Notre agenda prévisionnel est créé sur Gantt.\\
+  Et nous utilisons un tableau sur Miro pour brainstorm sur les besoins de notre projet.\\
+
+%\section{Architecture Préliminaire}
+%Décrire l'architecture envisagée pour le projet, éventuellement avec des diagrammes :
+%\begin{itemize}
+%    \item Diagramme de classes (UML)
+%    \item Diagramme d'architecture générale
+%\end{itemize}
+
+\section{Planification}
+\subsection{Échéancier}
+Voici
+
+%\subsection{MVP (Minimum Viable Product)}
+%Décrire les éléments prioritaires à livrer dans un premier temps.
+
+%\section{Risques et Contraintes}
+%\begin{itemize}
+%    \item Identifier les risques techniques (compatibilité, complexité).
+%    \item Identifier les contraintes temporelles ou budgétaires.
+%\end{itemize}
+
+%\section{Conclusion et Prochaines Étapes}
+%Résumer les points abordés dans le rapport et indiquer les prochaines étapes prévues.
+
+%\section*{Annexes}
+%Inclure des annexes si nécessaire : diagrammes supplémentaires, documentation technique, etc.
+
+\subsection*{Bibliographie}
+La bibliographie est incluse ci-dessous :
+%\printbibliography
+
+\end{document}
