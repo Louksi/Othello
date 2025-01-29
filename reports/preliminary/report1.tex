@@ -35,6 +35,7 @@
   Notre but ici sera d'implémenter ce jeu en langage python, et de donner une interface graphique et des commandes additionnelles à l'utilisateur.\\
 
 
+\newpage
 \section{Description du Projet}
 \subsection{Règles du jeu}
 
@@ -42,6 +43,12 @@
   Les deux adversaires jouent avec 64 pions de couleur blanche d'un côté et noire de l'autre.\\
   Au tout début de la partie, quatre pions sont placés au centre du plateau: deux pions noirs en E4 et D5, et deux pions blancs en E5 et D4.\\
   Les cases de l'othellier sont numérotées par les lettres A à H pour les colonnes, et par les chiffres 1 à 8 pour les lignes.\\
+
+  \begin{figure}[!h]
+    \centering
+    \includegraphics[width=5cm]{images/ReversiStartingPos.png}
+    \caption{Position des pions au départ}
+  \end{figure}
 
   Les joueurs jouent chacun leur tour, en commençant par le joueur aux pions noirs.\\
   Ils doivent capturer les pions de leur adversaire à chaque tour.\\
@@ -81,10 +88,11 @@
   L'ensemble de coups est actualisé en ajoutant l'intersection entre l'ensemble vide, et les cases 'candidates' shift de 1 dans la direction. Puis l'ensemble des cases 'candidates' est réécrit en l'intersection entre les pions adverses, et lui-même shift de 1 dans la direction courante.\\
   Lorsque l'ensemble de cases 'candidates' est vide, on peut changer de direction et recommencer. Et quand toutes les directions ont été explorées, l'ensemble de coups contient tous les coups possibles et légaux.\\
 
+
   Afin de changer les pions capturés dans la couleur du joueur courant, nous avons créé un algorithme en se basant sur l'algorithme Line Cap Moves ci-dessus.\\
   En partant de la case sur laquelle le dernier pion a été placé, on se déplace sur tous les pions ennemi en les retournant pour changer leur couleur.\\
   Tout d'abord, on récupère le dernier pion placé par le joueur courant, puis on itère dans toutes les directions: Nord, Nord-Est, Est, Sud-Est, Sud, Sud-West, West, Nord-West.\\
-  On shift le pion de 1 dans la direction courante
+  On shift le pion de 1 dans la direction courante\\
   Tant que le pion n'est pas un pion Ami (pion de la couleur du joueur courant), on effectue les opérations suivantes:\\
   Le pion est changé de Ennemi à Ami: on retourne le pion pour que sa couleur soit celle du joueur courant.\\
   Puis on shift le pion de 1 dans la direction courante.\\
@@ -111,6 +119,7 @@
 % + Ajouter la plannification (pareil y'a une section en bas)
 % + Voir si besoin de compléter biblio
 
+\newpage
 \section{Analyse des Besoins}
   Ici, nous décrivons les besoins à implémenter pour notre programme.
 
@@ -134,7 +143,7 @@
     \item Le code ainsi que les fichiers seront écrits et commentés en langue anglaise.
   \end{itemize}
 
-    \paragraph{F4. Système cible:}
+  \paragraph{F4. Système cible:}
   Le programme devra fonctionner sur des systèmes d’exploitation GNU/Linux.
   \begin{itemize}
     \item Développer le logiciel sous une distribution Linux.
@@ -164,7 +173,6 @@
   \end{itemize}
 
 
-
 \subsection{Bibliothèque et outils}
 
 \subsubsection{Besoins fonctionnels}
@@ -174,7 +182,6 @@
     \item Les options en lignes de commandes seront gérées par le module argparse qui une fois proprement configuré par le code construit un objet contenant les arguments.
     \item Les arguments passés au programme prendront systématiquement la priorité sur les paramètres définit dans le fichier de configuration othello qui lui même aura la priorité sur les paramètres par défaut.
   \end{itemize}
-
 
 \subsubsection{Besoins non fonctionnels}
 
@@ -193,6 +200,7 @@
     \item La bibliothèque graphique utilisée sera basée sur PyGObjet
   \end{itemize}
 
+
 \subsection{Options en ligne de commande}
 
 \subsubsection{Besoins fonctionnels}
@@ -210,7 +218,6 @@
     \item Tester que les deux commandes affichent bien l'aide
     \item Tester que pour les deux terminent bien avec EXIT\_SUCCESS
   \end{itemize}
-
 
   \paragraph{F17. Version:} Les options '-V' et '--version' affichent la version puis quittent
   \begin{itemize}
@@ -315,7 +322,6 @@
       \item les messages seront des messages informatifs pour l'utilisateur, lui signifiant une erreur d'utilisation et éventuellement des messages de debug si l'option est activée
   \end{itemize}
 
-
     \paragraph{F32. Quitter et Sauvegarder une partie:} Le joueur peut quitter une partie en cours de jeu.
   \begin{itemize}
     \item Dans le terminal de commande, le joueur pourra sauvegarder puis quitter une partie en entrant 'Q' puis en confirmant ou non avec [Y/N]
@@ -349,7 +355,6 @@
     \item Un coup sera noté sous la forme: [a-h][1-8]
     \item Si le coup n'est pas valide, on le notifie au joueur et demande un autre coup
   \end{itemize}
-
 
 
 
@@ -393,8 +398,8 @@
     \paragraph{F42. Module Bitboard:}
   \begin{itemize}
     \item Le module Bitboard sera utilisé afin de représenter le plateau de jeu
-    \item Un mask sera utilisé pour les pions de chaque couleur
-    \item
+    \item Deux masques seront utilisés pour représenter les pions de chaque couleurs
+    \item Deux masques seront utilisés pour représenter les colonnes de droite et gauche, afin de gérer les cas de wrapping.
   \end{itemize}
 
   \paragraph{F43. Etat du jeu}
@@ -455,7 +460,6 @@
         \item En plus de l'algorithme Minimax, on pourra utiliser de l'$\alpha\beta$-pruning qui pourra remplacer minimax pour le joueur artificiel.
     \end{itemize}
 
-
     \paragraph{F54. Exploration peu profonde préliminaire:} L'option '--ia-shallow' active une exploration préliminaire de l'arbre de recherche, et ordonne les coups selon leur priorité
   \begin{itemize}
     \item effectue un tri des plateaux évalués
@@ -471,13 +475,11 @@
     \item Nécessite de calculer/tester sur des grandes valeurs les performances de l'ia.
   \end{itemize}
 
-
     \paragraph{F58. Calcul des libertés:}
   \begin{itemize}
     \item Utilisation de l'opération de dilatation sur les bitboards
     \item Calcul des cases vides en contact avec un pion du joueur courant
   \end{itemize}
-
 
     \paragraph{F60. Temps de réflexion borné:} l'option '--ai-time TIME spécifie le temps de réflexion de l'algorithme de recherche
   \begin{itemize}
@@ -492,39 +494,7 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+\newpage
 \section{Outils de gestion de projet}
 
   Du côté de la gestion de projet, nous utilisons GitLab comme dépôt de code, afin de pouvoir travailler à plusieurs sur différentes ou sur les mêmes fonctionnalités de manière efficace. De plus, nous allons utiliser une pipeline de CI gitlab nous permettant d'automatiser le lancement des tests et la vérification du coverage.\\
@@ -560,6 +530,7 @@
 %\section{Conclusion et Prochaines Étapes}
 %Résumer les points abordés dans le rapport et indiquer les prochaines étapes prévues.
 
+\newpage
 \section*{Annexes}
 %Inclure des annexes si nécessaire : diagrammes supplémentaires, documentation technique, etc.
 
