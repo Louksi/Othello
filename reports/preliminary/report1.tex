@@ -5,6 +5,7 @@
 \usepackage{geometry}
 \usepackage{graphicx}
 \usepackage{hyperref}
+\usepackage{float}
 \usepackage[backend=biber]{biblatex}
 \geometry{top=2cm, bottom=2cm, left=2cm, right=2cm}
 
@@ -492,9 +493,19 @@
   \end{itemize}
 
 
+\section{Architecture}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{diag_classe.png}
+    \caption{Diagramme de classe}
+    \label{fig:enter-label}
+\end{figure}
+
+Trois modules principaux ressortent de cette architecture. Un module "othello\_logic" qui regroupe la logique de jeu d'Othello, les BitBoards utilisés, ainsi que quelques éléments tels qu'une Enum représentant la couleur du joueur en cours ou encore la représentation d'un coup. Un module "othello\_interfaces" qui interface la logique de jeu et le joueur, à la fois à travers trois contrôlleurs - un par mode de jeu - et également les vues de CLI (TUI) et GUI qui intéragissent directement avec le contrôlleur utilisé selon la configuration de la partie, et un module "ai" qui contient à la fois la logique des différentes IA implémentées ainsi que l'heuristique.\pagebreak
+
+Un quatrième module ne figurant pas sur le diagramme mais étant implicit à la majorité des programmes sera le module définissant notamment le main. Il récupèrera le fichier de configuration si il existe, parsera les éventuels arguments avec argparse et instanciera le bon contrôlleur et les bonnes vues. Il contiendra également la boucle de jeu.
 
 
-\newpage
 \section{Outils de gestion de projet}
 
   Du côté de la gestion de projet, nous utilisons GitLab comme dépôt de code, afin de pouvoir travailler à plusieurs sur différentes ou sur les mêmes fonctionnalités de manière efficace. De plus, nous allons utiliser une pipeline de CI gitlab nous permettant d'automatiser le lancement des tests et la vérification du coverage.\\
@@ -508,11 +519,12 @@
 %    \item Diagramme d'architecture générale
 %\end{itemize}
 
+\newpage
 \section{Planification}
 %\subsection{Échéancier}
   Voici notre agenda prévisionnel jusqu'à notre première Milestone.\\
 
-  \begin{figure}[h]
+  \begin{figure}[H]
     \centering
     \includegraphics[width=18cm]{images/agendaPrévisionnelMilestone1.png}
     \caption{Agenda prévisionnel Milestone - 1}
@@ -563,10 +575,8 @@ Vaishnavi Sannidhanam and Muthukaruppan Annamalai,
 Chess Programming Wiki,
 \emph{Bitboards},
 \url{https://www.chessprogramming.org/Bitboards},
-.gitignore is inherently sisyphean
 \bibitem{rgbcube-gitignore}
-RGB Cube,
-\emph{.gitignore},
+RGB Cube, .gitignore is inherently sisyphean
 \url{https://rgbcu.be/blog/gitignore/},
 
 \bibitem{gitlab-ci}
