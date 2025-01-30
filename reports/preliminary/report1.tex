@@ -433,82 +433,92 @@
   \end{itemize}
 
 
-\subsection{Interface graphique}
+  \subsection{Interface graphique}
 
-\subsubsection{Besoins fonctionnels}
-
-    \paragraph{F44. Fonctions de base:}
-  \begin{itemize}
-    \item L'interface graphique devra permettre au joueur d'utiliser toutes les fonctionnalités présentes dans l'interface en ligne de commande.
-    \item Les coups devront être joués en plaçant un pion sur le plateau affiché.
-    \item Un historique des derniers coups sera présent sur l'ui.
-    \paragraph{Sous Besoins}
-    \item Nécessite une interface graphique (F26.).
-    \item Afficher un plateau sur l'UI.
-    \item Afficher les pions sur le plateau.
-    \item Afficher le joueur courant.
-    \item Afficher les cinq (ou moins) derniers coups joués.
-  \end{itemize}
-
-  \paragraph{F49. Affichage des coups joués}
-  \begin{itemize}
-      \item Les 5 derniers coups seront affichés en dessous du plateau à la fois pour l'affichage CLI et GUI.
-  \end{itemize}
-
-
-
-\subsection{Joueur artificiel}
-
-\subsubsection{Besoins fonctionnels}
-
-  \paragraph{F51/F57. Heuristique d'évaluation de position + Choix des heuristiques}
-  \begin{itemize}
-      \item Le jeu aura une heuristique qui pourra prendre plus ou moins de paramètres en compte afin d'avoir un choix du niveau de difficulté de l'heuristique.
-  \end{itemize}
-
-    \paragraph{F52. Algorithme de recherche MiniMax:}
-  \begin{itemize}
-    \item Option utilisée par défaut par l'IA lorsque le jeu est lancé en mode IA.
-    \item Une profondeur maximale pour l'arbre de recherche utilisé sera définie par défaut.
-    \paragraph{Sous Besoins}
-    \item Nécessite au moins une fonction d'heuristique d'évaluation d'un plateau.
-  \end{itemize}
-
-    \paragraph{F53. $\alpha\beta$-pruning}
+  \subsubsection{Besoins fonctionnels}
+  
+      \paragraph{F44. Fonctions de base:}
     \begin{itemize}
-        \item En plus de l'algorithme Minimax, on pourra utiliser de l'$\alpha\beta$-pruning qui pourra remplacer minimax pour le joueur artificiel.
+      \item L'interface graphique devra permettre au joueur d'utiliser toutes les fonctionnalités présentes dans l'interface en ligne de commande.
+      \item Les coups devront être joués en plaçant un pion sur le plateau affiché.
+      \item Un historique des derniers coups sera présent sur l'ui.
+      \paragraph{Sous Besoins}
+      \item Nécessite une interface graphique (F26.).
+      \item Afficher un plateau sur l'UI.
+      \item Afficher les pions sur le plateau.
+      \item Afficher le joueur courant.
+      \item Afficher les cinq (ou moins) derniers coups joués.
+      \item Tester que l'interface graphique affiche correctement le plateau prédéfinit.
+      \item Tester que l'interface affiche bien le joueur courant, et change de joueur courant après un coup.
     \end{itemize}
-
-    \paragraph{F54. Exploration peu profonde préliminaire:} L'option '--ia-shallow' active une exploration préliminaire de l'arbre de recherche, et ordonne les coups selon leur priorité
-  \begin{itemize}
-    \item Effectue un tri des plateaux évalués.
-    \item L'arbre de recherche trié sera utilisé pour déterminer le meilleur coup plus rapidement.
-  \end{itemize}
-
-    \paragraph{F56. Profondeur de recherche:} L'option '--ai-depth DEPTH' spécifiera une profondeur maximale.
-  \begin{itemize}
-    \item La profondeur spécifiée remplacera la profondeur par défaut.
-    \item Si la profondeur spécifiée est trop large, la profondeur utilisée sera la valeur de la borne haute calculée.
-    \paragraph{Sous Besoins}
-    \item Borner la profondeur par une valeur large, mais pas assez large pour prendre trop de temps.
-    \item Nécessite de calculer/tester sur des grandes valeurs les performances de l'ia.
-  \end{itemize}
-
-    \paragraph{F58. Calcul des libertés:}
-  \begin{itemize}
-    \item Utilisation de l'opération de dilatation sur les bitboards.
-    \item Calcul des cases vides en contact avec un pion du joueur courant.
-  \end{itemize}
-
-    \paragraph{F60. Temps de réflexion borné:} l'option '--ai-time TIME spécifie le temps de réflexion de l'algorithme de recherche.
-  \begin{itemize}
-    \item Spécifie une borne de temps à l'algorithme de recherche de l'IA. Cette valeur remplace la valeur par défaut.
-    \item La valeur par défaut du temps de réflexion est de 05 secondes.
-    \item Si le temps est écoulé avant que l'algorithme ne termine, le plateau 'le mieux évalué pour le moment' doit être renvoyé comme meilleur plateau.
-    \paragraph{Sous Besoins}
-    \item Nécessaire de garder le plateau 'le mieux évalué pour le moment' au cours de l'algorithme de recherche.
-    \item Nécessaire de tester le temps de réflexion restant à l'IA au cours de l'algorithme de recherche.
-  \end{itemize}
+  
+    \paragraph{F49. Affichage des coups joués}
+    \begin{itemize}
+        \item Les 5 derniers coups seront affichés en dessous du plateau à la fois pour l'affichage CLI et GUI.
+        \item Tester que l'historique affiche les coups correspondants dans le bon ordre.
+    \end{itemize}
+  
+  
+  
+  \subsection{Joueur artificiel}
+  
+  \subsubsection{Besoins fonctionnels}
+  
+    \paragraph{F51/F57. Heuristique d'évaluation de position + Choix des heuristiques}
+    \begin{itemize}
+        \item Le jeu aura une heuristique qui pourra prendre plus ou moins de paramètres en compte afin d'avoir un choix du niveau de difficulté de l'heuristique.
+        \item Tester que la fonction heuristique sélectionnée renvoit le score d'évaluation anticipé pour un board donné.
+    \end{itemize}
+  
+      \paragraph{F52. Algorithme de recherche MiniMax:}
+    \begin{itemize}
+      \item Option utilisée par défaut par l'IA lorsque le jeu est lancé en mode IA.
+      \item Une profondeur maximale pour l'arbre de recherche utilisé sera définie par défaut.
+      \paragraph{Sous Besoins}
+      \item Nécessite au moins une fonction d'heuristique d'évaluation d'un plateau.
+      \item Tester que la fonction Minimax renvoit le meilleur coup théorique pour une profondeur et un board donné.
+    \end{itemize}
+  
+      \paragraph{F53. $\alpha\beta$-pruning}
+      \begin{itemize}
+          \item En plus de l'algorithme Minimax, on pourra utiliser de l'$\alpha\beta$-pruning qui pourra remplacer minimax pour le joueur artificiel.
+          \item Idem que la fonction Minimax : Tester la fonction $\alpha\beta$ et vérifier si elle renvoit le meilleur coup théorique pour un board et profondeur donnée.
+      \end{itemize}
+  
+      \paragraph{F54. Exploration peu profonde préliminaire:} L'option '--ia-shallow' active une exploration préliminaire de l'arbre de recherche, et ordonne les coups selon leur priorité
+    \begin{itemize}
+      \item Effectue un tri des plateaux évalués.
+      \item L'arbre de recherche trié sera utilisé pour déterminer le meilleur coup plus rapidement.
+      \item Vérifier que l'$\alpha\beta$-pruning trouve le meilleur coup théorique en un meilleur temps avec l'option '--ai-shallow' que la même fonction sans l'option active.
+    \end{itemize}
+  
+      \paragraph{F56. Profondeur de recherche:} L'option '--ai-depth DEPTH' spécifiera une profondeur maximale.
+    \begin{itemize}
+      \item La profondeur spécifiée remplacera la profondeur par défaut.
+      \item Si la profondeur spécifiée est trop large, la profondeur utilisée sera la valeur de la borne haute calculée.
+      \paragraph{Sous Besoins}
+      \item Borner la profondeur par une valeur large, mais pas assez large pour prendre trop de temps.
+      \item Nécessite de calculer/tester sur des grandes valeurs les performances de l'ia.
+      \item Tester que la fonction sélectionnée (Minimax ou $\alpha\beta$-pruning) trouve le coup théorique correspondant à la profondeur demandée.
+    \end{itemize}
+  
+      \paragraph{F58. Calcul des libertés:}
+    \begin{itemize}
+      \item Utilisation de l'opération de dilatation sur les bitboards.
+      \item Calcul des cases vides en contact avec un pion du joueur courant.
+      \item Tester que la fonction calcule le bon degré de liberté d'une pierre donnée.
+    \end{itemize}
+  
+      \paragraph{F60. Temps de réflexion borné:} l'option '--ai-time TIME spécifie le temps de réflexion de l'algorithme de recherche.
+    \begin{itemize}
+      \item Spécifie une borne de temps à l'algorithme de recherche de l'IA. Cette valeur remplace la valeur par défaut.
+      \item La valeur par défaut du temps de réflexion est de 05 secondes.
+      \item Si le temps est écoulé avant que l'algorithme ne termine, le plateau 'le mieux évalué pour le moment' doit être renvoyé comme meilleur plateau.
+      \paragraph{Sous Besoins}
+      \item Nécessaire de garder le plateau 'le mieux évalué pour le moment' au cours de l'algorithme de recherche.
+      \item Nécessaire de tester le temps de réflexion restant à l'IA au cours de l'algorithme de recherche.
+      \item Tester que la fonction sélectionnée (Minimax ou $\alpha\beta$-pruning) trouve le meilleur coup en un temps déterminé.
+    \end{itemize}
 
 
 \newpage
