@@ -285,6 +285,7 @@
           \item Le plateau de jeu en ASCII (F27)
           \item Les 5 derniers coups joués
           \item Un invite pour que l'utilisateur puisse effectuer des actions
+          \item Pour tester ce besoin, nous allons simplement comparer l'affichage sur la sortie standard d'états de jeu prédéfinis en utilisant le module "capsys".
       \end{itemize}
   \end{itemize}
 
@@ -299,6 +300,8 @@
           \item "sh" pour sauvegarder l'historique de la partie
           \item "ff" pour abandonner la partie (une confirmation sera demandée sous la forme [Y/N])
           \item "restart" pour relancer la partie dans les même conditions
+          \item Le parser prendra une string et renverra une instance de l'enum "Command" paramétrée qui sera ensuite interprétée par le contrôlleur.
+          \item Pour tester ce besoin, nous allons passer des chaînes de caractère à la fonction parse et regarder quelle en est la Command résultante.
       \end{itemize}
   \end{itemize}
 
@@ -307,11 +310,15 @@
     \item L'interface graphique affichera le plateau de jeu.
     \item L'interface graphique affichera un historique des coups joués.
     \item L'interface graphique affichera le joueur dont c'est le tour de jouer.
+    \item Si l'option est passée en argument, c'est le main qui se chargera d'instancier une interface graphique en plus de l'interface CLI
+    \item Pour tester ce besoin, nous vérifierons que l'objet de configuration assigne la bonne valeur au paramètre représentant l'affichage de la GUI.
   \end{itemize}
 
     \paragraph{F29. Représentation de l'historique}
   \begin{itemize}
     \item L'historique affichera les 5 derniers coups joués sous le format:\\ "\{numéro de tour\} X \{coup\} O \{coup\}"
+    \item L'historique sera géré par une liste python dans le contrôlleur du jeu.
+    \item Pour tester ce besoin, nous préparerons des parties dans un état prédéfini et compareront l'état de la liste du contrôlleur avec la valeur que nous en attendons.
   \end{itemize}
 
     \paragraph{F30. Abandon:} Le joueur peut abandonner une partie en cours de jeu.
@@ -319,6 +326,8 @@
     \item Dans le terminal de commande, le joueur pourra abandonner une partie en entrant 'ff'.
     \item Une question sera posée au joueur pour qu'il vérifie l'action avec [Y/N].
     \item L'abandon donne la victoire au joueur adverse, puis quitte la partie.
+    \item Cela se traduira en l'arrêt de la boucle de jeu dans le main
+    \item Pour tester ce besoin, nous appelerons la fonction d'abandon et nous regarderons si l'état du jeu a bien changé. La boucle se basant sur l'état du jeu pour savoir si une partie est finie où non cela sera suffisant.
   \end{itemize}
 
   \paragraph{F31. Affichage des messages}
@@ -326,6 +335,7 @@
       \item En mode CLI, les messages seront affichés dans la console. Ils seront forcément en dessous de l'organisation décrite dans le paragraphe F25.
       \item En mode GUI, les message s'afficheront dans un label en bas de l'écran.
       \item Les messages seront des messages informatifs pour l'utilisateur, lui signifiant une erreur d'utilisation et éventuellement des messages de debug si l'option est activée.
+      \item Pour tester l'affichage des messages, nous testerons à différents niveaux d'affichage (normal / debug) si l'envoi de messages résulte bel et bien en l'ajout de messages à la liste des messages gérés par le jeu.
   \end{itemize}
 
     \paragraph{F32. Quitter et Sauvegarder une partie:} Le joueur peut quitter une partie en cours de jeu.
@@ -333,18 +343,21 @@
     \item Dans le terminal de commande, le joueur pourra sauvegarder puis quitter une partie en entrant 'Q' puis en confirmant ou non avec [Y/N].
     \item Une sauvegarde du jeu dans son dernier état sera faite, puis la partie sera quittée.
     \item Le joueur sera notifié de l'emplacement de fichier dans lequel la partie a été sauvegardée.
+    \item Pour tester ce besoin, nous placerons le jeu dans un état donné, lanceront manuellement (en appelant les fonctions de save) une sauvegarde puis chargerons les fichiers résultants et vérifierons leur conformité en les comparant à la valeur attendue.
   \end{itemize}
 
   \paragraph{F33. Sauvegarde de l'historique}
   \begin{itemize}
       \item Dans le terminal de commande, le joueur pourra l'historique de la partie en tapant "sh".
       \item Dans l'interface graphique, le joueur aura un bouton pour sauvegarder l'historique de la partie.
+      \item Pour tester ce besoin, nous jouerons un certain nombre de coups dans le test de manière programmatique pour ensuite exporter une sauvegarde et vérifier qu'elle est conforme à nos attentes.
   \end{itemize}
 
   \paragraph{F35. Recommencer une partie}
   \begin{itemize}
       \item Dans le terminal, le joueur pourra recommencer une partie en tapant "restart". Il lui sera demandé une confirmation.
       \item Dans l'interface graphique, le joueur aura un bouton restart. Il lui sera demandé une confirmation.
+      \item Pour tester ce besoins, nous partirons d'un état donné, lancerons un restart et vérifierons que l'état du jeu a bien été réinitialisé.
   \end{itemize}
 
     \paragraph{F36. Fin de partie:} Le programme doit détecter une fin de partie.
@@ -352,6 +365,7 @@
     \item La partie se termine si aucun pion ne peut être posé sur l'othellier.
     \item La partie se termine si aucun des deux joueurs ne peut captuere de pions adverses en posant un pion.
     \item Le gagnant est le joueur ayant le plus de pions sur l'othellier. Dans le cas où les deux jouaurs auraient le même nombre de points, la partie se termine en une égalité.
+    \item Pour tester ce besoin, nous préparerons des parties à un coup de la fin de partie, jouerons le coup et vérifierons que la partie est bien dans un état terminé.
   \end{itemize}
 
 \subsubsection{Besoins non fonctionnels}
@@ -362,8 +376,6 @@
     \item Si le coup n'est pas valide, on le notifie au joueur et demande un autre coup.
     \item S'il n'y a pas de coups possibles pour le joueur courant, on le notifie au joueur, et son tour sera passé.
   \end{itemize}
-
-
 
 \subsection{Formats d'entrée - sortie}
 
