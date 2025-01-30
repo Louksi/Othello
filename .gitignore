@@ -17,6 +17,7 @@
 !othello/
 !reports/
 !reports/preliminary
+!reports/preliminary/Othello-Python.pdf
 !reports/preliminary/images
 !reports/preliminary/images/*.jpg
 !reports/preliminary/images/*.jpeg
