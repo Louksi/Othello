@@ -31,12 +31,12 @@
   Comme nous n'avons pas réellement de clients avec qui discuter de l'implémentation, nous avons été remis un cahier des charges listant des besoins généraux qu'il nous faudra décomposer en besoins plus spécifiques.\\
 
   Pour ce projet, nous allons travailler en Python sur le jeu de plateau Othello.\\
-  Othello (ou Reversi) (Othello est une marque déposée) se joue à deux joueurs, sur un plateau carré de 8x8 cases.\\
+  Othello, que l'on peut trouver également sous le nom Reversi - Othello étant une marque déposée, se joue à deux joueurs sur un plateau carré de 8x8 cases.\\
   Chaque joueur possède des pions de couleur blanche ou noire.\\
   Notre but ici sera d'implémenter ce jeu en langage python, et de donner une interface graphique et des commandes additionnelles à l'utilisateur.\\
 
 
-\newpage
+
 \section{Description du Projet}
 \subsection{Règles du jeu}
 
@@ -76,24 +76,30 @@
   Nous prévoyons pour le moment d'utiliser cinq bitboards, un représentant le board full qui sera un masque de $taille*taille$ bits, avec $taille$ la taille du plateau (et par extension le board vide en flippant les bits) un pour les pions noirs et un pour les pions blancs. Nous utiliserons également deux masques pour éviter les effets de bord liés aux décalages à droite et à gauche du plateau.\\
   Ces bitboards seront stockées dans des tuples.\\
   Les tuples des coups joués et de l'état du board seront stockés dans une pile.\\
-  Les parties et l'historique des coups seront sauvegardées dans des fichiers différents, en format ASCII, et de la forme suivante:\\ (insérer img/dessin de notre format de sauvegarde pour les deux fichiers)\\
+  Les parties et l'historique des coups seront sauvegardées dans des fichiers différents, en format ASCII, et de la forme suivante:\\
+  % \begin{figure}[H]
+  %   \centering
+  %   \includegraphics[width=1\linewidth]{images/blablabla.jpg}
+  %   \caption{BLABLABLA}
+  %   \label{fig:enter-label}
+  % \end{figure}
 
 
 \subsection{Algorithmes utilisés}
 
   Pour la partie Calcul des coups, nous prévoyons d'utiliser l'algorithme Line Cap Moves, présenté dans \textit{Bitboard Methods for Games, par Cameron Browne}:\\
-  Cet algorithme permet de générer un ensemble de coups possibles dans une direction. C'est-à-dire, donner les emplacements pour lesquels le joueur courant pourrait capturer des pions adverses dans une direction à la fois.\\
+  Cet algorithme permet de générer un ensemble de coups possibles dans chaque direction. C'est-à-dire, donner les emplacements pour lesquels le joueur courant pourrait capturer des pions adverses dans une direction à la fois.\\
   D'abord un ensemble de coups vide est créé, puis on itère sur toutes les directions: Nord, Nord-Est, Est, Sud-Est, Sud, Sud-West, West, Nord-West.\\
   Ensuite, on génère un ensemble de cases 'candidates' par intersection entre les pions ennemis, et les pions amis shift de 1 sur la direction courante.\\
   Tant que cet ensemble de cases n'est pas vide, on effectue les opérations suivantes:\\
-  L'ensemble de coups est actualisé en ajoutant l'intersection entre l'ensemble vide, et les cases 'candidates' shift de 1 dans la direction. Puis l'ensemble des cases 'candidates' est réécrit en l'intersection entre les pions adverses, et lui-même shift de 1 dans la direction courante.\\
+  L'ensemble de coups est actualisé en ajoutant l'intersection entre l'ensemble vide, et les cases 'candidates' shift de 1 dans la direction. Puis l'ensemble des cases 'candidates' est réécrit en l'intersection entre lui-même shift de 1 dans la direction courante, et les pions adverses.\\
   Lorsque l'ensemble de cases 'candidates' est vide, on peut changer de direction et recommencer. Et quand toutes les directions ont été explorées, l'ensemble de coups contient tous les coups possibles et légaux.\\
 
 
   Afin de changer les pions capturés dans la couleur du joueur courant, nous avons créé un algorithme en se basant sur l'algorithme Line Cap Moves ci-dessus.\\
-  En partant de la case sur laquelle le dernier pion a été placé, on se déplace sur tous les pions ennemi en les retournant pour changer leur couleur.\\
+  En partant de la case sur laquelle le dernier pion a été placé, on se déplace sur tous les pions ennemis en les retournant pour changer leur couleur.\\
   Tout d'abord, on récupère le dernier pion placé par le joueur courant, puis on itère dans toutes les directions: Nord, Nord-Est, Est, Sud-Est, Sud, Sud-West, West, Nord-West.\\
-  On shift le pion de 1 dans la direction courante\\
+  On shift le pion de 1 dans la direction courante, le pion est donc un pion maintenant Ennemi.\\
   Tant que le pion n'est pas un pion Ami (pion de la couleur du joueur courant), on effectue les opérations suivantes:\\
   Le pion est changé de Ennemi à Ami: on retourne le pion pour que sa couleur soit celle du joueur courant.\\
   Puis on shift le pion de 1 dans la direction courante.\\
@@ -130,7 +136,7 @@
 
   \paragraph{F1. Langage de programmation:}
   \begin{itemize}
-    \item Développer le logiciel en langage Python 3.7+
+    \item Développer le logiciel en langage Python 3.7+.
   \end{itemize}
 
   \paragraph{F2. Style de codage:}
@@ -139,7 +145,7 @@
     \item L'utilisation de pre-commit hooks permettra de s'assurer du respect de ce style de codage.
   \end{itemize}
 
-  \paragraph{F3. langue par défaut du code}
+  \paragraph{F3. Langue par défaut du code}
   \begin{itemize}
     \item Le code ainsi que les fichiers seront écrits et commentés en langue anglaise.
   \end{itemize}
@@ -148,8 +154,8 @@
   Le programme devra fonctionner sur des systèmes d’exploitation GNU/Linux.
   \begin{itemize}
     \item Développer le logiciel sous une distribution Linux.
-    \item Tester sous une distribution linux debian et une distribution ubuntu.
-    \item Sur un système debian récent, il sera nécessaire de passer par un environnement virtuel car l'intégration de python rend compliqué voir impossible l'installation de modules python sur l'environnement par défaut.
+    \item Tester sous une distribution Linux Debian et une distribution Ubuntu.
+    \item Sur un système Debian récent, il sera nécessaire de passer par un environnement virtuel car l'intégration de python rend compliqué voir impossible l'installation de modules python sur l'environnement par défaut.
   \end{itemize}
 
   \paragraph{F5. Documentation:}
@@ -159,18 +165,18 @@
 
   \paragraph{F6. Tests:}
   \begin{itemize}
-    \item Les tests couvriront au moins 80\% du code
+    \item Les tests couvriront au moins 80\% du code.
     \item Tous les tests seront automatisés. Le coverage sera également intégré à la pipeline CI gitlab.
   \end{itemize}
 
-  \paragraph{F7. bugs:}
+  \paragraph{F7. Bugs:}
   \begin{itemize}
     \item Dans la mesure du possible, nous ferons en sorte de n'avoir aucun bug qui ferait crash notre implémentation.
   \end{itemize}
 
   \paragraph{F8. Performances:}
   \begin{itemize}
-    \item Les performances seront mesurées en temps, en utilisant le module python timeit. Pour le temps d'un coup joué, le temps d'un.
+    \item Les performances seront mesurées en temps, en utilisant le module python timeit.
   \end{itemize}
 
 
@@ -180,7 +186,7 @@
 
   \paragraph{F11. Gestion des options:}
   \begin{itemize}
-    \item Les options en lignes de commandes seront gérées par le module argparse qui une fois proprement configuré par le code construit un objet contenant les arguments.
+    \item Les options en lignes de commandes seront gérées par le module argparse qui, une fois proprement configuré par le code, construit un objet contenant les arguments.
     \item Les arguments passés au programme prendront systématiquement la priorité sur les paramètres définit dans le fichier de configuration othello qui lui même aura la priorité sur les paramètres par défaut.
   \end{itemize}
 
@@ -193,12 +199,12 @@
 
   \paragraph{F10. Framework de tests:}
   \begin{itemize}
-    \item nous utiliserons le framework de test Pytest ainsi que Coverage.
+    \item Nous utiliserons le framework de test Pytest ainsi que Coverage.
   \end{itemize}
 
   \paragraph{F12. Bibliothèque graphique:}
   \begin{itemize}
-    \item La bibliothèque graphique utilisée sera basée sur PyGObjet
+    \item La bibliothèque graphique utilisée sera basée sur PyGObjet.
   \end{itemize}
 
 
@@ -206,62 +212,62 @@
 
 \subsubsection{Besoins fonctionnels}
 
-  \paragraph{F15. usage général:}
+  \paragraph{F15. Usage général:}
   \begin{itemize}
-    \item Pour l'interface en ligne de commande, nous utiliserons les outils offerts par l'API de python (input, print...)
+    \item Pour l'interface en ligne de commande, nous utiliserons les outils offerts par l'API de python (input, print...).
     \item Nous utiliserons la bibliothèque graphique PyGObject, un portage python de la librairie GLib Object System, une librairie portée par le projet GNOME à la base de librairies graphiques telles que GTK.
     \paragraph{Sous Besoins:}
     \item Nous aurons besoins d'utiliser différentes classes offertes par la librairie afin de gérer l'affichage de la fenêtre principale afin d'afficher la fenêtre, le board, l'historique ainsi que quelques boutons et pop-up de confirmation.
   \end{itemize}
 
-  \paragraph{F16. Aide en ligne de commande:} Les options '-h' et '--help' affichent l'aide puis quittent
+  \paragraph{F16. Aide en ligne de commande:} Les options '-h' et '--help' affichent l'aide puis quittent.
   \begin{itemize}
-    \item Tester que les deux commandes affichent bien l'aide
-    \item Tester que pour les deux terminent bien avec EXIT\_SUCCESS
+    \item Tester que les deux commandes affichent bien l'aide.
+    \item Tester que pour les deux terminent bien avec EXIT\_SUCCESS.
   \end{itemize}
 
-  \paragraph{F17. Version:} Les options '-V' et '--version' affichent la version puis quittent
+  \paragraph{F17. Version:} Les options '-V' et '--version' affichent la version puis quittent.
   \begin{itemize}
-    \item Tester que les deux commandes affichent bien la version
-    \item Tester que pour les deux terminent bien avec EXIT\_SUCCESS
+    \item Tester que les deux commandes affichent bien la version.
+    \item Tester que les deux commandes terminent bien avec EXIT\_SUCCESS.
   \end{itemize}
 
     \paragraph{F19. Debug:} Les options '-d' et '--debug' affichent des informations de debogage pendant l'exécution.
   \begin{itemize}
-    \item Affichage des informations supplémentaires au cours de la partie
+    \item Affichage des informations supplémentaires au cours de la partie.
   \end{itemize}
 
-    \paragraph{F21. Blitz:} Les options '-b' et '-blitz' Permettent de jouer en mode blitz
+    \paragraph{F21. Blitz:} Les options '-b' et '-blitz' permettent de jouer en mode blitz.
   \begin{itemize}
     \item Un temps limite sera imposé au joueur pour la partie. Le temps écoulé donnera la victoire au joueur adverse.
   \end{itemize}
 
-    \paragraph{F22. Durée du Blitz:} Les options '-t TIME' et '-time TIME' Permettent de spécifier la durée fixée pour chaque coup en mode Blitz
+    \paragraph{F22. Durée du Blitz:} Les options '-t TIME' et '-time TIME' Permettent de spécifier la durée fixée pour chaque coup en mode Blitz.
   \begin{itemize}
-    \item Si l'option est utilisée sans l'option Mode Blitz, elle sera ignorée
+    \item Si l'option est utilisée sans l'option Mode Blitz, elle sera ignorée.
     \item Par défaut, la durée limite sera de 30 minutes.
     \paragraph{Sous Besoins}
     \item Le mode Blitz devra être implémenté.
   \end{itemize}
 
-    \paragraph{F23. Contest:} Les options '-c FILENAME' et '-contest FILENAME' Permettent de charger une partie
+    \paragraph{F23. Contest:} Les options '-c FILENAME' et '-contest FILENAME' Permettent de charger une partie.
   \begin{itemize}
     \item Un affichage du joueur et du coup précédent joué.
   \end{itemize}
 
   \paragraph{F24. Mode IA:}
   \begin{itemize}
-    \item Possibilité de lancer contre une intelligence artificielle. On pourra éventuellement préciser la ou les couleurs contrôlées par IA. Par défaut elle contrôlera le joueur noir.
+    \item Possibilité de lancer une partie contre une intelligence artificielle. On pourra éventuellement préciser la ou les couleurs contrôlées par IA. Par défaut elle contrôlera le joueur aux pions noirs.
   \end{itemize}
 
 \subsubsection{Besoins non fonctionnels}
 
   \paragraph{F14. Nom du programme:}
   \begin{itemize}
-    \item l'exec principal s'appellera 'othello'
-    \item et lancera tout le programme
+    \item l'exec principal s'appellera 'othello'.
+    \item et lancera tout le programme.
     \paragraph{Sous Besoins:}
-    \item Afin de lancer le programme, nous aurons besoin d'un environnement virtuel
+    \item Afin de lancer le programme, nous aurons besoin d'un environnement virtuel.
   \end{itemize}
 
 
@@ -273,7 +279,7 @@
   \begin{itemize}
       \item L'affichage se fera toujours à minima dans le terminal.
       \item Au lancement, les informations respectives de la partie - issues soit des fichiers de configuration soit des paramètres passés à l'exécutable - seront rappelées.
-      \item Pour chaque tours, nous afficherons de haut en bas:
+      \item Pour chaque tour, nous afficherons de haut en bas:
       \begin{itemize}
           \item L'en tête d'un tour rappelant le type de partie (Joueur vs Joueur, IA vs Joueur, IA vs IA) ainsi que le mode de jeu (normal, blitz ou contest).
           \item Si la partie est en mode blitz, le temps restant pour chaque joueur (F27)
@@ -285,34 +291,34 @@
 
   \paragraph{F25 Bis. Invite de commande}
   \begin{itemize}
-      \item Pour effectuer une action en mode CLI, l'utilisateur sera invité à rentrer une commande parmis
+      \item Pour effectuer une action en mode CLI, l'utilisateur sera invité à rentrer une commande parmi :
       \begin{itemize}
           \item "?", qui lui rappelera les commandes possibles
           \item "r" qui lui rappelera les règles du jeu
           \item Un coup sous la forme "[a-h][1-8]"
           \item "s" pour sauvearder et quitter la partie (une confirmation sera demandée sous la forme [Y/N])
           \item "sh" pour sauvegarder l'historique de la partie
-          \item "ff" pour abandonner la partie (une confirmation sera demandée sous la forme [Y/N]
+          \item "ff" pour abandonner la partie (une confirmation sera demandée sous la forme [Y/N])
           \item "restart" pour relancer la partie dans les même conditions
       \end{itemize}
   \end{itemize}
 
-  \paragraph{F26. Interface graphique:} Les options '-g' et '--gui' permettront d'ouvrir une interface graphique
+  \paragraph{F26. Interface graphique:} Les options '-g' et '--gui' permettront d'ouvrir une interface graphique.
   \begin{itemize}
-    \item L'interface graphique affichera le plateau de jeu
-    \item L'interface graphique affichera un historique des coups joués
-    \item L'interface graphique affichera le joueur dont c'est le tour de jouer
+    \item L'interface graphique affichera le plateau de jeu.
+    \item L'interface graphique affichera un historique des coups joués.
+    \item L'interface graphique affichera le joueur dont c'est le tour de jouer.
   \end{itemize}
 
     \paragraph{F29. Représentation de l'historique}
   \begin{itemize}
-    \item L'historique affichera les 5 derniers coups joués sous le format "{numéro de tour} X {coup} O {coup}"
+    \item L'historique affichera les 5 derniers coups joués sous le format:\\ "\{numéro de tour\} X \{coup\} O \{coup\}"
   \end{itemize}
 
     \paragraph{F30. Abandon:} Le joueur peut abandonner une partie en cours de jeu.
   \begin{itemize}
     \item Dans le terminal de commande, le joueur pourra abandonner une partie en entrant 'ff'.
-    \item Une question sera posée au joueur pour qu'il vérifie l'action
+    \item Une question sera posée au joueur pour qu'il vérifie l'action avec [Y/N].
     \item L'abandon donne la victoire au joueur adverse, puis quitte la partie.
   \end{itemize}
 
@@ -320,12 +326,12 @@
   \begin{itemize}
       \item En mode CLI, les messages seront affichés dans la console. Ils seront forcément en dessous de l'organisation décrite dans le paragraphe F25.
       \item En mode GUI, les message s'afficheront dans un label en bas de l'écran.
-      \item les messages seront des messages informatifs pour l'utilisateur, lui signifiant une erreur d'utilisation et éventuellement des messages de debug si l'option est activée
+      \item Les messages seront des messages informatifs pour l'utilisateur, lui signifiant une erreur d'utilisation et éventuellement des messages de debug si l'option est activée.
   \end{itemize}
 
     \paragraph{F32. Quitter et Sauvegarder une partie:} Le joueur peut quitter une partie en cours de jeu.
   \begin{itemize}
-    \item Dans le terminal de commande, le joueur pourra sauvegarder puis quitter une partie en entrant 'Q' puis en confirmant ou non avec [Y/N]
+    \item Dans le terminal de commande, le joueur pourra sauvegarder puis quitter une partie en entrant 'Q' puis en confirmant ou non avec [Y/N].
     \item Une sauvegarde du jeu dans son dernier état sera faite, puis la partie sera quittée.
     \item Le joueur sera notifié de l'emplacement de fichier dans lequel la partie a été sauvegardée.
   \end{itemize}
@@ -342,19 +348,20 @@
       \item Dans l'interface graphique, le joueur aura un bouton restart. Il lui sera demandé une confirmation.
   \end{itemize}
 
-    \paragraph{F36. Fin de partie:} Le programme doit détecter une fin de partie
+    \paragraph{F36. Fin de partie:} Le programme doit détecter une fin de partie.
   \begin{itemize}
-    \item La partie se termine si aucun pion ne peut être posé sur l'othellier
-    \item La partie se termine si aucun des deux joueurs ne peut captuere de pions adverses en posant un pion
-    \item Le gagnant est le joueur ayant le plus de pions sur l'othellier
+    \item La partie se termine si aucun pion ne peut être posé sur l'othellier.
+    \item La partie se termine si aucun des deux joueurs ne peut captuere de pions adverses en posant un pion.
+    \item Le gagnant est le joueur ayant le plus de pions sur l'othellier. Dans le cas où les deux jouaurs auraient le même nombre de points, la partie se termine en une égalité.
   \end{itemize}
 
 \subsubsection{Besoins non fonctionnels}
 
     \paragraph{F28. Notation des coups:}
   \begin{itemize}
-    \item Un coup sera noté sous la forme: [a-h][1-8]
-    \item Si le coup n'est pas valide, on le notifie au joueur et demande un autre coup
+    \item Un coup sera noté sous la forme: [a-h][1-8].
+    \item Si le coup n'est pas valide, on le notifie au joueur et demande un autre coup.
+    \item S'il n'y a pas de coups possibles pour le joueur courant, on le notifie au joueur, et son tour sera passé.
   \end{itemize}
 
 
@@ -363,25 +370,25 @@
 
 \subsubsection{Besoins non fonctionnels}
 
-    \paragraph{F38. Format de fichier simplifié:} Les fichiers de partie seront en format ASCII simplifié
+    \paragraph{F38. Format de fichier simplifié:} Les fichiers de partie seront en format ASCII simplifié.
   \begin{itemize}
-    \item Les fichiers contiendront la sauvegarde d'une partie de jeu
-    \item Les fichiers pourront être chargés afin de reprendre la partie depuis l'état décrit dans le fichier
-    \item Le fichier de sauvegarde contiendra le mode de jeu, le temps de jeu restant à chaque joueur, le joueur courant, l'état du plateau, l'historique des cinq (ou moins si moins de cinq coups ont été joués avant la sauvegarde) derniers coups joués,
+    \item Les fichiers contiendront la sauvegarde d'une partie de jeu.
+    \item Les fichiers pourront être chargés afin de reprendre la partie depuis l'état décrit dans le fichier.
+    \item Le fichier de sauvegarde contiendra le mode de jeu, le temps de jeu restant à chaque joueur, le joueur courant, l'état du plateau, l'historique des cinq (ou moins si moins de cinq coups ont été joués avant la sauvegarde) derniers coups joués.
   \end{itemize}
 
     \paragraph{F39. Format de l'historique}
   \begin{itemize}
-      \item La sauvegarde se fera au travers de fichiers .othelloc
+      \item La sauvegarde se fera au travers de fichiers .othelloc.
       \item Il ne contiendra que les coups joués et d'éventuels commentaires et ne permettra pas de reprendre une partie.
   \end{itemize}
 
-  \paragraph{F40. Fichier de configuration:} Un fichier .othellorc contiendra les options utilisées dans une partie
+  \paragraph{F40. Fichier de configuration:} Un fichier .othellorc contiendra les options utilisées dans une partie.
   \begin{itemize}
-    \item les options indiquées seront utilisées par défaut dans le jeu
-    \item si des options sont passées en ligne de commande, elles remplaceront les options par défaut du fichier de configuration
-    \item le fichier sera au format INI
-    \item Le fichier définira les options par défaut pour le lancement d'une partie simple: pas d'ia, pas de mode blitz ni contest, plateau de taille réglementaire
+    \item Les options indiquées seront utilisées par défaut dans le jeu.
+    \item Si des options sont passées en ligne de commande, elles remplaceront les options par défaut du fichier de configuration.
+    \item Le fichier sera au format INI.
+    \item Le fichier définira les options par défaut pour le lancement d'une partie simple: pas d'ia, pas de mode blitz ni contest, plateau de taille réglementaire.
   \end{itemize}
 
 
@@ -389,7 +396,7 @@
 
 \subsubsection{Besoins fonctionnels}
 
-  \paragraph{F41.}
+  \paragraph{F41. Plateau de jeu:}
   \begin{itemize}
       \item Le plateau de jeu sera représenté en utilisant des bitboard.
       \item Nous aurons deux bitboard représentant les pions des joueurs.
@@ -398,8 +405,8 @@
 
     \paragraph{F42. Module Bitboard:}
   \begin{itemize}
-    \item Le module Bitboard sera utilisé afin de représenter le plateau de jeu
-    \item Deux masques seront utilisés pour représenter les pions de chaque couleurs
+    \item Le module Bitboard sera utilisé afin de représenter le plateau de jeu.
+    \item Deux masques seront utilisés pour représenter les pions de chaque couleurs.
     \item Deux masques seront utilisés pour représenter les colonnes de droite et gauche, afin de gérer les cas de wrapping.
   \end{itemize}
 
@@ -407,10 +414,10 @@
   \begin{itemize}
       \item L'état courant du jeu se chargera de garder:
       \begin{itemize}
-          \item Le joueur courant
-          \item Le temps restant à jouer si le mode de jeu est blitz
-          \item L'état du plateau qui sera géré par une implémentation d'un plateau d'othello utilisant des bitboard
-          \item L'historique des coups joués
+          \item Le joueur courant.
+          \item Le temps restant à jouer si le mode de jeu est blitz.
+          \item L'état du plateau qui sera géré par une implémentation d'un plateau d'othello utilisant des bitboard.
+          \item L'historique des coups joués.
       \end{itemize}
   \end{itemize}
 
@@ -421,15 +428,15 @@
 
     \paragraph{F44. Fonctions de base:}
   \begin{itemize}
-    \item L'interface graphique devra permettre au joueur d'utiliser toutes les fonctionnalités présentes dans l'interface en ligne de commande
-    \item les coups devront être joués en plaçant un pion sur le plateau affiché
-    \item un historique des derniers coups sera présent sur l'ui
+    \item L'interface graphique devra permettre au joueur d'utiliser toutes les fonctionnalités présentes dans l'interface en ligne de commande.
+    \item Les coups devront être joués en plaçant un pion sur le plateau affiché.
+    \item Un historique des derniers coups sera présent sur l'ui.
     \paragraph{Sous Besoins}
-    \item Nécessite une interface graphique (F26.)
-    \item Afficher un plateau sur l'UI
-    \item Afficher les pions sur le plateau
-    \item Afficher le joueur courant
-    \item Afficher les cinq (ou moins) derniers coups joués
+    \item Nécessite une interface graphique (F26.).
+    \item Afficher un plateau sur l'UI.
+    \item Afficher les pions sur le plateau.
+    \item Afficher le joueur courant.
+    \item Afficher les cinq (ou moins) derniers coups joués.
   \end{itemize}
 
   \paragraph{F49. Affichage des coups joués}
@@ -450,10 +457,10 @@
 
     \paragraph{F52. Algorithme de recherche MiniMax:}
   \begin{itemize}
-    \item Option utilisée par défaut par l'IA lorsque le jeu est lancé en mode IA
-    \item Une profondeur maximale pour l'arbre de recherche utilisé sera définie par défaut
+    \item Option utilisée par défaut par l'IA lorsque le jeu est lancé en mode IA.
+    \item Une profondeur maximale pour l'arbre de recherche utilisé sera définie par défaut.
     \paragraph{Sous Besoins}
-    \item Nécessite au moins une fonction d'heuristique d'évaluation d'un plateau
+    \item Nécessite au moins une fonction d'heuristique d'évaluation d'un plateau.
   \end{itemize}
 
     \paragraph{F53. $\alpha\beta$-pruning}
@@ -463,53 +470,56 @@
 
     \paragraph{F54. Exploration peu profonde préliminaire:} L'option '--ia-shallow' active une exploration préliminaire de l'arbre de recherche, et ordonne les coups selon leur priorité
   \begin{itemize}
-    \item effectue un tri des plateaux évalués
-    \item l'arbre de recherche trié sera utilisé pour déterminer le meilleur coup plus rapidement
+    \item Effectue un tri des plateaux évalués.
+    \item L'arbre de recherche trié sera utilisé pour déterminer le meilleur coup plus rapidement.
   \end{itemize}
 
-    \paragraph{F56. Profondeur de recherche:} L'option '--ai-depth DEPTH' spécifiera une profondeur maximale
+    \paragraph{F56. Profondeur de recherche:} L'option '--ai-depth DEPTH' spécifiera une profondeur maximale.
   \begin{itemize}
-    \item la profondeur spécifiée remplacera la profondeur par défaut
-    \item si la profondeur spécifiée est trop large, la profondeur utilisée sera la valeur de la borne haute calculée.
+    \item La profondeur spécifiée remplacera la profondeur par défaut.
+    \item Si la profondeur spécifiée est trop large, la profondeur utilisée sera la valeur de la borne haute calculée.
     \paragraph{Sous Besoins}
-    \item Borner la profondeur par une valeur large, mais pas assez large pour prendre trop de temps
+    \item Borner la profondeur par une valeur large, mais pas assez large pour prendre trop de temps.
     \item Nécessite de calculer/tester sur des grandes valeurs les performances de l'ia.
   \end{itemize}
 
     \paragraph{F58. Calcul des libertés:}
   \begin{itemize}
-    \item Utilisation de l'opération de dilatation sur les bitboards
-    \item Calcul des cases vides en contact avec un pion du joueur courant
+    \item Utilisation de l'opération de dilatation sur les bitboards.
+    \item Calcul des cases vides en contact avec un pion du joueur courant.
   \end{itemize}
 
-    \paragraph{F60. Temps de réflexion borné:} l'option '--ai-time TIME spécifie le temps de réflexion de l'algorithme de recherche
+    \paragraph{F60. Temps de réflexion borné:} l'option '--ai-time TIME spécifie le temps de réflexion de l'algorithme de recherche.
   \begin{itemize}
     \item Spécifie une borne de temps à l'algorithme de recherche de l'IA. Cette valeur remplace la valeur par défaut.
     \item La valeur par défaut du temps de réflexion est de 05 secondes.
-    \item si le temps est écoulé avant que l'algorithme ne termine, le plateau 'le mieux évalué pour le moment' doit être renvoyé comme meilleur plateau.
+    \item Si le temps est écoulé avant que l'algorithme ne termine, le plateau 'le mieux évalué pour le moment' doit être renvoyé comme meilleur plateau.
     \paragraph{Sous Besoins}
-    \item Nécessaire de garder le plateau 'le mieux évalué pour le moment' au cours de l'algorithme de recherche
-    \item Nécessaire de tester le temps de réflexion restant à l'IA au cours de l'algorithme de recherche
+    \item Nécessaire de garder le plateau 'le mieux évalué pour le moment' au cours de l'algorithme de recherche.
+    \item Nécessaire de tester le temps de réflexion restant à l'IA au cours de l'algorithme de recherche.
   \end{itemize}
 
 
+\newpage
 \section{Architecture}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\linewidth]{images/diag_classe.png}
+    \includegraphics[width=1\linewidth]{images/diag_classe.jpg}
     \caption{Diagramme de classe}
     \label{fig:enter-label}
 \end{figure}
 
-Trois modules principaux ressortent de cette architecture. Un module "othello\_logic" qui regroupe la logique de jeu d'Othello, les BitBoards utilisés, ainsi que quelques éléments tels qu'une Enum représentant la couleur du joueur en cours ou encore la représentation d'un coup. Un module "othello\_interfaces" qui interface la logique de jeu et le joueur, à la fois à travers trois contrôlleurs - un par mode de jeu - et également les vues de CLI (TUI) et GUI qui intéragissent directement avec le contrôlleur utilisé selon la configuration de la partie, et un module "ai" qui contient à la fois la logique des différentes IA implémentées ainsi que l'heuristique.\pagebreak
+Trois modules principaux ressortent de cette architecture.\\
+Un module "othello\_logic" qui regroupe la logique de jeu d'Othello, les BitBoards utilisés, ainsi que quelques éléments tels qu'une Enum représentant la couleur du joueur en cours ou encore la représentation d'un coup.\\
+Un module "othello\_interfaces" qui interface la logique de jeu et le joueur, à la fois à travers trois contrôlleurs - un par mode de jeu - et également les vues de CLI (TUI) et GUI qui intéragissent directement avec le contrôlleur utilisé selon la configuration de la partie, et un module "ai" qui contient à la fois la logique des différentes IA implémentées ainsi que l'heuristique.\pagebreak
 
-Un quatrième module ne figurant pas sur le diagramme mais étant implicit à la majorité des programmes sera le module définissant notamment le main. Il récupèrera le fichier de configuration si il existe, parsera les éventuels arguments avec argparse et instanciera le bon contrôlleur et les bonnes vues. Il contiendra également la boucle de jeu.
+Un quatrième module, ne figurant pas sur le diagramme mais étant implicit à la majorité des programmes, sera le module définissant notamment le main. Il récupèrera le fichier de configuration si il existe, parsera les éventuels arguments avec argparse et instanciera le bon contrôlleur et les bonnes vues. Il contiendra également la boucle de jeu.
 
 
 \section{Outils de gestion de projet}
 
   Du côté de la gestion de projet, nous utilisons GitLab comme dépôt de code, afin de pouvoir travailler à plusieurs sur différentes ou sur les mêmes fonctionnalités de manière efficace. De plus, nous allons utiliser une pipeline de CI gitlab nous permettant d'automatiser le lancement des tests et la vérification du coverage.\\
-  Notre utilisons un diagramme de Gantt pour suivre notre agenda prévisionnel   .\\
+  Notre utilisons un diagramme de Gantt pour suivre notre agenda prévisionnel.\\
   Et nous utilisons un tableau sur Miro pour brainstorm sur les besoins de notre projet.\\
 
 %\section{Architecture Préliminaire}
@@ -519,7 +529,6 @@ Un quatrième module ne figurant pas sur le diagramme mais étant implicit à la
 %    \item Diagramme d'architecture générale
 %\end{itemize}
 
-\newpage
 \section{Planification}
 %\subsection{Échéancier}
   Voici notre agenda prévisionnel jusqu'à notre première Milestone.\\
