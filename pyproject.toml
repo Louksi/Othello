@@ -1,43 +1,41 @@
-# https://setuptools.pypa.io/en/latest/userguide/quickstart.html
 [project]
-name = "Othello Python"
+name = "othello"
 description = "A great Othello Game"
 requires-python = ">=3.7"
-version = "0.0.1"
 authors = [
-    {name = "Matis Duval"}, 
-    {name = "Lucas Marques"}, 
-    {name = "Gabriel Tardiou"}, 
-    {name = "Lucas Zammit"}, 
+    {name = "Matis Duval"},
+    {name = "Lucas Marques"},
+    {name = "Gabriel Tardiou"},
+    {name = "Lucas Zammit"},
     {name = "Rémy Heuret"}
 ]
 readme = "README.md"
-dependencies = ["pycairo", "PyGObject"]
+dependencies = ["pycairo", "PyGObject", "importlib-metadata"]
+dynamic=["version"]
 
 [project.optional-dependencies]
 test = ["pytest", "pytest-cov", "coverage"]
 format = ["autopep8"]
 
-# https://setuptools.pypa.io/en/latest/userguide/dependency_management.html
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
-# https://setuptools.pypa.io/en/latest/userguide/package_discovery.html
-[tools.setuptools]
-packages = ["dummy"]
-package-dir = {"" = "src"}
+[tool.setuptools.dynamic]
+version = {attr = "othello.__version__"}
 
-[tool.pytest.ini_options]
-minversion = "6.0"
-testpaths = [
-    "test",
-]
+[tool.setuptools.packages.find]
+exclude = ["specs", "reports"]
+
+[pytest.ini_options]
 addopts = [
     "--import-mode=importlib",
-    "--cov=myproject",
+    "--cov=othello",
     "--cov-report=html",
     "--cov-report=term",
     "--cov-branch",
+]
+testpaths = [
+    "tests",
 ]
 

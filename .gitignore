@@ -16,6 +16,7 @@
 !specs/GanttChart.gantt
 
 !othello/
+!tests/
 !reports/
 !reports/preliminary
 !reports/preliminary/Othello-Python.pdf
@@ -31,3 +32,6 @@
 !reports/preliminary/report.tex
 !reports/preliminary/report1.tex
 !reports/preliminary/images/*
+
+!othello/**/*.py
+!tests/**/*.py
