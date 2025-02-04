@@ -3,6 +3,7 @@
 import pytest
 from othello.othello import main
 
+
 def test_main(capfd):
     """Test the hello world from main"""
     main()
