@@ -1,0 +1,43 @@
+# https://setuptools.pypa.io/en/latest/userguide/quickstart.html
+[project]
+name = "Othello Python"
+description = "A great Othello Game"
+requires-python = ">=3.7"
+version = "0.0.1"
+authors = [
+    {name = "Matis Duval"}, 
+    {name = "Lucas Marques"}, 
+    {name = "Gabriel Tardiou"}, 
+    {name = "Lucas Zammit"}, 
+    {name = "Rémy Heuret"}
+]
+readme = "README.md"
+dependencies = ["pycairo", "PyGObject"]
+
+[project.optional-dependencies]
+test = ["pytest", "pytest-cov", "coverage"]
+format = ["autopep8"]
+
+# https://setuptools.pypa.io/en/latest/userguide/dependency_management.html
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+# https://setuptools.pypa.io/en/latest/userguide/package_discovery.html
+[tools.setuptools]
+packages = ["dummy"]
+package-dir = {"" = "src"}
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+testpaths = [
+    "test",
+]
+addopts = [
+    "--import-mode=importlib",
+    "--cov=myproject",
+    "--cov-report=html",
+    "--cov-report=term",
+    "--cov-branch",
+]
+

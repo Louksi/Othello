@@ -4,6 +4,7 @@
 !.gitignore
 !.gitlab-ci.yml
 !.pre-commit-config.yaml
+!pyproject.toml
 
 
 !README.md
