@@ -13,7 +13,7 @@ pre-commit-job:
   stage: pre-commit
   before_script:
     - apt update
-    - apt install -y python3-lib2to3
+    - apt install -y python3-lib2to3 libgirepository1.0-dev gcc libcairo2-dev pkg-config python3-dev gir1.2-gtk-4.0
     - python -m pip install --upgrade pip
     - pip install pre-commit
   script:
