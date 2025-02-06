@@ -39,6 +39,7 @@ test-job:
   script:
     - coverage run -m pytest --junitxml=test_report.xml
     - coverage xml -o coverage_report.xml
+  coverage: '/TOTAL.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   artifacts:
     reports:
       coverage_report:
