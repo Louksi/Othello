@@ -35,3 +35,6 @@
 
 !othello/**/*.py
 !tests/**/*.py
+
+!docs/
+!docs/**
