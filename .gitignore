@@ -4,8 +4,6 @@
 !.gitignore
 !.gitlab-ci.yml
 !.pre-commit-config.yaml
-!pyproject.toml
-
 
 !README.md
 
@@ -16,7 +14,6 @@
 !specs/GanttChart.gantt
 
 !othello/
-!tests/
 !reports/
 !reports/preliminary
 !reports/preliminary/Othello-Python.pdf
@@ -26,15 +23,10 @@
 !reports/preliminary/images/*.png
 !reports/final
 
-!othello/.gitkeep
 !reports/final/.gitkeep
-!reports/preliminary/.gitkeep
 !reports/preliminary/report.tex
 !reports/preliminary/report1.tex
 !reports/preliminary/images/*
-
-!othello/**/*.py
-!tests/**/*.py
 
 !docs/
 !docs/**

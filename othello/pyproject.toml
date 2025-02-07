@@ -12,10 +12,11 @@ authors = [
 readme = "README.md"
 dependencies = ["pycairo", "PyGObject", "importlib-metadata",
                 "sphinx", "sphinx_rtd_theme",
-                "pytest", "pytest-cov", "coverage", "autopep8"]
-dynamic=["version"]
+                "pytest", "pytest-cov", "coverage", "autopep8", "pre-commit"]
+dynamic = ["version"]
 
-
+[project.scripts]
+othello = "othello.__main__:main"
 
 [build-system]
 requires = ["setuptools"]
@@ -24,10 +25,7 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools.dynamic]
 version = {attr = "othello.__version__"}
 
-[tool.setuptools.packages.find]
-exclude = ["specs", "reports"]
-
-[pytest.ini_options]
+[tool.pytest.ini_options]
 addopts = [
     "--import-mode=importlib",
     "--cov=othello",
