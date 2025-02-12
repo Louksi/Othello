@@ -9,12 +9,12 @@ TEST_TIME = 2
 # TEST INITIALIZATION
 
 def test_init():
-  timer = BlitzTimer(TEST_TIME)
-  assert timer.startTime == None
-  assert timer.totalTime == TEST_TIME * 60
-  assert timer.remainingTime['black'] == TEST_TIME * 60
-  assert timer.remainingTime['white'] == TEST_TIME * 60
-  assert timer.currentPlayer == None
+    timer = BlitzTimer(TEST_TIME)
+    assert timer.startTime == None
+    assert timer.totalTime == TEST_TIME * 60
+    assert timer.remainingTime['black'] == TEST_TIME * 60
+    assert timer.remainingTime['white'] == TEST_TIME * 60
+    assert timer.currentPlayer == None
 
 
 # TEST STARTING
@@ -48,4 +48,3 @@ def test_init():
 
 
 # TEST TIME IS UP
-
