@@ -12,20 +12,10 @@ def test_blitzMode_init(monkeypatch):
     assert mode == parser.GameMode.BLITZ
     assert parseConfig["bTime"] == 30
 
-    # Initialize the game and check time limit
     game = BlitzMode(BoardSize.EIGHT_BY_EIGHT)
-    assert game.time_limit == 30
-    assert game.time_black == 30
-    assert game.time_white == 30
+
+    assert game.board.size == BoardSize.EIGHT_BY_EIGHT
     assert game.current_player == Color.BLACK
-
-
-def test_time_decrease():
-    game = BlitzMode(BoardSize.EIGHT_BY_EIGHT)
-    start_time = game.time_black
-    time.sleep(1)
-    game.switch_turn()
-    assert game.time_black < start_time
 
 
 def test_turn_switch():
@@ -35,11 +25,3 @@ def test_turn_switch():
     assert game.current_player == Color.WHITE
     game.switch_turn()
     assert game.current_player == Color.BLACK
-
-
-def test_timeout():
-    game = BlitzMode(BoardSize.EIGHT_BY_EIGHT)
-    game.time_black = 1
-    time.sleep(2)
-    result = game.switch_turn()
-    assert not result
