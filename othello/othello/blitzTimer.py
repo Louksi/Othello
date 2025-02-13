@@ -43,7 +43,8 @@ class BlitzTimer:
 
     def getRemainingTime(self, player) -> float:
         if self.startTime and player == self.currentPlayer:
-            return max(0, self.remainingTime[self.currentPlayer] - (time() - self.startTime))
+            self.remainingTime[player] = max(
+                0, self.remainingTime[player] - (time() - self.startTime))
         return self.remainingTime[player]
 
     def isTimeUp(self, player) -> bool:
