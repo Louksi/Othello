@@ -19,6 +19,17 @@ class BoardSize(Enum):
 
 class OthelloBitboard:
     def __init__(self, size: BoardSize):
+        """
+        Initialize an OthelloBitboard with the given board size.
+
+        This sets up a bitboard for both black and white players, and initializes
+        the mask used for board operations. The starting board configuration 
+        is set with the initial pieces in place.
+
+        :param size: The size of the Othello board.
+        :type size: BoardSize
+        """
+
         self.size = size
         self.black = Bitboard(size.value)
         self.white = Bitboard(size.value)
@@ -27,6 +38,13 @@ class OthelloBitboard:
         self.__init_board()
 
     def __init_board(self):
+        """
+        Initialize the starting position of the Othello board.
+
+        This method sets up the initial four pieces in the center of the board,
+        with two black pieces and two white pieces placed diagonally from each other.
+        """
+
         self.white.set(self.size.value // 2 - 1,
                        self.size.value // 2 - 1, True)
         self.white.set(self.size.value // 2, self.size.value // 2, True)
@@ -34,6 +52,19 @@ class OthelloBitboard:
         self.black.set(self.size.value//2, self.size.value//2-1, True)
 
     def line_cap_move(self, current_player: Color) -> Bitboard:
+        """
+        Compute the legal moves of the current player with the line capture algorithm.
+
+        The line capture algorithm iterates over all the directions of the board,
+        and for each direction, it looks for a sequence of opponent's pieces
+        that can be captured by the current player. The legal moves are the
+        squares at the end of each of these sequences.
+
+        :param current_player: The color of the current player.
+        :type current_player: Color
+        :return: A bitboard representing the legal moves of the current player.
+        :rtype: Bitboard
+        """
         bits_p = self.black if current_player is Color.BLACK else self.white
         bits_o = self.white if current_player is Color.BLACK else self.black
         moves = Bitboard(self.size.value)
@@ -45,6 +76,25 @@ class OthelloBitboard:
         return moves
 
     def line_cap(self, x: int, y: int, current_player: Color) -> Bitboard:
+        """
+        Compute the capture mask for the given position and player.
+
+        The capture mask is a bitboard that contains all the pieces that can be
+        captured by the current player when placing a piece at the given position.
+        The capture mask is computed by iterating over all the directions of the
+        board and looking for a sequence of opponent's pieces that can be captured
+        by the current player. The capture mask is the union of all the squares at
+        the end of each of these sequences.
+
+        :param x: The x coordinate of the position.
+        :type x: int
+        :param y: The y coordinate of the position.
+        :type y: int
+        :param current_player: The color of the current player.
+        :type current_player: Color
+        :return: A bitboard representing the capture mask of the current player.
+        :rtype: Bitboard
+        """
         bits_p = self.black if current_player is Color.BLACK else self.white
         bits_o = self.white if current_player is Color.BLACK else self.black
         cap_mask = Bitboard(self.size.value)
@@ -63,9 +113,23 @@ class OthelloBitboard:
         return cap_mask
 
     def __empty_mask(self) -> Bitboard:
+        """
+        Compute a bitboard that represents all the empty squares on the board.
+
+        The empty mask is the XOR of the white and black bitboards with the mask
+        of the board. This is equivalent to finding all the squares that have not
+        been set to either white or black.
+
+        :return: A bitboard representing all the empty squares on the board.
+        :rtype: Bitboard
+        """
         return Bitboard(self.size.value, (self.white.bits | self.black.bits) ^ self.mask)
 
     def __str__(self) -> str:
+        """
+        Return a string representation of the board, with the x and y dimension
+        shown. "X" for black, "O" for white, and " " for empty squares.
+        """
         rez = " "
 
         rez += " ".join([ascii_lowercase[letter_idx]
