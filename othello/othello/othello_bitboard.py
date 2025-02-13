@@ -78,6 +78,7 @@ class OthelloBitboard:
                 if x == 0:
                     rez += str(y)
                 if has_black:
+                    # ENUM
                     rez += "X"
                 elif has_white:
                     rez += "O"

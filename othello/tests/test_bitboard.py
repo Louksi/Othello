@@ -4,6 +4,11 @@ from othello.bitboard import Bitboard, Direction
 
 
 def test_init_2():
+    """
+    Tests the initialization of a Bitboard with a size of 2.
+
+    The west and east masks should be 1010 and 0101 respectively.
+    """
     b_2 = Bitboard(2)
 
     assert b_2.mask == 0b1111
@@ -12,6 +17,13 @@ def test_init_2():
 
 
 def test_init_8():
+    """
+    Tests the initialization of a Bitboard with a size of 8.
+
+    The mask should be a binary string of 8 * 8 = 64 ones.
+    The west mask should be a binary string of 8 * 8 = 64 ones, with the first and last bits of every row set to 0.
+    The east mask should be a binary string of 8 * 8 = 64 ones, with the first and last bits of every row set to 0, shifted one bit to the left.
+    """
     b_8 = Bitboard(8)
 
     assert b_8.mask == 0b1111111111111111111111111111111111111111111111111111111111111111
@@ -20,6 +32,11 @@ def test_init_8():
 
 
 def test_oob_access():
+    """
+    Tests the out-of-bounds access of a Bitboard.
+
+    The bit at 0, 6 should raise an IndexError.
+    """
     b = Bitboard(6)
 
     with pytest.raises(IndexError):
@@ -27,6 +44,14 @@ def test_oob_access():
 
 
 def test_set():
+    """
+    Test the set method of the Bitboard class.
+
+    This test checks if the set method correctly sets and unsets bits at specified coordinates.
+    It initializes a 4x4 Bitboard, sets bits at (0, 0), (3, 3), and (1, 1) to True, and verifies the bits field.
+    Then, it unsets the bit at (3, 3) and verifies the updated bits field.
+    """
+
     b = Bitboard(4)
     b.set(0, 0, True)
     b.set(3, 3, True)
@@ -39,6 +64,15 @@ def test_set():
 
 
 def test_get():
+    """
+    Test the get method of the Bitboard class.
+
+    This test checks if the get method accurately retrieves the truth value of bits 
+    at specified coordinates. It initializes a 6x6 Bitboard, sets bits at (0, 3) and 
+    (4, 5) to True, and verifies that the get method returns True for these coordinates 
+    and False for unset coordinates such as (4, 2) and (0, 0).
+    """
+
     b = Bitboard(6)
     b.set(0, 3, True)
     b.set(4, 5, True)
