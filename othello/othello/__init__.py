@@ -1,5 +1,2 @@
-"""Main module for myproject"""
 
-import othello
-
-__version__ = "0.1.0"
+__version__ = "0.0.1"
