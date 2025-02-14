@@ -32,6 +32,13 @@ class OthelloBitboard:
         self.__init_board()
 
     def __init_board(self):
+        """
+        Initialize the starting position of the Othello board.
+
+        This method sets up the initial four pieces in the center of the board,
+        with two black pieces and two white pieces placed diagonally from each other.
+        """
+
         self.white.set(self.size.value // 2 - 1,
                        self.size.value // 2 - 1, True)
         self.white.set(self.size.value // 2, self.size.value // 2, True)
@@ -90,6 +97,16 @@ class OthelloBitboard:
         return cap_mask
 
     def __empty_mask(self) -> Bitboard:
+        """
+        Compute a bitboard that represents all the empty squares on the board.
+
+        The empty mask is the XOR of the white and black bitboards with the mask
+        of the board. This is equivalent to finding all the squares that have not
+        been set to either white or black.
+
+        :return: A bitboard representing all the empty squares on the board.
+        :rtype: Bitboard
+        """
         return Bitboard(self.size.value, (self.white.bits | self.black.bits) ^ self.mask)
 
     def __str__(self) -> str:

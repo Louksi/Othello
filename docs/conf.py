@@ -7,17 +7,17 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'Othello'
-copyright = '2025, Matis Duval, Rémy Heuret, Lucas Marques, Gabriel Tardiou, Lucas Zammit'
-author = 'Matis Duval, Rémy Heuret, Lucas Marques, Gabriel Tardiou, Lucas Zammit'
+copyright = '2025, Matis Duval, Rémy Heuret, Gabriel Tardiou, Lucas Zammit, Lucas Marques'
+author = 'Matis Duval, Rémy Heuret, Gabriel Tardiou, Lucas Zammit, Lucas Marques'
 release = '0.1.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ["sphinx.ext.autodoc"]
+extensions = ['sphinx.ext.autodoc']
 
 templates_path = ['_templates']
-exclude_patterns = []
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 
 # -- Options for HTML output -------------------------------------------------
