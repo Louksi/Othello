@@ -90,8 +90,35 @@ class Bitboard:
             return self.__shift_nw()
         elif dir == Direction.SOUTH_EAST:
             return self.__shift_se()
-        elif dir == Direction.SOUTH_WEST:
+        else:
             return self.__shift_sw()
+
+    def popcount(self) -> int:
+        """
+        popcount (SWAR) simple python port supporting arbitrary-sized bitboards because python is very permissive...
+
+        :returns: The number of hot bits in the bitboard representation
+        :rtype: int
+        """
+        sum = 0
+        n = self.bits
+        while n > 0:
+            chunk_n = (n & 0xFFFFFFFFFFFFFFFF)
+            chunk_n = (chunk_n & 0x5555555555555555) + \
+                ((chunk_n >> 1) & 0x5555555555555555)
+            chunk_n = (chunk_n & 0x3333333333333333) + \
+                ((chunk_n >> 2) & 0x3333333333333333)
+            chunk_n = (chunk_n & 0x0F0F0F0F0F0F0F0F) + \
+                ((chunk_n >> 4) & 0x0F0F0F0F0F0F0F0F)
+            chunk_n = (chunk_n & 0x00FF00FF00FF00FF) + \
+                ((chunk_n >> 8) & 0x00FF00FF00FF00FF)
+            chunk_n = (chunk_n & 0x0000FFFF0000FFFF) + \
+                ((chunk_n >> 16) & 0x0000FFFF0000FFFF)
+            chunk_n = (chunk_n & 0x00000000FFFFFFFF) + \
+                ((chunk_n >> 32) & 0x00000000FFFFFFFF)
+            sum += chunk_n
+            n >>= 64
+        return sum
 
     def __shift_w(self) -> Bitboard:
         clone = copy(self)

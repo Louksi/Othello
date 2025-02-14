@@ -8,6 +8,7 @@ from othello.bitboard import Bitboard, Direction
 class Color(Enum):
     BLACK = "X"
     WHITE = "O"
+    EMPTY = "_"
 
 
 class BoardSize(Enum):
@@ -19,6 +20,10 @@ class BoardSize(Enum):
 
 class OthelloBitboard:
     def __init__(self, size: BoardSize):
+        """
+        :param size: The size of the Bitboard from the enum `BoardSize`
+        :param type: BoardSize
+        """
         self.size = size
         self.black = Bitboard(size.value)
         self.white = Bitboard(size.value)
@@ -34,6 +39,13 @@ class OthelloBitboard:
         self.black.set(self.size.value//2, self.size.value//2-1, True)
 
     def line_cap_move(self, current_player: Color) -> Bitboard:
+        """
+        Returns a bitboard of the possibles plays for `current_player`
+
+        :param current_player: The player trying to do the capture
+        :param type: Color
+        :returns: A Bitboard of the possible capture moves for player `current_player`
+        """
         bits_p = self.black if current_player is Color.BLACK else self.white
         bits_o = self.white if current_player is Color.BLACK else self.black
         moves = Bitboard(self.size.value)
@@ -45,19 +57,34 @@ class OthelloBitboard:
         return moves
 
     def line_cap(self, x: int, y: int, current_player: Color) -> Bitboard:
+        """
+        Returns the result of a capture. Does not check if the capture is legal. Do the check beforehand if you intend to use this function.
+        :param x: the x coordinate of the play
+        :param type: int
+        :param y: the y coordinate of the play
+        :param type: int
+        :param current_player: the player making the move
+        :param type: Color
+        :returns: The bitboard of the captured bits.
+        :rtype: Bitboard
+        """
         bits_p = self.black if current_player is Color.BLACK else self.white
         bits_o = self.white if current_player is Color.BLACK else self.black
-        cap_mask = Bitboard(self.size.value)
-        cap_mask.set(x, y, True)
+        position = Bitboard(self.size.value)
+        position.set(x, y, True)
+        cap_mask = Bitboard(self.size.value, bits=position.bits)
         for d in Direction:
-            direction_mask = Bitboard(self.size.value, bits=cap_mask.bits)
-            direction_ptr = Bitboard(self.size.value, bits=cap_mask.bits)
+            direction_mask = Bitboard(self.size.value, bits=position.bits)
+            direction_ptr = Bitboard(self.size.value, bits=position.bits)
+
             while direction_ptr.bits != 0:
                 direction_ptr = direction_ptr.shift(d)
                 if (direction_ptr & bits_o).bits:
                     direction_mask |= direction_ptr
                 elif (direction_ptr & bits_p).bits:
                     cap_mask |= direction_mask
+                    break
+                else:
                     break
 
         return cap_mask
@@ -66,7 +93,7 @@ class OthelloBitboard:
         return Bitboard(self.size.value, (self.white.bits | self.black.bits) ^ self.mask)
 
     def __str__(self) -> str:
-        rez = " "
+        rez = "  "
 
         rez += " ".join([ascii_lowercase[letter_idx]
                         for letter_idx in range(self.size.value)])
@@ -76,12 +103,13 @@ class OthelloBitboard:
                 has_black = self.black.get(x, y)
                 has_white = self.white.get(x, y)
                 if x == 0:
-                    rez += str(y)
+                    rez += str(y+1) + " "
                 if has_black:
-                    rez += "X"
+                    rez += Color.BLACK.value
                 elif has_white:
-                    rez += "O"
+                    rez += Color.WHITE.value
                 else:
+                    rez += Color.EMPTY.value
+                if x < self.size.value-1:
                     rez += " "
-                rez += " "
         return rez

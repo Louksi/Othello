@@ -65,8 +65,8 @@ def test_shift_n():
     |·| | | | |
     | | | | | |
     """
-    b = copy(pytest.b)
-    shifted_b = b.shift(Direction.NORTH)
+
+    shifted_b = pytest.b.shift(Direction.NORTH)
 
     assert shifted_b.bits == 0b0000000001001001000000001
 
@@ -79,8 +79,8 @@ def test_shift_s():
     | | | | |·|
     | | |·| | |
     """
-    b = copy(pytest.b)
-    shifted_b = b.shift(Direction.SOUTH)
+
+    shifted_b = pytest.b.shift(Direction.SOUTH)
 
     assert (shifted_b.bits & shifted_b.mask) == (
         0b0010010000000010100000000 & shifted_b.mask)
@@ -94,8 +94,8 @@ def test_shift_w():
     | |·| | | |
     | | | | | |
     """
-    b = copy(pytest.b)
-    shifted_b = b.shift(Direction.WEST)
+
+    shifted_b = pytest.b.shift(Direction.WEST)
     assert (shifted_b.bits & shifted_b.mask) == (
         0b0000000010010000000000100 & shifted_b.mask)
 
@@ -108,8 +108,8 @@ def test_e():
     | | | |·| |
     | |·| | | |
     """
-    b = copy(pytest.b)
-    shifted_b = b.shift(Direction.EAST)
+
+    shifted_b = pytest.b.shift(Direction.EAST)
     assert (shifted_b.bits & shifted_b.mask) == (
         0b0001001000000000001010000 & shifted_b.mask)
 
@@ -122,8 +122,8 @@ def test_ne():
     | |·| | | |
     | | | | | |
     """
-    b = copy(pytest.b)
-    shifted_b = b.shift(Direction.NORTH_EAST)
+
+    shifted_b = pytest.b.shift(Direction.NORTH_EAST)
     assert (shifted_b.bits & shifted_b.mask) == (
         0b0000000010010000000000010 & shifted_b.mask
     )
@@ -137,8 +137,8 @@ def test_nw():
     | | | | | |
     | | | | | |
     """
-    b = copy(pytest.b)
-    shifted_b = b.shift(Direction.NORTH_WEST)
+
+    shifted_b = pytest.b.shift(Direction.NORTH_WEST)
     assert (shifted_b.bits & shifted_b.mask) == (
         0b0000000000000100100000000 & shifted_b.mask
     )
@@ -152,8 +152,8 @@ def test_se():
     | | | | | |
     | | | |·| |
     """
-    b = copy(pytest.b)
-    shifted_b = b.shift(Direction.SOUTH_EAST)
+
+    shifted_b = pytest.b.shift(Direction.SOUTH_EAST)
     assert (shifted_b.bits & shifted_b.mask) == (
         0b0100000000000101000000000 & shifted_b.mask
     )
@@ -167,11 +167,38 @@ def test_sw():
     | | | |·| |
     | |·| | | |
     """
-    b = copy(pytest.b)
-    shifted_b = b.shift(Direction.SOUTH_WEST)
+
+    shifted_b = pytest.b.shift(Direction.SOUTH_WEST)
     assert (shifted_b.bits & shifted_b.mask) == (
         0b0001001000000000010000000 & shifted_b.mask
     )
+
+
+def test_popcount_16_5():
+    b = Bitboard(16, bits=0b0010001010000110)
+    assert b.popcount() == 5
+
+
+def test_popcount_64_32():
+    b = Bitboard(64, bits=0x5555555555555555)
+    assert b.popcount() == 32
+
+
+def test_popcount_128_66():
+    b = Bitboard(128, bits=0x0F0555333FF0030FFFFF33350005333F)
+    assert b.popcount() == 66
+
+
+def test_popcount_64_0():
+    b = Bitboard(64)
+    assert b.popcount() == 0
+
+
+def test_xor():
+    b = Bitboard(8)
+    b.set(4, 7, True)
+    b.set(2, 3, True)
+    assert (b.bits ^ 0b0000000000000000000000000000000000100000000000000000000000000) == 0b1000000000000000000000000000000000000000000000000000000000000
 
 
 def test_str():
