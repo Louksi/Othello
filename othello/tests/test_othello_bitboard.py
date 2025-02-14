@@ -103,6 +103,28 @@ def test_line_cap_start_position():
     assert thruth_mask == mask.bits
 
 
+""" black's turn, M => bit of the mask
+| | | | | | | | |
+| | | | | | | | |
+| |X|O|O|C|O|O|X|
+| | | |O|O|X| | |
+| | |X|X|O| | | |
+| | | | |O| | | |
+| | | | |X| | | |
+| | | | | | | | |
+
+"""
+
+
+def test_line_cap_complex_position():
+    b = OthelloBitboard(BoardSize.EIGHT_BY_EIGHT)
+    b.black.bits = 0b0000000000010000000000000000110000100000100000100000000000000000
+    b.white.bits = 0b0000000000000000000100000001000000011000011011000000000000000000
+    thruth_mask = 0b0000000000000000000100000001000000011000011111000000000000000000
+    mask = b.line_cap(4, 2, Color.BLACK)
+    assert thruth_mask == mask.bits
+
+
 def test__str__():
     b = OthelloBitboard(BoardSize.EIGHT_BY_EIGHT)
     starting_board = """ a b c d e f g h
