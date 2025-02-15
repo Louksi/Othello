@@ -3,7 +3,7 @@ import sys
 import time
 import othello.parser as parser
 from othello.blitz_mode import BlitzMode
-from othello.othello_bitboard import BoardSize, Color
+from othello.othello_board import BoardSize, Color
 
 
 def test_blitzMode_init(monkeypatch):

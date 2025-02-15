@@ -1,4 +1,4 @@
-from othello.othello_bitboard import OthelloBitboard, BoardSize, Color
+from othello.othello_board import OthelloBoard, BoardSize, Color
 import othello.parser as parser
 from othello.blitzTimer import BlitzTimer
 
@@ -17,7 +17,7 @@ class BlitzMode:
 
         if parser.GameMode.BLITZ:
             self.board_size = board_size
-            self.board = OthelloBitboard(self.board_size)
+            self.board = OthelloBoard(self.board_size)
             self.blitz_timer = BlitzTimer(parser.DEFAULT_BLITZ_TIME)
             self.current_player = Color.BLACK
             self.blitz_timer.startTimer('black')

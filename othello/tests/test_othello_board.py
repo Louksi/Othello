@@ -1,6 +1,65 @@
 from othello.bitboard import Bitboard
-from othello.othello_bitboard import BoardSize, Color, OthelloBitboard
+from othello.othello_board import BoardSize, Color, OthelloBoard
 import pytest
+
+
+def test_init_six():
+    b = OthelloBoard(BoardSize.SIX_BY_SIX)
+    assert str(b) == """  a b c d e f
+1 _ _ _ _ _ _
+2 _ _ _ _ _ _
+3 _ _ O X _ _
+4 _ _ X O _ _
+5 _ _ _ _ _ _
+6 _ _ _ _ _ _"""
+
+
+def test_init_eight():
+    b = OthelloBoard(BoardSize.EIGHT_BY_EIGHT)
+    assert str(b) == """  a b c d e f g h
+1 _ _ _ _ _ _ _ _
+2 _ _ _ _ _ _ _ _
+3 _ _ _ _ _ _ _ _
+4 _ _ _ O X _ _ _
+5 _ _ _ X O _ _ _
+6 _ _ _ _ _ _ _ _
+7 _ _ _ _ _ _ _ _
+8 _ _ _ _ _ _ _ _"""
+
+
+def test_init_ten():
+    b = OthelloBoard(BoardSize.TEN_BY_TEN)
+    print(b)
+    assert str(b) == """  a b c d e f g h i j
+1 _ _ _ _ _ _ _ _ _ _
+2 _ _ _ _ _ _ _ _ _ _
+3 _ _ _ _ _ _ _ _ _ _
+4 _ _ _ _ _ _ _ _ _ _
+5 _ _ _ _ O X _ _ _ _
+6 _ _ _ _ X O _ _ _ _
+7 _ _ _ _ _ _ _ _ _ _
+8 _ _ _ _ _ _ _ _ _ _
+9 _ _ _ _ _ _ _ _ _ _
+10 _ _ _ _ _ _ _ _ _ _"""
+
+
+def test_init_twelve():
+    b = OthelloBoard(BoardSize.TWELVE_BY_TWELVE)
+    print(b)
+    assert str(b) == """  a b c d e f g h i j k l
+1 _ _ _ _ _ _ _ _ _ _ _ _
+2 _ _ _ _ _ _ _ _ _ _ _ _
+3 _ _ _ _ _ _ _ _ _ _ _ _
+4 _ _ _ _ _ _ _ _ _ _ _ _
+5 _ _ _ _ _ _ _ _ _ _ _ _
+6 _ _ _ _ _ O X _ _ _ _ _
+7 _ _ _ _ _ X O _ _ _ _ _
+8 _ _ _ _ _ _ _ _ _ _ _ _
+9 _ _ _ _ _ _ _ _ _ _ _ _
+10 _ _ _ _ _ _ _ _ _ _ _ _
+11 _ _ _ _ _ _ _ _ _ _ _ _
+12 _ _ _ _ _ _ _ _ _ _ _ _"""
+
 
 """ black's turn, C => candidate
 | | | | | | | | |
@@ -21,7 +80,7 @@ def test_line_cap_move_starting_pos():
     The legal moves at the starting position are the four corner squares of the board (i.e. A1, A8, H1, H8).
     """
 
-    b = OthelloBitboard(BoardSize.EIGHT_BY_EIGHT)
+    b = OthelloBoard(BoardSize.EIGHT_BY_EIGHT)
     legal_mask = 0b0000000000000000000100000010000000000100000010000000000000000000
     cap = b.line_cap_move(Color.BLACK)
     assert cap.bits == legal_mask
@@ -50,7 +109,7 @@ def test_line_cap_move_later_pos():
     - The legal moves are the four corner squares of the board (i.e. A1, A8, H1, H8) and the squares at
       C3, F2, G1, H7.
     """
-    b = OthelloBitboard(BoardSize.EIGHT_BY_EIGHT)
+    b = OthelloBoard(BoardSize.EIGHT_BY_EIGHT)
     b.white.bits = 0b0000000000000000000100000001000000011000000000000000000000000000
     b.black.bits = 0b0000000000010000000000000000100000100000000000000000000000000000
     legal_mask = 0b0000000000100000000010000010000000000100001110000000000000000000
@@ -79,7 +138,7 @@ def test_line_cap_move_starting_pos_whites():
     The legal moves are the four corner squares of the board (i.e. A1, A8, H1, H8) and the squares at
     C3, F2, G1, H7.
     """
-    b = OthelloBitboard(BoardSize.EIGHT_BY_EIGHT)
+    b = OthelloBoard(BoardSize.EIGHT_BY_EIGHT)
     b.white.bits = 0b0000000000000000000000000001000000000000000000000000000000000000
     b.black.bits = 0b0000000000000000000000000000100000011100000000000000000000000000
     legal_mask = 0b0000000000000000000000000000010000000000000101000000000000000000
@@ -111,7 +170,7 @@ def test_line_cap_move_later_pos_whites():
     - The legal moves are the squares at A1, A8, H1, H8, C3, F2, G1, H7.
     """
 
-    b = OthelloBitboard(BoardSize.EIGHT_BY_EIGHT)
+    b = OthelloBoard(BoardSize.EIGHT_BY_EIGHT)
     b.white.bits = 0b0000000000000000000100000001000000011000000000000000000000000000
     b.black.bits = 0b0000000000010000000000000000100000100000000000000000000000000000
     legal_mask = 0b0001000000000000000011000000010001000100010000000000000000000000
@@ -139,7 +198,7 @@ def test_line_cap_start_position():
     The given position is the standard starting position of the game, with the black pions at D4 and E5, and the white pions at D5 and E4.
     The mask returned by the line cap move algorithm should be 0b0000000000000000000100000001000000000000000000000000000000000000.
     """
-    b = OthelloBitboard(BoardSize.EIGHT_BY_EIGHT)
+    b = OthelloBoard(BoardSize.EIGHT_BY_EIGHT)
     thruth_mask = 0b0000000000000000000100000001000000000000000000000000000000000000
     mask = b.line_cap(4, 5, Color.BLACK)
     assert thruth_mask == mask.bits
@@ -158,7 +217,7 @@ def test_line_cap_start_position():
 
 
 def test_complex_position():
-    b = OthelloBitboard(BoardSize.EIGHT_BY_EIGHT)
+    b = OthelloBoard(BoardSize.EIGHT_BY_EIGHT)
     b.white.bits = 0b0000100000000100100000001000010010001000100001001000000011110000
     b.black.bits = 0b0000000000000000011110000100100001000100010010000111000000000000
     cap = b.line_cap(4, 4, Color.WHITE)
@@ -182,7 +241,7 @@ def test__str__():
     6                
     7                
     """
-    b = OthelloBitboard(BoardSize.EIGHT_BY_EIGHT)
+    b = OthelloBoard(BoardSize.EIGHT_BY_EIGHT)
     starting_board = """  a b c d e f g h
 1 _ _ _ _ _ _ _ _
 2 _ _ _ _ _ _ _ _

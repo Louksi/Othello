@@ -1,3 +1,6 @@
+"""
+Testing the agnostic bitboard implementation
+"""
 import pytest
 from copy import copy
 from othello.bitboard import Bitboard, Direction
@@ -21,8 +24,10 @@ def test_init_8():
     Tests the initialization of a Bitboard with a size of 8.
 
     The mask should be a binary string of 8 * 8 = 64 ones.
-    The west mask should be a binary string of 8 * 8 = 64 ones, with the first and last bits of every row set to 0.
-    The east mask should be a binary string of 8 * 8 = 64 ones, with the first and last bits of every row set to 0, shifted one bit to the left.
+    The west mask should be a binary string of 8 * 8 = 64 ones,
+        with the first and last bits of every row set to 0.
+    The east mask should be a binary string of 8 * 8 = 64 ones,
+        with the first and last bits of every row set to 0, shifted one bit to the left.
     """
     b_8 = Bitboard(8)
 
@@ -232,7 +237,8 @@ def test_xor():
     b = Bitboard(8)
     b.set(4, 7, True)
     b.set(2, 3, True)
-    assert (b.bits ^ 0b0000000000000000000000000000000000100000000000000000000000000) == 0b1000000000000000000000000000000000000000000000000000000000000
+    assert (b.bits ^ 0b0000000000000000000000000000000000100000000000000000000000000)\
+        == 0b1000000000000000000000000000000000000000000000000000000000000
 
 
 def test_str():

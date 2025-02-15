@@ -1,3 +1,7 @@
+"""
+Internals of an othello bitboard, to store the presence or absence of elements on the board
+    using single numbers
+"""
 from __future__ import annotations  # used for self-referencing classes...
 
 from enum import Enum, auto
@@ -5,6 +9,9 @@ from copy import copy
 
 
 class Direction(Enum):
+    """
+    Used to represent a direction we can go to from a case.
+    """
     NORTH = auto()
     SOUTH = auto()
     EAST = auto()
@@ -16,6 +23,11 @@ class Direction(Enum):
 
 
 class Bitboard:
+    """
+    Represents a bitboard, a way to represent the presence or absence of
+    objects on a board
+    """
+
     def __init__(self, size: int, bits=0):
         """
         Initializes a Bitboard with a given size and bits.
@@ -40,18 +52,18 @@ class Bitboard:
             self.east_mask |= (1 << i) if i % self.size != self.size-1 else 0
         self.bits = bits
 
-    def set(self, x: int, y: int, value: bool) -> None:
+    def set(self, x_coord: int, y_coord: int, value: bool) -> None:
         """
-        Sets the bit at `x`:`y` to the truth value of `value` (0 if False, else 1).
+        Sets the bit at `x_coord`:`y_coord` to the truth value of `value` (0 if False, else 1).
 
-        :param x: The x coordinate in the board representation.
-        :type x: int
-        :param y: The y coordinate in the board representation.
-        :type y: int
-        :param value: The truth value of the bit at `x`:`y`.
+        :param x_coord: The x coordinate in the board representation.
+        :type x_coord: int
+        :param y_coord: The y coordinate in the board representation.
+        :type y_coord: int
+        :param value: The truth value of the bit at `x_coord`:`y_coord`.
         :type value: bool
         """
-        bit_idx = self.__coords_to_bit_idx(x, y)
+        bit_idx = self.__coords_to_bit_idx(x_coord, y_coord)
         self.__check_bit_idx_is_legal(bit_idx)
         if value:
             # we simply need to set the corresponding bit to 1 using binary-or
@@ -64,59 +76,61 @@ class Bitboard:
             mask ^= (1 << bit_idx)
             self.bits &= mask
 
-    def get(self, x: int, y: int) -> bool:
+    def get(self, x_coord: int, y_coord: int) -> bool:
         """
-        Get the truth value of a bit `x`:`y` (True if 1, else False).
+        Get the truth value of a bit `x_coord`:`y_coord` (True if 1, else False).
 
-        :param x: The x coordinate in the board representation.
-        :type x: int
-        :param y: The y coordinate in the board representation.
+        :param x_coord: The x coordinate in the board representation.
+        :type x_coord: int
+        :param y_coord: The y coordinate in the board representation.
         :returns: The value of thus bit
         :rtype: int
         """
-        bit_idx = self.__coords_to_bit_idx(x, y)
+        bit_idx = self.__coords_to_bit_idx(x_coord, y_coord)
         self.__check_bit_idx_is_legal(bit_idx)
         mask = 1 << bit_idx
         rez = self.bits & mask
         return rez != 0
 
-    def shift(self, dir: Direction):
+    def shift(self, to_dir: Direction):
         """
-        Shift a bit in direction `dir`.
+        Shift a bit in to_direction `dir`.
 
-        :param dir: The direction of the shift
-        :type Direction:
+        :param to_dir: The direction of the shift
+        :type to_direction:
         :returns: The result of said shift if it exists
         :rtype: int
         """
-        if dir == Direction.NORTH:
-            return self.__shift_n()
-        elif dir == Direction.SOUTH:
-            return self.__shift_s()
-        elif dir == Direction.EAST:
-            return self.__shift_e()
-        elif dir == Direction.WEST:
-            return self.__shift_w()
-        elif dir == Direction.NORTH_EAST:
-            return self.__shift_ne()
-        elif dir == Direction.NORTH_WEST:
-            return self.__shift_nw()
-        elif dir == Direction.SOUTH_EAST:
-            return self.__shift_se()
+        if to_dir == Direction.NORTH:
+            shifted = self.__shift_n()
+        elif to_dir == Direction.SOUTH:
+            shifted = self.__shift_s()
+        elif to_dir == Direction.EAST:
+            shifted = self.__shift_e()
+        elif to_dir == Direction.WEST:
+            shifted = self.__shift_w()
+        elif to_dir == Direction.NORTH_EAST:
+            shifted = self.__shift_ne()
+        elif to_dir == Direction.NORTH_WEST:
+            shifted = self.__shift_nw()
+        elif to_dir == Direction.SOUTH_EAST:
+            shifted = self.__shift_se()
         else:
-            return self.__shift_sw()
+            shifted = self.__shift_sw()
+        return shifted
 
     def popcount(self) -> int:
         """
-        popcount (SWAR) simple python port supporting arbitrary-sized bitboards because python is very permissive...
+        popcount (SWAR) simple python port supporting arbitrary-sized bitboards
+        because python is very permissive...
 
         :returns: The number of hot bits in the bitboard representation
         :rtype: int
         """
-        sum = 0
-        n = self.bits
-        while n > 0:
-            chunk_n = (n & 0xFFFFFFFFFFFFFFFF)
+        summed = 0
+        remaining_bits = self.bits
+        while remaining_bits > 0:
+            chunk_n = remaining_bits & 0xFFFFFFFFFFFFFFFF
             chunk_n = (chunk_n & 0x5555555555555555) + \
                 ((chunk_n >> 1) & 0x5555555555555555)
             chunk_n = (chunk_n & 0x3333333333333333) + \
@@ -129,9 +143,9 @@ class Bitboard:
                 ((chunk_n >> 16) & 0x0000FFFF0000FFFF)
             chunk_n = (chunk_n & 0x00000000FFFFFFFF) + \
                 ((chunk_n >> 32) & 0x00000000FFFFFFFF)
-            sum += chunk_n
-            n >>= 64
-        return sum
+            summed += chunk_n
+            remaining_bits >>= 64
+        return summed
 
     def __shift_w(self) -> Bitboard:
         """
@@ -222,21 +236,21 @@ class Bitboard:
         clone.bits = (self.bits << self.size-1 & self.east_mask) & self.mask
         return clone
 
-    def __coords_to_bit_idx(self, x: int, y: int) -> int:
+    def __coords_to_bit_idx(self, x_coord: int, y_coord: int) -> int:
         """
         Convert board coordinates to a bit index.
 
         This method takes the coordinates of a square on the board, and
         returns the corresponding bit index in the bitboard.
 
-        :param x: The x coordinate of the square.
-        :type x: int
-        :param y: The y coordinate of the square.
-        :type y: int
+        :param x_coord: The x coordinate of the square.
+        :type x_coord: int
+        :param y_coord: The y coordinate of the square.
+        :type y_coord: int
         :returns: The bit index of the square.
         :rtype: int
         """
-        return y * self.size + x
+        return y_coord * self.size + x_coord
 
     def __check_bit_idx_is_legal(self, bit_idx: int) -> None:
         """
@@ -255,64 +269,66 @@ class Bitboard:
             # avoiding out-of-bound access
             raise IndexError
 
-    def __and__(self, o: Bitboard) -> Bitboard:
+    def __and__(self, other: Bitboard) -> Bitboard:
         """
         Compute the logical AND of two bitboards.
 
-        This method takes a bitboard `o` and computes the logical AND of the
-        current bitboard with `o`. The result is a new bitboard that has a
-        1 in each position where both the current bitboard and `o` have a 1.
+        This method takes a bitboard `other` and computes the logical AND of the
+        current bitboard with `other`. The result is a new bitboard that has a
+        1 in each position where both the current bitboard and `other` have a 1.
 
-        :param o: The bitboard to compute the logical AND with.
-        :type o: Bitboard
-        :return: A bitboard that is the logical AND of the current bitboard and `o`.
+        :param other: The bitboard to compute the logical AND with.
+        :type other: Bitboard
+        :return: A bitboard that is the logical AND of the current bitboard and `other`.
         :rtype: Bitboard
         """
-        r = copy(self)
-        return Bitboard(self.size, r.bits & o.bits)
+        rez = copy(self)
+        return Bitboard(self.size, rez.bits & other.bits)
 
-    def __or__(self, o: Bitboard) -> Bitboard:
+    def __or__(self, other: Bitboard) -> Bitboard:
         """
         Compute the logical OR of two bitboards.
 
-        This method takes a bitboard `o` and computes the logical OR of the
-        current bitboard with `o`. The result is a new bitboard that has a
-        1 in each position where either the current bitboard or `o` have a 1.
+        This method takes a bitboard `other` and computes the logical OR of the
+        current bitboard with `other`. The result is a new bitboard that has a
+        1 in each position where either the current bitboard or `other` have a 1.
 
-        :param o: The bitboard to compute the logical OR with.
-        :type o: Bitboard
-        :return: A bitboard that is the logical OR of the current bitboard and `o`.
+        :param other: The bitboard to compute the logical OR with.
+        :type other: Bitboard
+        :return: A bitboard that is the logical OR of the current bitboard and `other`.
         :rtype: Bitboard
         """
-        r = copy(self)
-        return Bitboard(self.size, r.bits | o.bits)
+        rez = copy(self)
+        return Bitboard(self.size, rez.bits | other.bits)
 
-    def __xor__(self, o: Bitboard) -> Bitboard:
+    def __xor__(self, other: Bitboard) -> Bitboard:
         """
         Compute the logical XOR of two bitboards.
 
-        This method takes a bitboard `o` and computes the logical XOR of the
-        current bitboard with `o`. The result is a new bitboard that has a
-        1 in each position where either the current bitboard or `o` have a 1,
+        This method takes a bitboard `other` and computes the logical XOR of the
+        current bitboard with `other`. The result is a new bitboard that has a
+        1 in each position where either the current bitboard or `other` have a 1,
         but not both.
 
-        :param o: The bitboard to compute the logical XOR with.
-        :type o: Bitboard
-        :return: A bitboard that is the logical XOR of the current bitboard and `o`.
+        :param other: The bitboard to compute the logical XOR with.
+        :type other: Bitboard
+        :return: A bitboard that is the logical XOR of the current bitboard and `other`.
         :rtype: Bitboard
         """
-        r = copy(self)
-        return Bitboard(self.size, r.bits ^ o.bits)
+        rez = copy(self)
+        return Bitboard(self.size, rez.bits ^ other.bits)
 
     def __str__(self) -> str:
         """
         Returns a string representation of the bitboard. Mostly for debugging.
 
-        :return: A string representation of the bitboard showing its x and y dimension. "·" for non-empty cases, " " for empty ones.
+        :return: A string representation of the bitboard showing its x and y dimension.
+                "·" for non-empty cases, " " for empty ones.
         :rtype str
         """
         return "\n".join(
             "".join(
-                f"{'|' if x == 0 else ''}{'·' if self.get(x, y) else ' '}|" for x in range(self.size)
+                f"{'|' if x == 0 else ''}{'·' if self.get(x, y) else ' '}|"
+                for x in range(self.size)
             ) for y in range(self.size)
         )
