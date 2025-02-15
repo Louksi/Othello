@@ -1,6 +1,6 @@
 import pytest
 import sys
-from othello.parser import parse_args, GameMode, createParser, aiColor
+from othello.parser import AIColor, parse_args, GameMode, create_parser
 
 # TEST DEFAULT CONFIGURATION
 
@@ -164,19 +164,19 @@ def test_aiMode(monkeypatch):
     mode, parseConfig = parse_args()
 
     assert mode == GameMode.AI
-    assert parseConfig["aiColor"] == aiColor.BLACK.value
+    assert parseConfig["AIColor"] == AIColor.BLACK.value
 
     monkeypatch.setattr(sys, 'argv', ["othello", "-aO"])
     mode, parseConfig = parse_args()
 
     assert mode == GameMode.AI
-    assert parseConfig["aiColor"] == aiColor.WHITE.value
+    assert parseConfig["AIColor"] == AIColor.WHITE.value
 
     monkeypatch.setattr(sys, 'argv', ["othello", "-aA"])
     mode, parseConfig = parse_args()
 
     assert mode == GameMode.AI
-    assert parseConfig["aiColor"] == aiColor.ALL.value
+    assert parseConfig["AIColor"] == AIColor.ALL.value
 
 
 # TEST ERRORS

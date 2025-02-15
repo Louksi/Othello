@@ -1,3 +1,7 @@
+"""
+Implementation of the blitz timer that's used to give both players
+a maximum time for all their plays (individually)
+"""
 from time import time
 
 # init: timeLimit (in minutes)
@@ -16,55 +20,59 @@ from time import time
 
 
 class BlitzTimer:
+    """
+    The actual timer
+    """
 
-    def __init__(self, timeLimit) -> None:
+    def __init__(self, time_limit) -> None:
         """
         Initializes a BlitzTimer object.
 
         Args:
             timeLimit (int): The time limit, in minutes.
         """
-        self.startTime = None
-        self.totalTime = timeLimit * 60  # converts the time limit from minutes to seconds
-        self.remainingTime = {
-            'black': self.totalTime,
-            'white': self.totalTime
+        self.start_time = None
+        # converts the time limit from minutes to seconds
+        self.total_time = time_limit * 60
+        self.remaining_time = {
+            'black': self.total_time,
+            'white': self.total_time
         }
-        self.currentPlayer = None
+        self.current_player = None
 
-    def startTimer(self, player) -> None:
+    def start_timer(self, player) -> None:
         """
         Starts the BlitzTimer for the given player.
 
         Args:
             player (str): The player to start the timer for, either 'black' or 'white'.
         """
-        self.startTime = time()
-        self.currentPlayer = player
+        self.start_time = time()
+        self.current_player = player
 
-    def pauseTimer(self) -> None:
+    def pause_timer(self) -> None:
         """
         Pauses the BlitzTimer and updates the remaining time for the current player.
 
         If the BlitzTimer is not running, does nothing.
         """
-        if self.startTime and self.currentPlayer:
-            self.remainingTime[self.currentPlayer] = max(
-                0, self.remainingTime[self.currentPlayer] - (time() - self.startTime))
-            self.startTime = None
-            self.currentPlayer = None
+        if self.start_time and self.current_player:
+            self.remaining_time[self.current_player] = max(
+                0, self.remaining_time[self.current_player] - (time() - self.start_time))
+            self.start_time = None
+            self.current_player = None
 
-    def changePlayer(self, player) -> None:
+    def change_player(self, player) -> None:
         """
         Changes the current player and pauses the BlitzTimer if it was running.
 
         Args:
             player (str): The new current player, either 'black' or 'white'.
         """
-        self.pauseTimer()
-        self.startTimer(player)
+        self.pause_timer()
+        self.start_timer(player)
 
-    def getRemainingTime(self, player) -> float:
+    def get_remaining_time(self, player) -> float:
         """
         Returns the remaining time for the given player.
 
@@ -77,12 +85,12 @@ class BlitzTimer:
         Returns:
             float: The remaining time in seconds.
         """
-        if self.startTime and player == self.currentPlayer:
-            self.remainingTime[player] = max(
-                0, self.remainingTime[player] - (time() - self.startTime))
-        return self.remainingTime[player]
+        if self.start_time and player == self.current_player:
+            self.remaining_time[player] = max(
+                0, self.remaining_time[player] - (time() - self.start_time))
+        return self.remaining_time[player]
 
-    def isTimeUp(self, player) -> bool:
+    def is_time_up(self, player) -> bool:
         """
         Checks if the time is up for the given player.
 
@@ -92,9 +100,9 @@ class BlitzTimer:
         Returns:
             bool: True if the time is up, False otherwise.
         """
-        return self.getRemainingTime(player) <= 0
+        return self.get_remaining_time(player) <= 0
 
-    def displayTime(self) -> None:
+    def display_time(self) -> str:
         """
         Displays the remaining time for both players in a formatted string.
 
@@ -105,13 +113,13 @@ class BlitzTimer:
             str: A formatted string showing the remaining time for both players.
         """
 
-        blackTime = int(self.getRemainingTime('black'))
-        whiteTime = int(self.getRemainingTime('white'))
+        black_time = int(self.get_remaining_time('black'))
+        white_time = int(self.get_remaining_time('white'))
 
-        BMins = blackTime // 60
-        WMins = whiteTime // 60
+        black_time_minutes = black_time // 60
+        white_time_minutes = white_time // 60
 
-        BSecs = blackTime % 60
-        WSecs = whiteTime % 60
+        black_time_seconds = black_time % 60
+        white_time_seconds = white_time % 60
 
-        return f"Black Time: {BMins:02d}:{BSecs:02d}\nWhite Time: {WMins:02d}:{WSecs:02d}\n"
+        return f"Black Time: {black_time_minutes:02d}:{black_time_seconds:02d}\nWhite Time: {white_time_minutes:02d}:{white_time_seconds:02d}\n"

@@ -1,7 +1,8 @@
 import pytest
 from time import time, sleep
 import unittest
-from othello.blitzTimer import BlitzTimer
+import othello
+from othello.blitz_timer import BlitzTimer
 
 TEST_TIME = 0.1
 PLAYER1 = 'black'
@@ -21,11 +22,11 @@ def test_init():
      - the current player is None
     """
     timer = BlitzTimer(TEST_TIME)
-    assert timer.startTime == None
-    assert timer.totalTime == TEST_TIME * 60
-    assert timer.remainingTime['black'] == TEST_TIME * 60
-    assert timer.remainingTime['white'] == TEST_TIME * 60
-    assert timer.currentPlayer == None
+    assert timer.start_time is None
+    assert timer.total_time == TEST_TIME * 60
+    assert timer.remaining_time['black'] == TEST_TIME * 60
+    assert timer.remaining_time['white'] == TEST_TIME * 60
+    assert timer.current_player is None
 
 
 # TEST STARTING
@@ -42,11 +43,11 @@ def test_starting():
     """
 
     timer = BlitzTimer(TEST_TIME)
-    timer.startTimer(PLAYER1)
-    assert timer.startTime is not None
-    assert timer.currentPlayer == PLAYER1
-    assert timer.remainingTime['black'] == TEST_TIME * 60
-    assert timer.remainingTime['white'] == TEST_TIME * 60
+    timer.start_timer(PLAYER1)
+    assert timer.start_time is not None
+    assert timer.current_player == PLAYER1
+    assert timer.remaining_time['black'] == TEST_TIME * 60
+    assert timer.remaining_time['white'] == TEST_TIME * 60
 
 
 # TEST PAUSING
@@ -61,11 +62,11 @@ def test_pausing():
      - the current player is None
     """
     timer = BlitzTimer(TEST_TIME)
-    timer.startTimer(PLAYER1)
-    timer.pauseTimer()
-    assert timer.startTime is None
-    assert timer.remainingTime[PLAYER1] < TEST_TIME * 60
-    assert timer.currentPlayer == None
+    timer.start_timer(PLAYER1)
+    timer.pause_timer()
+    assert timer.start_time is None
+    assert timer.remaining_time[PLAYER1] < TEST_TIME * 60
+    assert timer.current_player is None
 
 
 # TEST SWITCHING
@@ -81,12 +82,12 @@ def test_switching():
      - the remaining time for the second player is the same as the total time
     """
     timer = BlitzTimer(TEST_TIME)
-    timer.startTimer(PLAYER1)
-    timer.changePlayer(PLAYER2)
-    assert timer.remainingTime[PLAYER1] < TEST_TIME * 60
-    assert timer.currentPlayer == PLAYER2
-    assert timer.startTime is not None
-    assert timer.remainingTime[PLAYER2] == TEST_TIME * 60
+    timer.start_timer(PLAYER1)
+    timer.change_player(PLAYER2)
+    assert timer.remaining_time[PLAYER1] < TEST_TIME * 60
+    assert timer.current_player == PLAYER2
+    assert timer.start_time is not None
+    assert timer.remaining_time[PLAYER2] == TEST_TIME * 60
 
 
 # TEST REMAINING
@@ -104,21 +105,21 @@ def test_remaining():
      - after the time is up, the remaining time for the second player is the same as the total time
     """
     timer = BlitzTimer(TEST_TIME)
-    timer.startTimer(PLAYER1)
-    assert timer.remainingTime[PLAYER1] == TEST_TIME * 60
-    assert timer.remainingTime[PLAYER2] == TEST_TIME * 60
+    timer.start_timer(PLAYER1)
+    assert timer.remaining_time[PLAYER1] == TEST_TIME * 60
+    assert timer.remaining_time[PLAYER2] == TEST_TIME * 60
     sleep(1)
-    assert timer.getRemainingTime(PLAYER1) < TEST_TIME * 60
-    assert timer.getRemainingTime(PLAYER2) == TEST_TIME * 60
-    assert timer.remainingTime[PLAYER1] < TEST_TIME * 60
-    assert timer.remainingTime[PLAYER2] == TEST_TIME * 60
+    assert timer.get_remaining_time(PLAYER1) < TEST_TIME * 60
+    assert timer.get_remaining_time(PLAYER2) == TEST_TIME * 60
+    assert timer.remaining_time[PLAYER1] < TEST_TIME * 60
+    assert timer.remaining_time[PLAYER2] == TEST_TIME * 60
 
     # time is up
     sleep(TEST_TIME * 60)
-    assert timer.getRemainingTime(PLAYER1) == 0
-    assert timer.getRemainingTime(PLAYER2) == TEST_TIME * 60
-    assert timer.remainingTime[PLAYER1] == 0
-    assert timer.remainingTime[PLAYER2] == TEST_TIME * 60
+    assert timer.get_remaining_time(PLAYER1) == 0
+    assert timer.get_remaining_time(PLAYER2) == TEST_TIME * 60
+    assert timer.remaining_time[PLAYER1] == 0
+    assert timer.remaining_time[PLAYER2] == TEST_TIME * 60
 
 
 # TEST TIME IS UP
@@ -135,11 +136,11 @@ def test_timeUp():
     """
 
     timer = BlitzTimer(TEST_TIME)
-    timer.startTimer(PLAYER1)
+    timer.start_timer(PLAYER1)
     sleep(TEST_TIME * 60)
-    assert timer.getRemainingTime(PLAYER1) == 0
-    assert timer.getRemainingTime(PLAYER2) == TEST_TIME * 60
-    assert timer.remainingTime[PLAYER1] == 0
-    assert timer.remainingTime[PLAYER2] == TEST_TIME * 60
-    assert timer.isTimeUp(PLAYER1) == True
-    assert timer.isTimeUp(PLAYER2) == False
+    assert timer.get_remaining_time(PLAYER1) == 0
+    assert timer.get_remaining_time(PLAYER2) == TEST_TIME * 60
+    assert timer.remaining_time[PLAYER1] == 0
+    assert timer.remaining_time[PLAYER2] == TEST_TIME * 60
+    assert timer.is_time_up(PLAYER1)
+    assert not timer.is_time_up(PLAYER2)

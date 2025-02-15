@@ -1,33 +1,41 @@
+"""
+Program arguments parsing
+"""
 import argparse
 import sys
-from typing import Optional, Tuple
+from typing import Tuple
 from enum import Enum
+import othello
 
 
 # VARIABLES
 
 class GameMode(Enum):
+    """
+    Enum matching gamemode options to its string representation
+    """
     NORMAL = "normal"
     BLITZ = "blitz"
     CONTEST = "contest"
     AI = "ai"
 
 
-class aiColor(Enum):
+class AIColor(Enum):
+    """Enum matching ai color option to its string representation"""
     BLACK = "X"
     WHITE = "O"
     ALL = "A"
 
 
 VALID_SIZES = [6, 8, 10, 12]
-VERSION = "0.1.0"
+VERSION = othello.__version__
 DEFAULT_BLITZ_TIME = 30
-VALID_AICOLORS = [x.value for x in aiColor]
+VALID_AICOLORS = [x.value for x in AIColor]
 
 
 # PARSER
 
-def createParser() -> argparse.ArgumentParser:
+def create_parser() -> argparse.ArgumentParser:
     """
     Initialize and configure the argument parser.
     """
@@ -113,7 +121,7 @@ def parse_args() -> Tuple[GameMode, dict]:
       SystemExit: if invalid arguments are provided
     """
 
-    parser = createParser()
+    parser = create_parser()
     args, unknown_args = parser.parse_known_args()
 
     # invalid option raises an error
@@ -123,7 +131,7 @@ def parse_args() -> Tuple[GameMode, dict]:
     # specifying more than one game mode raises an error
     if (args.contest and args.blitz) or (args.contest and args.ai) or (args.ai and args.blitz):
         parse_error(
-            parser, f"Specifying more than one game mode is not possible")
+            parser, "Specifying more than one game mode is not possible")
 
     # game mode
     mode = GameMode.NORMAL
@@ -135,11 +143,11 @@ def parse_args() -> Tuple[GameMode, dict]:
         mode = GameMode.AI
 
     # starting a game from a file and changing specific options raises an error
-    illegalOptionsWithFile = ["size", "blitz", "contest", "ai"]
+    illegal_options_with_file = ["size", "blitz", "contest", "ai"]
 
     if args.filename and not (args.size or args.blitz or args.contest or args.ai):
         parse_error(
-            parser, f"Cannot specify options that break the game configuration when loading a game from a file")
+            parser, "Cannot specify options that break the game configuration when loading a game from a file")
 
     # setting time if GM is not blitz raises an error
     if args.time and not args.blitz:
@@ -172,7 +180,7 @@ def parse_args() -> Tuple[GameMode, dict]:
         "contest": args.contest,
         "cFile": args.filename,
         # "ai": args.ai,
-        # "aiColor": args.ai,
+        # "AIColor": args.ai,
     }
 
     # specify game mode
@@ -184,7 +192,7 @@ def parse_args() -> Tuple[GameMode, dict]:
         config["cFile"] = args.contest
     elif mode == GameMode.AI:
         config["ai"] = args.ai
-        config["aiColor"] = args.ai
+        config["AIColor"] = args.ai
 
     return mode, config
 

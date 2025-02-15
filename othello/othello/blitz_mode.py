@@ -1,6 +1,6 @@
 from othello.othello_board import OthelloBoard, BoardSize, Color
 import othello.parser as parser
-from othello.blitzTimer import BlitzTimer
+from othello.blitz_timer import BlitzTimer
 
 
 class BlitzMode:
@@ -20,7 +20,7 @@ class BlitzMode:
             self.board = OthelloBoard(self.board_size)
             self.blitz_timer = BlitzTimer(parser.DEFAULT_BLITZ_TIME)
             self.current_player = Color.BLACK
-            self.blitz_timer.startTimer('black')
+            self.blitz_timer.start_timer('black')
 
     def switch_turn(self):
         # Check if time is up for current player
@@ -30,17 +30,17 @@ class BlitzMode:
         Returns:
             bool: True if the game is still ongoing, False if a player has won.
         """
-        if self.blitz_timer.isTimeUp('black'):
+        if self.blitz_timer.is_time_up('black'):
             print("Black's time is up! White wins!")
             return False
-        elif self.blitz_timer.isTimeUp('white'):
+        elif self.blitz_timer.is_time_up('white'):
             print("White's time is up! Black wins!")
             return False
 
         # Switch current player
         self.current_player = Color.WHITE if self.current_player == Color.BLACK else Color.BLACK
         next_player = 'white' if self.current_player == Color.WHITE else 'black'
-        self.blitz_timer.changePlayer(next_player)
+        self.blitz_timer.change_player(next_player)
         return True
 
     def play_move(self, x: int, y: int):
