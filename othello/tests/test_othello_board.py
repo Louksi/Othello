@@ -225,6 +225,25 @@ def test_complex_position():
     assert cap.bits == thruth_mask
 
 
+"""  a b c d e f g h
+1 _ _ _ _ _ _ _ _
+2 _ _ _ _ _ _ _ _
+3 _ _ _ _ _ _ _ _
+4 _ _ _ O X _ _ _
+5 _ _ _ X X X _ _
+6 _ _ _ _ _ _ _ _
+7 _ _ _ _ _ _ _ _
+8 _ _ _ _ _ _ _ _"""
+
+
+def test_capture():
+    # todo
+    starting_board = OthelloBoard(BoardSize.EIGHT_BY_EIGHT)
+    starting_board.play(5, 4)
+    starting_board.play(5, 5)
+    assert False
+
+
 def test__str__():
     """
     Test if the string representation of the board is correctly computed at the starting position of the game.

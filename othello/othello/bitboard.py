@@ -147,6 +147,9 @@ class Bitboard:
             remaining_bits >>= 64
         return summed
 
+    def empty(self) -> bool:
+        return self.popcount() == 0
+
     def __shift_w(self) -> Bitboard:
         """
         Shift all the bits to the west (left).
@@ -317,6 +320,21 @@ class Bitboard:
         """
         rez = copy(self)
         return Bitboard(self.size, rez.bits ^ other.bits)
+
+    def __invert__(self):
+        """
+        Compute the binary bitwise invert (~) of two bitboards.
+
+        This method takes a bitboard `other` and computes the logical invert of the
+        current bitboard with `other`.
+
+        :param other: The bitboard to compute the binary invert with.
+        :type other: Bitboard
+        :return: A bitboard that is the binary invert of the current bitboard and `other`.
+        :rtype: Bitboard
+        """
+        rez = copy(self)
+        return Bitboard(self.size, ~rez.bits)
 
     def __str__(self) -> str:
         """

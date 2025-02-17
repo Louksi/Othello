@@ -1,6 +1,8 @@
 """
 Everything related to the actual board of Othello.
 """
+
+from __future__ import annotations
 from enum import Enum
 from string import ascii_lowercase
 
@@ -15,6 +17,24 @@ class Color(Enum):
     BLACK = "X"
     WHITE = "O"
     EMPTY = "_"
+
+    def __invert__(self) -> Color:
+        if self is Color.BLACK:
+            return Color.WHITE
+        elif self is Color.WHITE:
+            return Color.BLACK
+        return Color.EMPTY
+
+
+class IllegalMoveException(Exception):
+    def __init__(self, x_coord: int, y_coord: int, current_player: Color):
+        super().__init__(
+            f"Move {x_coord}:{y_coord} from player {current_player} is illegal")
+
+
+class GameOverException(Exception):
+    def __init__(self):
+        super().__init__("The board is in Game Over")
 
 
 class BoardSize(Enum):
@@ -38,6 +58,7 @@ class OthelloBoard:
         :param type: BoardSize
         """
         self.size = size
+        self.current_player = Color.BLACK
         self.black = Bitboard(size.value)
         self.white = Bitboard(size.value)
         # we copy a mask from one of our bitboards as they are equals and immutables
@@ -110,6 +131,27 @@ class OthelloBoard:
                     break
 
         return cap_mask
+
+    def play(self, x_coord: int, y_coord: int, retry=False):
+        legal_moves = self.line_cap_move(self.current_player)
+        if legal_moves.empty() and not retry:
+            return self.play(x_coord, y_coord, True)
+        elif legal_moves.empty():
+            raise GameOverException()
+        move_mask = Bitboard(self.size.value)
+        move_mask.set(x_coord, y_coord, True)
+        if (legal_moves & move_mask).bits > 0:
+            capture_mask = self.line_cap(x_coord, y_coord, self.current_player)
+            bits_p = self.black if self.current_player is Color.BLACK else self.white
+            bits_o = self.white if self.current_player is Color.BLACK else self.black
+            bits_p |= capture_mask
+            bits_o &= (~capture_mask)
+            self.black = bits_p if self.current_player is Color.BLACK else bits_o
+            self.white = bits_o if self.current_player is Color.BLACK else bits_p
+        else:
+            raise IllegalMoveException(x_coord, y_coord, self.current_player)
+
+        self.current_player = ~self.current_player
 
     def __empty_mask(self) -> Bitboard:
         """
