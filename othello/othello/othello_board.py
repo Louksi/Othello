@@ -125,6 +125,16 @@ class OthelloBoard:
         return Bitboard(self.size.value, (self.white.bits | self.black.bits) ^ self.mask)
 
     def __str__(self) -> str:
+        """
+        Return a string representation of the board in the standard algebraic notation
+
+        Each rank is labeled with a number and each file is labeled with a letter.
+        Black pions are represented by 'X', white pions are represented by 'O',
+        and empty squares are represented by '_'.
+
+        :return: A string representation of the board in the standard algebraic notation
+        :rtype: str
+        """
         rez = "  "
 
         rez += " ".join([ascii_lowercase[letter_idx]
