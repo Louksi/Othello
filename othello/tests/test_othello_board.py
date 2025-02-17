@@ -1,5 +1,5 @@
 from othello.bitboard import Bitboard
-from othello.othello_board import BoardSize, Color, OthelloBoard
+from othello.othello_board import BoardSize, CannotPopException, Color, OthelloBoard, GameOverException, IllegalMoveException
 import pytest
 
 
@@ -223,6 +223,55 @@ def test_complex_position():
     cap = b.line_cap(4, 4, Color.WHITE)
     thruth_mask = 0b0000000000000000000010000001100000000000000000000000000000000000
     assert cap.bits == thruth_mask
+
+
+def test_game_over_exception_when_board_full():
+    size = BoardSize.SIX_BY_SIX
+    board = OthelloBoard(size)
+    white = Bitboard(size.value)
+    black = Bitboard(size.value)
+    for x in range(size.value):
+        for y in range(size.value):
+            if (x, y) == (3, 3):
+                continue
+            elif (x, y) == (3, 4):
+                white.set(x, y, True)
+            elif (x, y) == (3, 5):
+                black.set(x, y, True)
+            else:
+                white.set(x, y, True)
+    board.black = black
+    board.white = white
+    board.current_player = Color.BLACK
+
+    with pytest.raises(GameOverException):
+        board.play(3, 3)
+
+
+def test_illegal_move_occupied_cell():
+    board = OthelloBoard(BoardSize.EIGHT_BY_EIGHT)
+    board.play(5, 4)
+    with pytest.raises(IllegalMoveException):
+        board.play(5, 4)
+
+
+def test_invert():
+    p = Color.BLACK
+    assert ~p == Color.WHITE
+    assert ~~p == Color.BLACK
+    p = Color.EMPTY
+    assert ~p == Color.EMPTY
+
+
+def test_pop_empty_board():
+    b = OthelloBoard(BoardSize.EIGHT_BY_EIGHT)
+    with pytest.raises(CannotPopException):
+        b.pop()
+
+    b.play(5, 4)
+    b.pop()
+    with pytest.raises(CannotPopException):
+        b.pop()
 
 
 def test__str__():
