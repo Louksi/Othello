@@ -32,15 +32,33 @@ def main():
             current_player = board.Color.BLACK
 
             while True:
+                no_black, no_white = False, False
+
                 print(str(b))
                 print(f"\n{current_player.name}'s turn ({current_player.value})")
 
                 possible_moves = b.line_cap_move(current_player)
                 if possible_moves.bits == 0:
-                    print(
-                        f"No valid moves for {current_player.name}. Skipping turn.")
-                    current_player = board.Color.WHITE if current_player == board.Color.BLACK else board.Color.BLACK
-                    continue
+                    if current_player == board.Color.BLACK:
+                        no_black = True
+                    else:
+                        no_white = True
+
+                    if no_black and no_white:
+                        print("No valid moves for both players. Game over.")
+                    elif no_black:
+                        print("No valid moves for black. White wins!")
+                    elif no_white:
+                        print("No valid moves for white. Black wins!")
+                    else:
+                        print(
+                            f"No valid moves for {current_player.name}. Skipping turn.")
+                        current_player = (
+                            board.Color.WHITE if current_player == board.Color.BLACK else board.Color.BLACK
+                        )
+                        continue
+
+                    sys.exit(0)
 
                 print("Possible moves: ")
                 for y in range(b.size.value):
@@ -62,12 +80,7 @@ def main():
                     print("Invalid move. Not a legal play. Try again.")
                     continue
 
-                captures = b.line_cap(x_coord, y_coord, current_player)
-
-                if current_player == board.Color.BLACK:
-                    b.black |= captures
-                else:
-                    b.white |= captures
+                b.play(x_coord, y_coord)
 
                 current_player = board.Color.WHITE if current_player == board.Color.BLACK else board.Color.BLACK
 
