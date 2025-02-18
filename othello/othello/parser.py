@@ -27,10 +27,42 @@ class AIColor(Enum):
     ALL = "A"
 
 
+class AIMode(Enum):
+    """Enum matching ai algorithm mode option to its string representation"""
+    MINIMAX = "minimax"
+    ALPHABETA = "ab"
+
+
+class AIHeuristic(Enum):
+    """Enum matching ai heuristic option to its string representation"""
+    DEFAULT = "default"
+    OTHER = "other"
+
+
 VALID_SIZES = [6, 8, 10, 12]
 VERSION = othello.__version__
 DEFAULT_BLITZ_TIME = 30
 VALID_AICOLORS = [x.value for x in AIColor]
+VALID_AIMODES = [x.value for x in AIMode]
+VALID_AIHEURISTICS = [x.value for x in AIHeuristic]
+DEFAULT_AI_DEPTH = 3
+DEFAULT_AI_TIME = 5
+DEFAULT_AI_HEURISTIC = "default"
+
+# Default configuration
+default_config = {
+    "mode": GameMode.NORMAL,
+    "filename": None,
+    "size": 8,
+    "debug": False,
+    "blitz_time": DEFAULT_BLITZ_TIME,
+    "ai_color": "X",
+    "ai_mode": "minimax",
+    "ai_shallow": False,
+    "ai_depth": 3,
+    "ai_heuristic": "default",
+    "ai_time": 5
+}
 
 
 # PARSER
@@ -54,13 +86,6 @@ def create_parser() -> argparse.ArgumentParser:
                         )
 
     # options
-    # while help is included by default in argparse, we'll add it here explicitly for documentation purposes
-    # whoops, adding it creates a conflict, guess we won't add it then
-    # parser.add_argument( "-h", "--help",
-    #         action = "help",
-    #         help = "Display this help message and exit"
-    #         )
-
     parser.add_argument("-V", "--version",
                         action="version",
                         version=f"%(prog)s {VERSION}",
@@ -105,6 +130,40 @@ def create_parser() -> argparse.ArgumentParser:
                         help="Enable AI game mode with optional color specification: black: 'X' / white: 'O' / all: 'A', default is black"
                         )
 
+    parser.add_argument("--ai-mode",
+                        type=str,
+                        choices=VALID_AIMODES,
+                        default=VALID_AIMODES[0],
+                        help="Set AI algorithm mode: minimax: 'minimax' / alpha-beta: 'ab', default is minimax"
+                        )
+
+    parser.add_argument("--ai-shallow",
+                        action="store_true",
+                        help="Enable shallow AI mode, allows for a preliminary shallow exploration of the move tree"
+                        )
+
+    parser.add_argument("--ai-depth",
+                        type=int,
+                        default=DEFAULT_AI_DEPTH,
+                        metavar="DEPTH",
+                        help=f"Set AI search depth (root_depth = 0), default is {DEFAULT_AI_DEPTH}"
+                        )
+
+    parser.add_argument("--ai-heuristic",
+                        type=str,
+                        choices=VALID_AIHEURISTICS,
+                        default=DEFAULT_AI_HEURISTIC,
+                        metavar="HEURISTIC",
+                        help=f"Set AI heuristic: default: 'default' / other: 'other', default is '{DEFAULT_AI_HEURISTIC}'"
+                        )
+
+    parser.add_argument("--ai-time",
+                        type=int,
+                        default=DEFAULT_AI_TIME,
+                        metavar="TIME",
+                        help=f"Set AI time limit (in seconds), default is {DEFAULT_AI_TIME} seconds"
+                        )
+
     return parser
 
 
@@ -143,7 +202,7 @@ def parse_args() -> Tuple[GameMode, dict]:
         mode = GameMode.AI
 
     # starting a game from a file and changing specific options raises an error
-    illegal_options_with_file = ["size", "blitz", "contest", "ai"]
+    # illegal_options_with_file = ["size", "blitz", "contest", "ai"]
 
     if args.filename and not (args.size or args.blitz or args.contest or args.ai):
         parse_error(
@@ -169,30 +228,41 @@ def parse_args() -> Tuple[GameMode, dict]:
     if args.ai and (args.ai not in VALID_AICOLORS):
         parse_error(parser, f"Invalid AI color: {args.ai}")
 
+    # specifying a negative ai depth raises an error
+    if args.ai_depth <= 0:
+        parse_error(parser, "AI depth must be positive")
+
+    # specifying a negative ai time limit raises an error
+    if args.ai_time <= 0:
+        parse_error(parser, "AI time limit must be positive")
+
     # build configuration dictionary
     config = {
-        # "mode": mode,
+        "mode": mode,
         "filename": args.filename,
         "size": args.size,
         "debug": args.debug,
-        "blitz": args.blitz,
-        "bTime": args.time or DEFAULT_BLITZ_TIME,
-        "contest": args.contest,
-        "cFile": args.filename,
-        # "ai": args.ai,
-        # "AIColor": args.ai,
+        "blitz_time": DEFAULT_BLITZ_TIME,
+        "ai_color": VALID_AICOLORS[0],
+        "ai_mode": VALID_AIMODES[0],
+        "ai_shallow": False,
+        "ai_depth": DEFAULT_AI_DEPTH,
+        "ai_heuristic": DEFAULT_AI_HEURISTIC,
+        "ai_time": DEFAULT_AI_TIME,
     }
 
     # specify game mode
     if mode == GameMode.BLITZ:
-        config["blitz"] = args.blitz
-        config["bTime"] = args.time or DEFAULT_BLITZ_TIME
+        config["blitz_time"] = args.time or DEFAULT_BLITZ_TIME
     elif mode == GameMode.CONTEST:
-        config["contest"] = args.contest
-        config["cFile"] = args.contest
+        config["filename"] = args.contest
     elif mode == GameMode.AI:
-        config["ai"] = args.ai
-        config["AIColor"] = args.ai
+        config["ai_color"] = args.ai or VALID_AICOLORS[0]
+        config["ai_mode"] = args.ai_mode or VALID_AIMODES[0]
+        config["ai_shallow"] = args.ai_shallow or False
+        config["ai_depth"] = args.ai_depth or DEFAULT_AI_DEPTH
+        config["ai_heuristic"] = args.ai_heuristic or DEFAULT_AI_HEURISTIC
+        config["ai_time"] = args.ai_time or DEFAULT_AI_TIME
 
     return mode, config
 
