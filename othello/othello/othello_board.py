@@ -143,15 +143,13 @@ class OthelloBoard:
             bits_o = self.white if self.current_player is Color.BLACK else self.black
             bits_p |= capture_mask
             bits_o &= (~capture_mask)
-            rez = copy(self)
-            rez.black = bits_p if self.current_player is Color.BLACK else bits_o
-            rez.white = bits_o if self.current_player is Color.BLACK else bits_p
-            rez.current_player = ~self.current_player
-            if rez.line_cap_move(rez.current_player).bits == 0:
-                rez.current_player = self.current_player
-            if rez.line_cap_move(rez.current_player).bits == 0:
+            self.black = bits_p if self.current_player is Color.BLACK else bits_o
+            self.white = bits_o if self.current_player is Color.BLACK else bits_p
+            self.current_player = ~self.current_player
+            if self.line_cap_move(self.current_player).bits == 0:
+                self.current_player = ~self.current_player
+            if self.line_cap_move(self.current_player).bits == 0:
                 raise GameOverException
-            return rez
         else:
             raise IllegalMoveException(x_coord, y_coord, self.current_player)
 
