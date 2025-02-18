@@ -1,6 +1,6 @@
 import pytest
 import sys
-from othello.parser import AIColor, parse_args, GameMode, create_parser
+from othello.parser import GameMode, AIColor, AIMode, AIHeuristic, parse_args, default_config
 
 # TEST DEFAULT CONFIGURATION
 
@@ -18,12 +18,10 @@ def test_defaultConfig(monkeypatch):
     configuration.
     """
     monkeypatch.setattr(sys, 'argv', ["othello"])
-    mode, parseConfig = parse_args()
+    mode, parse_config = parse_args()
 
     assert mode == GameMode.NORMAL
-    assert parseConfig["filename"] is None
-    assert parseConfig["size"] == 8
-    assert parseConfig["debug"] is False
+    assert parse_config == default_config
 
 
 # TEST REGULAR OPTIONS
@@ -39,13 +37,13 @@ def test_file(monkeypatch):
     """
 
     monkeypatch.setattr(sys, 'argv', ["othello", "dummyGame.txt"])
-    mode, parseConfig = parse_args()
-    assert parseConfig["filename"] == "dummyGame.txt"
+    mode, parse_config = parse_args()
+    assert parse_config["filename"] == "dummyGame.txt"
 
     with pytest.raises(SystemExit):
         monkeypatch.setattr(
             sys, 'argv', ["othello", "dummyGame.txt", "-a", "s"])
-        _, parseConfig = parse_args()
+        _, parse_config = parse_args()
 
 
 # help
@@ -61,6 +59,7 @@ def test_help(monkeypatch):
     with pytest.raises(SystemExit):
         monkeypatch.setattr(sys, 'argv', ["othello", "-h"])
         parse_args()
+
 
 # version
 
@@ -88,9 +87,10 @@ def test_debug(monkeypatch):
     """
 
     monkeypatch.setattr(sys, 'argv', ["othello", "-d"])
-    mode, parseConfig = parse_args()
+    mode, parse_config = parse_args()
 
-    assert parseConfig["debug"] is True
+    assert parse_config["debug"] is True
+
 
 # size
 
@@ -103,10 +103,30 @@ def test_size(monkeypatch):
     the parser correctly sets the size in the configuration.
     """
 
-    monkeypatch.setattr(sys, 'argv', ["othello", "-s", "10"])
-    mode, parseConfig = parse_args()
+    monkeypatch.setattr(sys, 'argv', ["othello"])
+    mode, parse_config = parse_args()
 
-    assert parseConfig["size"] == 10
+    assert parse_config["size"] == 8
+
+    monkeypatch.setattr(sys, 'argv', ["othello", "-s", "6"])
+    mode, parse_config = parse_args()
+
+    assert parse_config["size"] == 6
+
+    monkeypatch.setattr(sys, 'argv', ["othello", "-s", "8"])
+    mode, parse_config = parse_args()
+
+    assert parse_config["size"] == 8
+
+    monkeypatch.setattr(sys, 'argv', ["othello", "-s", "10"])
+    mode, parse_config = parse_args()
+
+    assert parse_config["size"] == 10
+
+    monkeypatch.setattr(sys, 'argv', ["othello", "-s", "12"])
+    mode, parse_config = parse_args()
+
+    assert parse_config["size"] == 12
 
 
 # TEST MODES
@@ -122,16 +142,18 @@ def test_blitzMode(monkeypatch):
     correctly sets the time limit to the specified value.
     """
     monkeypatch.setattr(sys, 'argv', ["othello", "-b"])
-    mode, parseConfig = parse_args()
+    mode, parse_config = parse_args()
 
     assert mode == GameMode.BLITZ
-    assert parseConfig["bTime"] == 30
+    assert parse_config["mode"] == GameMode.BLITZ
+    assert parse_config["blitz_time"] == 30
 
     monkeypatch.setattr(sys, 'argv', ["othello", "-b", "-t", "60"])
-    mode, parseConfig = parse_args()
+    mode, parse_config = parse_args()
 
     assert mode == GameMode.BLITZ
-    assert parseConfig["bTime"] == 60
+    assert parse_config["mode"] == GameMode.BLITZ
+    assert parse_config["blitz_time"] == 60
 
 
 # contest
@@ -143,11 +165,13 @@ def test_contestMode(monkeypatch):
     the parser correctly sets the game mode to Contest and sets the filename
     in the configuration.
     """
-    monkeypatch.setattr(sys, 'argv', ["othello", "-c", "dummyGame.txt"])
-    mode, parseConfig = parse_args()
+    monkeypatch.setattr(sys, 'argv', ["othello", "-c", "dummy_game.txt"])
+    mode, parse_config = parse_args()
 
     assert mode == GameMode.CONTEST
-    assert parseConfig["cFile"] == "dummyGame.txt"
+    assert parse_config["mode"] == GameMode.CONTEST
+    assert parse_config["filename"] == "dummy_game.txt"
+
 
 # ai
 
@@ -160,23 +184,88 @@ def test_aiMode(monkeypatch):
     the parser correctly sets the game mode to AI and sets the color in the
     configuration.
     """
+    # ai default settings
     monkeypatch.setattr(sys, 'argv', ["othello", "-a"])
-    mode, parseConfig = parse_args()
+    mode, parse_config = parse_args()
 
     assert mode == GameMode.AI
-    assert parseConfig["AIColor"] == AIColor.BLACK.value
+    assert parse_config["mode"] == GameMode.AI
+    assert parse_config["ai_color"] == AIColor.BLACK.value
+    assert parse_config["ai_mode"] == AIMode.MINIMAX.value
+    assert parse_config["ai_shallow"] is False
+    assert parse_config["ai_depth"] == 3
+    assert parse_config["ai_heuristic"] == AIHeuristic.DEFAULT.value
+    assert parse_config["ai_time"] == 5
 
+    # ai color
     monkeypatch.setattr(sys, 'argv', ["othello", "-aO"])
-    mode, parseConfig = parse_args()
+    mode, parse_config = parse_args()
 
     assert mode == GameMode.AI
-    assert parseConfig["AIColor"] == AIColor.WHITE.value
+    assert parse_config["mode"] == GameMode.AI
+    assert parse_config["ai_color"] == AIColor.WHITE.value
 
     monkeypatch.setattr(sys, 'argv', ["othello", "-aA"])
-    mode, parseConfig = parse_args()
+    mode, parse_config = parse_args()
 
     assert mode == GameMode.AI
-    assert parseConfig["AIColor"] == AIColor.ALL.value
+    assert parse_config["mode"] == GameMode.AI
+    assert parse_config["ai_color"] == AIColor.ALL.value
+
+    monkeypatch.setattr(sys, 'argv', ["othello", "--ai", "A"])
+    mode, parse_config = parse_args()
+
+    assert mode == GameMode.AI
+    assert parse_config["mode"] == GameMode.AI
+    assert parse_config["ai_color"] == AIColor.ALL.value
+
+    # ai mode
+    monkeypatch.setattr(sys, 'argv', ["othello", "-a", "--ai-mode", "minimax"])
+    mode, parse_config = parse_args()
+
+    assert mode == GameMode.AI
+    assert parse_config["mode"] == GameMode.AI
+    assert parse_config["ai_mode"] == AIMode.MINIMAX.value
+
+    monkeypatch.setattr(sys, 'argv', ["othello", "-a", "--ai-mode", "ab"])
+    mode, parse_config = parse_args()
+
+    assert mode == GameMode.AI
+    assert parse_config["mode"] == GameMode.AI
+    assert parse_config["ai_mode"] == AIMode.ALPHABETA.value
+
+    # ai shallow
+    monkeypatch.setattr(sys, 'argv', ["othello", "-a", "--ai-shallow"])
+    mode, parse_config = parse_args()
+
+    assert mode == GameMode.AI
+    assert parse_config["mode"] == GameMode.AI
+    assert parse_config["ai_shallow"] is True
+
+    # ai depth
+    monkeypatch.setattr(sys, 'argv', ["othello", "-a", "--ai-depth", "5"])
+    mode, parse_config = parse_args()
+
+    assert mode == GameMode.AI
+    assert parse_config["mode"] == GameMode.AI
+    assert parse_config["ai_depth"] == 5
+
+    # ai heuristic
+    monkeypatch.setattr(
+        sys, 'argv', ["othello", "-a", "--ai-heuristic", "other"])
+    mode, parse_config = parse_args()
+
+    assert mode == GameMode.AI
+    assert parse_config["mode"] == GameMode.AI
+    assert parse_config["ai_heuristic"] == AIHeuristic.OTHER.value
+
+    # ai time
+    monkeypatch.setattr(sys, 'argv', ["othello", "-a", "--ai-time", "25"])
+    mode, parse_config = parse_args()
+
+    assert mode == GameMode.AI
+    assert parse_config["mode"] == GameMode.AI
+    assert parse_config["ai_time"] == 25
 
 
 # TEST ERRORS
@@ -271,7 +360,7 @@ def test_errContest(monkeypatch):
 # incorrect ai color
 
 
-def test_errColor(monkeypatch):
+def test_errAIcolor(monkeypatch):
     """
     Test the error handling of the parser for invalid AI color arguments.
 
@@ -282,16 +371,55 @@ def test_errColor(monkeypatch):
         monkeypatch.setattr(sys, 'argv', ["othello", "-aB"])
         parse_args()
 
-# incorrect ai color
+# incorrect ai argument
 
 
-def test_errAI(monkeypatch):
+def test_errAIarg(monkeypatch):
     """
     Test the error handling of the parser for invalid AI arguments.
 
     This test ensures that when an invalid AI argument is provided, the parser
     raises a SystemExit exception with a non-zero exit status.
     """
+
     with pytest.raises(SystemExit):
         monkeypatch.setattr(sys, 'argv', ["othello", "-a[invalid]"])
+        parse_args()
+
+# incorrect ai depth
+
+
+def test_errAIdepth(monkeypatch):
+    """
+    Test the error handling of the parser for invalid AI depth arguments.
+
+    This test ensures that when an invalid AI depth is provided, the parser
+    raises a SystemExit exception with a non-zero exit status.
+    """
+
+    with pytest.raises(SystemExit):
+        monkeypatch.setattr(sys, 'argv', ["othello", "-a", "--ai-depth", "0"])
+        parse_args()
+
+    with pytest.raises(SystemExit):
+        monkeypatch.setattr(sys, 'argv', ["othello", "-a", "--ai-depth", "-1"])
+        parse_args()
+
+# incorrect ai time limit
+
+
+def test_errAItime(monkeypatch):
+    """
+    Test the error handling of the parser for invalid AI time limit arguments.
+
+    This test ensures that when an invalid AI time limit is provided, the parser
+    raises a SystemExit exception with a non-zero exit status.
+    """
+
+    with pytest.raises(SystemExit):
+        monkeypatch.setattr(sys, 'argv', ["othello", "-a", "--ai-time", "0"])
+        parse_args()
+
+    with pytest.raises(SystemExit):
+        monkeypatch.setattr(sys, 'argv', ["othello", "-a", "--ai-time", "-1"])
         parse_args()
