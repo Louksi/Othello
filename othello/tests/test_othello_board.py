@@ -1,5 +1,5 @@
 from othello.bitboard import Bitboard
-from othello.othello_board import BoardSize, Color, OthelloBoard
+from othello.othello_board import BoardSize, Color, OthelloBoard, GameOverException, IllegalMoveException
 import pytest
 
 
@@ -225,22 +225,52 @@ def test_complex_position():
     assert cap.bits == thruth_mask
 
 
-"""  a b c d e f g h
-1 _ _ _ _ _ _ _ _
-2 _ _ _ _ _ _ _ _
-3 _ _ _ _ _ _ _ _
-4 _ _ _ O X _ _ _
-5 _ _ _ X X X _ _
-6 _ _ _ _ _ _ _ _
-7 _ _ _ _ _ _ _ _
-8 _ _ _ _ _ _ _ _"""
+def test_game_over_exception_when_board_full():
+    size = BoardSize.SIX_BY_SIX
+    board = OthelloBoard(size)
+    white = Bitboard(size.value)
+    black = Bitboard(size.value)
+    for x in range(size.value):
+        for y in range(size.value):
+            if (x, y) == (3, 3):
+                continue
+            elif (x, y) == (3, 4):
+                white.set(x, y, True)
+            elif (x, y) == (3, 5):
+                black.set(x, y, True)
+            else:
+                white.set(x, y, True)
+    board.black = black
+    board.white = white
+    board.current_player = Color.BLACK
+
+    with pytest.raises(GameOverException):
+        board.play(3, 3)
 
 
-def test_capture():
-    # todo
-    starting_board = OthelloBoard(BoardSize.EIGHT_BY_EIGHT)
-    starting_board.play(5, 4)
-    starting_board.play(5, 5)
+def test_illegal_move_occupied_cell():
+    board = OthelloBoard(BoardSize.EIGHT_BY_EIGHT)
+    board = board.play(5, 4)
+    with pytest.raises(IllegalMoveException):
+        board.play(5, 4)
+
+
+def test_full_game():
+    board = OthelloBoard(BoardSize.SIX_BY_SIX)
+    board = board.play(4, 3)
+    board = board.play(4, 4)
+    board = board.play(3, 4)
+    board = board.play(2, 4)
+    board = board.play(1, 1)
+    board = board.play(0, 0)
+    board = board.play(1, 2)
+    board = board.play(0, 1)
+    board = board.play(0, 2)
+    board = board.play(2, 1)
+    board = board.play(2, 0)
+    board = board.play(0, 3)
+    print(board)
+    print(board.line_cap_move(board.current_player))
     assert False
 
 

@@ -3,6 +3,7 @@ Everything related to the actual board of Othello.
 """
 
 from __future__ import annotations
+from copy import copy
 from enum import Enum
 from string import ascii_lowercase
 
@@ -132,12 +133,8 @@ class OthelloBoard:
 
         return cap_mask
 
-    def play(self, x_coord: int, y_coord: int, retry=False):
+    def play(self, x_coord: int, y_coord: int):
         legal_moves = self.line_cap_move(self.current_player)
-        if legal_moves.empty() and not retry:
-            return self.play(x_coord, y_coord, True)
-        elif legal_moves.empty():
-            raise GameOverException()
         move_mask = Bitboard(self.size.value)
         move_mask.set(x_coord, y_coord, True)
         if (legal_moves & move_mask).bits > 0:
@@ -146,12 +143,17 @@ class OthelloBoard:
             bits_o = self.white if self.current_player is Color.BLACK else self.black
             bits_p |= capture_mask
             bits_o &= (~capture_mask)
-            self.black = bits_p if self.current_player is Color.BLACK else bits_o
-            self.white = bits_o if self.current_player is Color.BLACK else bits_p
+            rez = copy(self)
+            rez.black = bits_p if self.current_player is Color.BLACK else bits_o
+            rez.white = bits_o if self.current_player is Color.BLACK else bits_p
+            rez.current_player = ~self.current_player
+            if rez.line_cap_move(rez.current_player).bits == 0:
+                rez.current_player = self.current_player
+            if rez.line_cap_move(rez.current_player).bits == 0:
+                raise GameOverException
+            return rez
         else:
             raise IllegalMoveException(x_coord, y_coord, self.current_player)
-
-        self.current_player = ~self.current_player
 
     def __empty_mask(self) -> Bitboard:
         """
