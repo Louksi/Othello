@@ -38,6 +38,11 @@ class GameOverException(Exception):
         super().__init__("The board is in Game Over")
 
 
+class CannotPopException(Exception):
+    def __init__(self):
+        super().__init__("Cannot pop from this board")
+
+
 class BoardSize(Enum):
     """
     Available board sizes.
@@ -65,6 +70,7 @@ class OthelloBoard:
         # we copy a mask from one of our bitboards as they are equals and immutables
         self.mask = self.black.mask
         self.__init_board()
+        self.older_states = []
 
     def __init_board(self):
         """
@@ -133,12 +139,18 @@ class OthelloBoard:
 
         return cap_mask
 
+    def pop(self):
+        if len(self.older_states) <= 0:
+            raise CannotPopException()
+
     def play(self, x_coord: int, y_coord: int):
         legal_moves = self.line_cap_move(self.current_player)
         move_mask = Bitboard(self.size.value)
         move_mask.set(x_coord, y_coord, True)
         if (legal_moves & move_mask).bits > 0:
             capture_mask = self.line_cap(x_coord, y_coord, self.current_player)
+            state_to_save = (self.black, self.white)
+            self.older_states.append(state_to_save)
             bits_p = self.black if self.current_player is Color.BLACK else self.white
             bits_o = self.white if self.current_player is Color.BLACK else self.black
             bits_p |= capture_mask
