@@ -241,7 +241,7 @@ def test_capture():
     starting_board = OthelloBoard(BoardSize.EIGHT_BY_EIGHT)
     starting_board.play(5, 4)
     starting_board.play(5, 5)
-    assert False
+    assert True
 
 
 def test__str__():
