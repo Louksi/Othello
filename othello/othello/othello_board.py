@@ -3,6 +3,8 @@ Everything related to the actual board of Othello.
 """
 
 from __future__ import annotations
+
+from __future__ import annotations
 from enum import Enum
 from string import ascii_lowercase
 
@@ -27,14 +29,31 @@ class Color(Enum):
 
 
 class IllegalMoveException(Exception):
+    """
+    Thrown when the user tries to push an illegal move
+    """
+
     def __init__(self, x_coord: int, y_coord: int, current_player: Color):
         super().__init__(
             f"Move {x_coord}:{y_coord} from player {current_player} is illegal")
 
 
 class GameOverException(Exception):
+    """
+    Thrown when the game is over after a play
+    """
+
     def __init__(self):
         super().__init__("The board is in Game Over")
+
+
+class CannotPopException(Exception):
+    """
+    Throws when trying to pop on a board in the init state
+    """
+
+    def __init__(self):
+        super().__init__("Cannot pop from this board")
 
 
 class BoardSize(Enum):
@@ -64,6 +83,7 @@ class OthelloBoard:
         # we copy a mask from one of our bitboards as they are equals and immutables
         self.mask = self.black.mask
         self.__init_board()
+        self.older_states = []
 
     def __init_board(self):
         """
@@ -132,26 +152,41 @@ class OthelloBoard:
 
         return cap_mask
 
-    def play(self, x_coord: int, y_coord: int, retry=False):
+    def pop(self):
+        """
+        Pops the last played move
+        """
+        if len(self.older_states) <= 0:
+            raise CannotPopException()
+
+        popped = self.older_states.pop()
+        self.black = popped[0]
+        self.black = popped[1]
+
+    def play(self, x_coord: int, y_coord: int):
+        """
+        Changes the state of the Board, pushing the move at x_coord;y_coord if it is a legal play.
+        """
         legal_moves = self.line_cap_move(self.current_player)
-        if legal_moves.empty() and not retry:
-            return self.play(x_coord, y_coord, True)
-        elif legal_moves.empty():
-            raise GameOverException()
         move_mask = Bitboard(self.size.value)
         move_mask.set(x_coord, y_coord, True)
         if (legal_moves & move_mask).bits > 0:
             capture_mask = self.line_cap(x_coord, y_coord, self.current_player)
+            state_to_save = (self.black, self.white)
+            self.older_states.append(state_to_save)
             bits_p = self.black if self.current_player is Color.BLACK else self.white
             bits_o = self.white if self.current_player is Color.BLACK else self.black
             bits_p |= capture_mask
             bits_o &= (~capture_mask)
             self.black = bits_p if self.current_player is Color.BLACK else bits_o
             self.white = bits_o if self.current_player is Color.BLACK else bits_p
+            self.current_player = ~self.current_player
+            if self.line_cap_move(self.current_player).bits == 0:
+                self.current_player = ~self.current_player
+            if self.line_cap_move(self.current_player).bits == 0:
+                raise GameOverException
         else:
             raise IllegalMoveException(x_coord, y_coord, self.current_player)
-
-        self.current_player = ~self.current_player
 
     def __empty_mask(self) -> Bitboard:
         """
@@ -168,14 +203,7 @@ class OthelloBoard:
 
     def __str__(self) -> str:
         """
-        Return a string representation of the board in the standard algebraic notation
-
-        Each rank is labeled with a number and each file is labeled with a letter.
-        Black pions are represented by 'X', white pions are represented by 'O',
-        and empty squares are represented by '_'.
-
-        :return: A string representation of the board in the standard algebraic notation
-        :rtype: str
+        Returns a string representation of a bitboard
         """
         rez = "  "
 

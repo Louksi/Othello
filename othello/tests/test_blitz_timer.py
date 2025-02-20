@@ -124,7 +124,7 @@ def test_remaining():
 
 # TEST TIME IS UP
 
-def test_timeUp():
+def test_time_up():
     """
     Tests the isTimeUp function of the BlitzTimer class.
 

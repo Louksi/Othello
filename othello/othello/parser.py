@@ -51,7 +51,7 @@ DEFAULT_AI_HEURISTIC = "default"
 
 # Default configuration
 default_config = {
-    "mode": GameMode.NORMAL,
+    "mode": GameMode.NORMAL.value,
     "filename": None,
     "size": 8,
     "debug": False,
@@ -193,13 +193,13 @@ def parse_args() -> Tuple[GameMode, dict]:
             parser, "Specifying more than one game mode is not possible")
 
     # game mode
-    mode = GameMode.NORMAL
+    mode = GameMode.NORMAL.value
     if args.contest:
-        mode = GameMode.CONTEST
+        mode = GameMode.CONTEST.value
     elif args.blitz:
-        mode = GameMode.BLITZ
+        mode = GameMode.BLITZ.value
     elif args.ai:
-        mode = GameMode.AI
+        mode = GameMode.AI.value
 
     # starting a game from a file and changing specific options raises an error
     # illegal_options_with_file = ["size", "blitz", "contest", "ai"]
@@ -218,7 +218,7 @@ def parse_args() -> Tuple[GameMode, dict]:
         parse_error(parser, "Time limit must be positive")
 
     # not specifying a file in contest mode raises an error
-    if mode == GameMode.CONTEST and not args.contest:
+    if mode == GameMode.CONTEST.value and not args.contest:
         parse_error(parser, "Contest mode requires a file (-c FILENAME)")
 
     if args.contest is not None and args.contest == "":
@@ -252,11 +252,11 @@ def parse_args() -> Tuple[GameMode, dict]:
     }
 
     # specify game mode
-    if mode == GameMode.BLITZ:
+    if mode == GameMode.BLITZ.value:
         config["blitz_time"] = args.time or DEFAULT_BLITZ_TIME
-    elif mode == GameMode.CONTEST:
+    elif mode == GameMode.CONTEST.value:
         config["filename"] = args.contest
-    elif mode == GameMode.AI:
+    elif mode == GameMode.AI.value:
         config["ai_color"] = args.ai or VALID_AICOLORS[0]
         config["ai_mode"] = args.ai_mode or VALID_AIMODES[0]
         config["ai_shallow"] = args.ai_shallow or False

@@ -15,7 +15,7 @@ def test_blitzMode_init(monkeypatch):
     """
     monkeypatch.setattr(sys, 'argv', ["othello", "-b", "-t", "30"])
     mode, parseConfig = parser.parse_args()
-    assert mode == parser.GameMode.BLITZ
+    assert mode == parser.GameMode.BLITZ.value
     assert parseConfig["blitz_time"] == 30
 
     game = BlitzMode(BoardSize.EIGHT_BY_EIGHT)
