@@ -47,9 +47,6 @@ def load_config(filename_prefix="default") -> dict:
     except FileNotFoundError:
         print("No config file found, will take default configuration.")
         raise
-    except Exception as e:
-        print(f"Error while loading the configuration: {e}")
-        raise
     return config
 
 

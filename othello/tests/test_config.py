@@ -5,6 +5,13 @@ from othello.config import save_config, load_config
 
 @pytest.fixture
 def temp_config_file(tmpdir):
+    """
+    Creates a temporary file used to test saving and loading of configuration
+    files. The file is deleted after the test is run.
+
+    Yields:
+        str: The path to the temporary file.
+    """
     temp_file = tmpdir.join("test_config.othellorc")
     yield str(temp_file)
     if os.path.exists(temp_file):
@@ -49,7 +56,7 @@ def test_save_config_invalid_filename():
 
 
 def test_load_config_invalid_filename():
-    with pytest.raises(Exception):
+    with pytest.raises(FileNotFoundError):
         load_config(filename_prefix="/invalid/path/test_config")
 
 
