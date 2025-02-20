@@ -5,17 +5,10 @@ from othello.blitz_timer import BlitzTimer
 
 
 class NormalGame:
-    def __init__(self, size: BoardSize):
-        """
-        Initialize the NormalGame with the given board size.
-
-        This sets up a new Othello game in Normal mode, initializing the board,
-        and setting the starting player to black.
-
-        :param size: The size of the Othello board.
-        :type size: BoardSize
-        """
-        self.board = OthelloBoard(size)
+    def __init__(self, board_size: BoardSize = BoardSize.EIGHT_BY_EIGHT):
+        if isinstance(board_size, int):
+            board_size = BoardSize(board_size)
+        self.board = OthelloBoard(board_size)
         self.current_player = Color.BLACK
 
     def display_board(self):
@@ -69,7 +62,8 @@ class NormalGame:
                 print("No valid moves for white. Black wins!")
                 sys.exit(0)
             else:
-                print(f"No valid moves for {self.current_player.name}. Skipping turn.")
+                print(
+                    f"No valid moves for {self.current_player.name}. Skipping turn.")
                 self.switch_player()
                 return True
         return False
@@ -146,7 +140,6 @@ class NormalGame:
         This function toggles the current player between black and white.
         It does not return any value.
         """
-        
 
         self.current_player = (
             Color.WHITE if self.current_player == Color.BLACK else Color.BLACK
@@ -205,12 +198,14 @@ class BlitzGame(NormalGame):
         """
 
         super().__init__(BoardSize(board_size) if isinstance(board_size, int) else board_size)
-        self.blitz_timer = BlitzTimer(time if time is not None else parser.DEFAULT_BLITZ_TIME)
-        self.blitz_timer.start_timer('black')  
+        self.blitz_timer = BlitzTimer(
+            time if time is not None else parser.DEFAULT_BLITZ_TIME)
+        self.blitz_timer.start_timer('black')
+
     def switch_player(self):
         """
         Switches the current player, updating the Blitz timer for the next player.
-        
+
         If a player's time has expired, the game is over and the winner is printed.
         Otherwise, the Blitz timer is updated by switching the current player and
         starting the timer for the new player.
@@ -225,11 +220,11 @@ class BlitzGame(NormalGame):
         super().switch_player()  # Switch player as normal
         next_player = 'white' if self.current_player == Color.WHITE else 'black'
         self.blitz_timer.change_player(next_player)
-    
+
     def display_time(self):
         """
         Prints the remaining time for both players.
-        
+
         This method prints the formatted string returned by BlitzTimer.display_time,
         which shows the remaining time for both black and white players in minutes and
         seconds.
@@ -250,14 +245,14 @@ class BlitzGame(NormalGame):
         :return: True if the game is over, False otherwise.
         :rtype: bool
         """
-        
+
         if self.blitz_timer.is_time_up('black'):
             print("Black's time is up! White wins!")
             sys.exit(0)
         elif self.blitz_timer.is_time_up('white'):
             print("White's time is up! Black wins!")
             sys.exit(0)
-            
+
         return super().check_game_over(possible_moves)
 
     def play(self):

@@ -33,7 +33,7 @@ def main():
 
         case parser.GameMode.BLITZ:
             print("Starting Blitz Mode...")
-            Modes.BlitzGame(config["size"], config["bTime"]).play()
+            Modes.BlitzGame(config["size"], config["blitz_time"]).play()
             print(f"Blitz mode with time limit: {config['bTime']} minutes")
 
         case parser.GameMode.CONTEST:
