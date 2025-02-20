@@ -1,4 +1,7 @@
+from copy import copy
+from othello import othello_board
 from othello.bitboard import Bitboard
+from othello.board_parser import BoardParser
 from othello.othello_board import BoardSize, CannotPopException, Color, OthelloBoard, GameOverException, IllegalMoveException
 import pytest
 
@@ -272,6 +275,39 @@ def test_pop_empty_board():
     b.pop()
     with pytest.raises(CannotPopException):
         b.pop()
+
+
+def test_boardsize_from():
+    assert BoardSize.SIX_BY_SIX is BoardSize.from_value(6)
+    assert BoardSize.EIGHT_BY_EIGHT is BoardSize.from_value(8)
+    assert BoardSize.TEN_BY_TEN is BoardSize.from_value(10)
+    assert BoardSize.TWELVE_BY_TWELVE is BoardSize.from_value(12)
+    with pytest.raises(Exception):
+        BoardSize.from_value(4)
+
+
+def test_eq():
+    def __set(b: OthelloBoard):
+        b.play(5, 4)
+        b.play(5, 5)
+    b = OthelloBoard(BoardSize.EIGHT_BY_EIGHT)
+    __set(b)
+    b2 = OthelloBoard(BoardSize.EIGHT_BY_EIGHT)
+    __set(b2)
+    assert b == b2
+    b3 = copy(b2)
+    b3.current_player = Color.WHITE
+    assert b != b3
+    b.play(4, 5)
+    assert b != b2
+    assert b != Bitboard(8)
+
+
+def test_cant_build_illegal_board():
+    black = Bitboard(6)
+    white = Bitboard(10)
+    with pytest.raises(Exception):
+        b = OthelloBoard(BoardSize.SIX_BY_SIX, black=black, white=white)
 
 
 def test__str__():

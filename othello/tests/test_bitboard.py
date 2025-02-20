@@ -246,6 +246,21 @@ def test_empty():
     assert b.empty()
 
 
+def test_eq():
+    def __set(b: Bitboard):
+        b.set(4, 5, True)
+        b.set(7, 4, True)
+        b.set(8, 4, True)
+    b = Bitboard(8)
+    b2 = Bitboard(8)
+    __set(b)
+    __set(b2)
+    assert b == b2
+    b.set(1, 1, True)
+    assert b != b2
+    assert b != 3
+
+
 def test_str():
     assert str(pytest.b) ==\
         """| | | |·| |

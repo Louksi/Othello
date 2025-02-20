@@ -3,6 +3,8 @@ Everything related to the actual board of Othello.
 """
 
 from __future__ import annotations
+from copy import copy
+import re
 from enum import Enum
 from string import ascii_lowercase
 
@@ -63,25 +65,42 @@ class BoardSize(Enum):
     TEN_BY_TEN = 10
     TWELVE_BY_TWELVE = 12
 
+    @staticmethod
+    def from_value(value: int) -> BoardSize:
+        reversed_dep = {
+            bs.value: bs
+            for bs in BoardSize
+        }
+        if value in reversed_dep:
+            return reversed_dep[value]
+        else:
+            raise Exception("Illegal size")
+
 
 class OthelloBoard:
     """
     Implementation of an othello board that uses Bitboards
     """
 
-    def __init__(self, size: BoardSize):
+    def __init__(self, size: BoardSize, black=None, white=None, current_player: Color | None = None):
         """
         :param size: The size of the Bitboard from the enum `BoardSize`
         :param type: BoardSize
         """
         self.size = size
-        self.current_player = Color.BLACK
-        self.black = Bitboard(size.value)
-        self.white = Bitboard(size.value)
-        # we copy a mask from one of our bitboards as they are equals and immutables
+        self.current_player = Color.BLACK if current_player is None else current_player
+        if black is not None and white is not None:
+            if self.size.value != black.size or self.size.value != white.size:
+                raise Exception("Illegal size")
+            self.black = black
+            self.white = white
+        else:
+            self.black = Bitboard(size.value)
+            self.white = Bitboard(size.value)
+            # we copy a mask from one of our bitboards as they are equals and immutables
+            self.__init_board()
         self.mask = self.black.mask
-        self.__init_board()
-        self.older_states = []
+        self.__history: list[tuple[Bitboard, Bitboard, int, int, Color]] = []
 
     def __init_board(self):
         """
@@ -114,6 +133,9 @@ class OthelloBoard:
                 moves |= self.__empty_mask() & candidates.shift(shift_dir)
                 candidates = bits_o & candidates.shift(shift_dir)
         return moves
+
+    def get_turn_id(self):
+        return len(self.__history)//2+1
 
     def line_cap(self, x_coord: int, y_coord: int, current_player: Color) -> Bitboard:
         """
@@ -154,12 +176,13 @@ class OthelloBoard:
         """
         Pops the last played move
         """
-        if len(self.older_states) <= 0:
+        if len(self.__history) <= 0:
             raise CannotPopException()
 
-        popped = self.older_states.pop()
+        popped = self.__history.pop()
         self.black = popped[0]
         self.black = popped[1]
+        self.current_player = popped[4]
 
     def play(self, x_coord: int, y_coord: int):
         """
@@ -170,8 +193,9 @@ class OthelloBoard:
         move_mask.set(x_coord, y_coord, True)
         if (legal_moves & move_mask).bits > 0:
             capture_mask = self.line_cap(x_coord, y_coord, self.current_player)
-            state_to_save = (self.black, self.white)
-            self.older_states.append(state_to_save)
+            state_to_save = (self.black, self.white, x_coord,
+                             y_coord, self.current_player)
+            self.__history.append(state_to_save)
             bits_p = self.black if self.current_player is Color.BLACK else self.white
             bits_o = self.white if self.current_player is Color.BLACK else self.black
             bits_p |= capture_mask
@@ -186,6 +210,37 @@ class OthelloBoard:
         else:
             raise IllegalMoveException(x_coord, y_coord, self.current_player)
 
+    def get_history(self):
+        return copy(self.__history)
+
+    def export(self) -> str:
+        def move_to_str(move):
+            return f"{chr(ord('a') + move[2])}{move[3]+1}"
+        export_str = f"# board\n{self.current_player.value}\n"
+        for coord_y in range(self.size.value):
+            for coord_x in range(self.size.value):
+                if self.black.get(coord_x, coord_y):
+                    export_str += Color.BLACK.value
+                elif self.white.get(coord_x, coord_y):
+                    export_str += Color.WHITE.value
+                else:
+                    export_str += Color.EMPTY.value
+                if coord_x < self.size.value - 1:
+                    export_str += " "
+            export_str += "\n"
+
+        export_str += "# history\n"
+        for move_index in range(len(self.__history)):
+            move = self.__history[move_index]
+            if not move_index & 1:
+                move_str = move_to_str(move)
+                export_str += f"{move_index // 2 + 1}. X {move_str}"
+            else:
+                move_str = move_to_str(move)
+                export_str += f" O {move_str}"
+                export_str += "\n"
+        return export_str
+
     def __empty_mask(self) -> Bitboard:
         """
         Compute a bitboard that represents all the empty squares on the board.
@@ -198,6 +253,12 @@ class OthelloBoard:
         :rtype: Bitboard
         """
         return Bitboard(self.size.value, (self.white.bits | self.black.bits) ^ self.mask)
+
+    def __eq__(self, o) -> bool:
+        if isinstance(o, OthelloBoard):
+            return o.current_player == self.current_player and o.black == self.black and o.white == self.white
+
+        return False
 
     def __str__(self) -> str:
         """
