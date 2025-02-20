@@ -27,17 +27,29 @@ class Color(Enum):
 
 
 class IllegalMoveException(Exception):
+    """
+    Thrown when the user tries to push an illegal move
+    """
+
     def __init__(self, x_coord: int, y_coord: int, current_player: Color):
         super().__init__(
             f"Move {x_coord}:{y_coord} from player {current_player} is illegal")
 
 
 class GameOverException(Exception):
+    """
+    Thrown when the game is over after a play
+    """
+
     def __init__(self):
         super().__init__("The board is in Game Over")
 
 
 class CannotPopException(Exception):
+    """
+    Throws when trying to pop on a board in the init state
+    """
+
     def __init__(self):
         super().__init__("Cannot pop from this board")
 
@@ -139,6 +151,9 @@ class OthelloBoard:
         return cap_mask
 
     def pop(self):
+        """
+        Pops the last played move
+        """
         if len(self.older_states) <= 0:
             raise CannotPopException()
 
@@ -147,6 +162,9 @@ class OthelloBoard:
         self.black = popped[1]
 
     def play(self, x_coord: int, y_coord: int):
+        """
+        Changes the state of the Board, pushing the move at x_coord;y_coord if it is a legal play.
+        """
         legal_moves = self.line_cap_move(self.current_player)
         move_mask = Bitboard(self.size.value)
         move_mask.set(x_coord, y_coord, True)
@@ -182,6 +200,9 @@ class OthelloBoard:
         return Bitboard(self.size.value, (self.white.bits | self.black.bits) ^ self.mask)
 
     def __str__(self) -> str:
+        """
+        Returns a string representation of a bitboard
+        """
         rez = "  "
 
         rez += " ".join([ascii_lowercase[letter_idx]

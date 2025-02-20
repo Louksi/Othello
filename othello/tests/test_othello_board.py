@@ -1,5 +1,5 @@
 from othello.bitboard import Bitboard
-from othello.othello_board import BoardSize, Color, OthelloBoard, GameOverException, IllegalMoveException
+from othello.othello_board import BoardSize, CannotPopException, Color, OthelloBoard, GameOverException, IllegalMoveException
 import pytest
 
 
@@ -255,23 +255,23 @@ def test_illegal_move_occupied_cell():
         board.play(5, 4)
 
 
-# def test_full_game():
-#     board = OthelloBoard(BoardSize.SIX_BY_SIX)
-#     board = board.play(4, 3)
-#     board = board.play(4, 4)
-#     board = board.play(3, 4)
-#     board = board.play(2, 4)
-#     board = board.play(1, 1)
-#     board = board.play(0, 0)
-#     board = board.play(1, 2)
-#     board = board.play(0, 1)
-#     board = board.play(0, 2)
-#     board = board.play(2, 1)
-#     board = board.play(2, 0)
-#     board = board.play(0, 3)
-#     print(board)
-#     print(board.line_cap_move(board.current_player))
-#     assert False
+def test_invert():
+    p = Color.BLACK
+    assert ~p == Color.WHITE
+    assert ~~p == Color.BLACK
+    p = Color.EMPTY
+    assert ~p == Color.EMPTY
+
+
+def test_pop_empty_board():
+    b = OthelloBoard(BoardSize.EIGHT_BY_EIGHT)
+    with pytest.raises(CannotPopException):
+        b.pop()
+
+    b.play(5, 4)
+    b.pop()
+    with pytest.raises(CannotPopException):
+        b.pop()
 
 
 def test__str__():
