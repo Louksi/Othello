@@ -1,5 +1,6 @@
 from othello.othello_board import OthelloBoard, BoardSize, Color
-import othello.parser as parser
+#import othello.parser as parser
+from othello import parser
 from othello.blitz_timer import BlitzTimer
 
 
@@ -33,7 +34,7 @@ class BlitzMode:
         if self.blitz_timer.is_time_up('black'):
             print("Black's time is up! White wins!")
             return False
-        elif self.blitz_timer.is_time_up('white'):
+        if self.blitz_timer.is_time_up('white'):
             print("White's time is up! Black wins!")
             return False
 

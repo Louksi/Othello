@@ -4,7 +4,10 @@ import unittest
 import othello
 from othello.blitz_timer import BlitzTimer
 
+from unittest.mock import patch
+
 TEST_TIME = 0.1
+TEST_TIME_OVER = 0.000_000_000_001
 PLAYER1 = 'black'
 PLAYER2 = 'white'
 
@@ -108,17 +111,10 @@ def test_remaining():
     timer.start_timer(PLAYER1)
     assert timer.remaining_time[PLAYER1] == TEST_TIME * 60
     assert timer.remaining_time[PLAYER2] == TEST_TIME * 60
-    sleep(1)
+
     assert timer.get_remaining_time(PLAYER1) < TEST_TIME * 60
     assert timer.get_remaining_time(PLAYER2) == TEST_TIME * 60
     assert timer.remaining_time[PLAYER1] < TEST_TIME * 60
-    assert timer.remaining_time[PLAYER2] == TEST_TIME * 60
-
-    # time is up
-    sleep(TEST_TIME * 60)
-    assert timer.get_remaining_time(PLAYER1) == 0
-    assert timer.get_remaining_time(PLAYER2) == TEST_TIME * 60
-    assert timer.remaining_time[PLAYER1] == 0
     assert timer.remaining_time[PLAYER2] == TEST_TIME * 60
 
 
@@ -135,12 +131,11 @@ def test_time_up():
      - The isTimeUp function returns False for PLAYER2.
     """
 
-    timer = BlitzTimer(TEST_TIME)
+    timer = BlitzTimer(TEST_TIME_OVER)
     timer.start_timer(PLAYER1)
-    sleep(TEST_TIME * 60)
     assert timer.get_remaining_time(PLAYER1) == 0
-    assert timer.get_remaining_time(PLAYER2) == TEST_TIME * 60
+    assert timer.get_remaining_time(PLAYER2) == TEST_TIME_OVER * 60
     assert timer.remaining_time[PLAYER1] == 0
-    assert timer.remaining_time[PLAYER2] == TEST_TIME * 60
+    assert timer.remaining_time[PLAYER2] == TEST_TIME_OVER * 60
     assert timer.is_time_up(PLAYER1)
     assert not timer.is_time_up(PLAYER2)
