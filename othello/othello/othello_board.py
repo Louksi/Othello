@@ -3,7 +3,6 @@ Everything related to the actual board of Othello.
 """
 
 from __future__ import annotations
-from copy import copy
 from enum import Enum
 from string import ascii_lowercase
 
@@ -142,6 +141,10 @@ class OthelloBoard:
     def pop(self):
         if len(self.older_states) <= 0:
             raise CannotPopException()
+
+        popped = self.older_states.pop()
+        self.black = popped[0]
+        self.black = popped[1]
 
     def play(self, x_coord: int, y_coord: int):
         legal_moves = self.line_cap_move(self.current_player)

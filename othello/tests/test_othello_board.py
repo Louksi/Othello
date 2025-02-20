@@ -250,28 +250,28 @@ def test_game_over_exception_when_board_full():
 
 def test_illegal_move_occupied_cell():
     board = OthelloBoard(BoardSize.EIGHT_BY_EIGHT)
-    board = board.play(5, 4)
+    board.play(5, 4)
     with pytest.raises(IllegalMoveException):
         board.play(5, 4)
 
 
-def test_full_game():
-    board = OthelloBoard(BoardSize.SIX_BY_SIX)
-    board = board.play(4, 3)
-    board = board.play(4, 4)
-    board = board.play(3, 4)
-    board = board.play(2, 4)
-    board = board.play(1, 1)
-    board = board.play(0, 0)
-    board = board.play(1, 2)
-    board = board.play(0, 1)
-    board = board.play(0, 2)
-    board = board.play(2, 1)
-    board = board.play(2, 0)
-    board = board.play(0, 3)
-    print(board)
-    print(board.line_cap_move(board.current_player))
-    assert False
+# def test_full_game():
+#     board = OthelloBoard(BoardSize.SIX_BY_SIX)
+#     board = board.play(4, 3)
+#     board = board.play(4, 4)
+#     board = board.play(3, 4)
+#     board = board.play(2, 4)
+#     board = board.play(1, 1)
+#     board = board.play(0, 0)
+#     board = board.play(1, 2)
+#     board = board.play(0, 1)
+#     board = board.play(0, 2)
+#     board = board.play(2, 1)
+#     board = board.play(2, 0)
+#     board = board.play(0, 3)
+#     print(board)
+#     print(board.line_cap_move(board.current_player))
+#     assert False
 
 
 def test__str__():
