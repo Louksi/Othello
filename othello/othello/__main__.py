@@ -1,6 +1,6 @@
 import sys
 import othello.parser as parser
-import othello.normal_game as normal
+import othello.game_modes as Modes
 
 
 def main():
@@ -28,13 +28,13 @@ def main():
 
     match mode:
         case parser.GameMode.NORMAL:
-            normal.play()
+            print("Starting Normal Mode...")
+            Modes.NormalGame(config["size"]).play()
 
         case parser.GameMode.BLITZ:
             print("Starting Blitz Mode...")
-            game = parser.BlitzMode(parser.BoardSize(config["size"]))
-            game.time_limit = config["bTime"]
-            print(f"Blitz mode with time limit: {game.time_limit} minutes")
+            Modes.BlitzGame(config["size"], config["bTime"]).play()
+            print(f"Blitz mode with time limit: {config['bTime']} minutes")
 
         case parser.GameMode.CONTEST:
             print("Starting Contest Mode...")
