@@ -26,6 +26,7 @@ def save_config(config, filename_prefix="default"):
                 f.write(f"{key}={value}\n")
     except IOError as e:
         print(f"Error while saving configuration: {e}")
+        raise
 
 
 def load_config(filename_prefix="default") -> dict:
@@ -45,8 +46,10 @@ def load_config(filename_prefix="default") -> dict:
                     config[key] = value
     except FileNotFoundError:
         print("No config file found, will take default configuration.")
+        raise
     except Exception as e:
         print(f"Error while loading the configuration: {e}")
+        raise
     return config
 
 
