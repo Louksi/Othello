@@ -27,20 +27,20 @@ def main():
     mode, config = parser.parse_args()
 
     match mode:
-        case parser.GameMode.NORMAL:
+        case parser.GameMode.NORMAL.value:
             print("Starting Normal Mode...")
             Modes.NormalGame(config["size"]).play()
 
-        case parser.GameMode.BLITZ:
+        case parser.GameMode.BLITZ.value:
             print("Starting Blitz Mode...")
             Modes.BlitzGame(config["size"], config["blitz_time"]).play()
             print(f"Blitz mode with time limit: {config['bTime']} minutes")
 
-        case parser.GameMode.CONTEST:
+        case parser.GameMode.CONTEST.value:
             print("Starting Contest Mode...")
             print(f"Loading contest from file: {config['cFile']}")
 
-        case parser.GameMode.AI:
+        case parser.GameMode.AI.value:
             print("Starting AI Mode...")
             print(f"AI plays as: {config['AIColor']}")
 

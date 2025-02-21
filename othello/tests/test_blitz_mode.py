@@ -2,38 +2,88 @@ import pytest
 import sys
 import time
 import othello.parser as parser
-from othello.blitz_mode import BlitzMode
+from unittest.mock import MagicMock
+from othello.blitz_timer import BlitzTimer
+from othello.game_modes import BlitzGame
 from othello.othello_board import BoardSize, Color
+
+
+@pytest.fixture
+def mock_blitz_game():
+    """Fixture to create a BlitzGame with a mocked timer."""
+    game = BlitzGame(BoardSize.EIGHT_BY_EIGHT)
+    game.blitz_timer = MagicMock()
+    game.blitz_timer.is_time_up.return_value = False
+    return game
 
 
 def test_blitzMode_init(monkeypatch):
     """
-    Tests the initialization of a BlitzMode object.
-
-    Verifies that it correctly takes the board size and current player from the
-    parser configuration.
+    Tests the initialization of a BlitzGame object.
+    Ensures the board size and initial player are correctly set.
     """
     monkeypatch.setattr(sys, 'argv', ["othello", "-b", "-t", "30"])
     mode, parseConfig = parser.parse_args()
     assert mode == parser.GameMode.BLITZ.value
     assert parseConfig["blitz_time"] == 30
 
-    game = BlitzMode(BoardSize.EIGHT_BY_EIGHT)
+    game = BlitzGame(BoardSize.EIGHT_BY_EIGHT)
 
     assert game.board.size == BoardSize.EIGHT_BY_EIGHT
     assert game.current_player == Color.BLACK
+    assert isinstance(game.blitz_timer, BlitzTimer)
 
 
-def test_turn_switch():
+def test_turn_switch(mock_blitz_game):
     """
-    Tests that the switch_turn() method correctly switches the current player.
-
-    Verifies that switching the player once switches to the other color and
-    switching it twice switches back to the original color.
+    Tests that switch_player() correctly alternates the player
+    and updates the Blitz timer.
     """
-    game = BlitzMode(BoardSize.EIGHT_BY_EIGHT)
+    game = mock_blitz_game
     assert game.current_player == Color.BLACK
-    game.switch_turn()
+
+    game.switch_player()
     assert game.current_player == Color.WHITE
-    game.switch_turn()
+    game.blitz_timer.change_player.assert_called_with("white")
+
+    game.switch_player()
     assert game.current_player == Color.BLACK
+    game.blitz_timer.change_player.assert_called_with("black")
+
+
+def test_blitz_time_expiry(mock_blitz_game):
+    """
+    Tests that the game ends when a player's time runs out.
+    """
+    game = mock_blitz_game
+
+    # Mock that Black's time is up
+    game.blitz_timer.is_time_up.side_effect = lambda player: player == "black"
+
+    with pytest.raises(SystemExit) as excinfo:
+        game.switch_player()
+
+    assert str(excinfo.value) == "0"  # Game should exit when time runs out
+
+    # Reset mock and test for White
+    game.current_player = Color.WHITE
+    game.blitz_timer.is_time_up.side_effect = lambda player: player == "white"
+
+    with pytest.raises(SystemExit) as excinfo:
+        game.switch_player()
+
+    assert str(excinfo.value) == "0"
+
+
+def test_display_time(mock_blitz_game, capsys):
+    """
+    Tests that display_time() calls BlitzTimer.display_time() and prints the output.
+    """
+    game = mock_blitz_game
+    game.blitz_timer.display_time.return_value = "Black: 5:00, White: 4:30"
+
+    game.display_time()
+    captured = capsys.readouterr()
+
+    assert "Black: 5:00, White: 4:30" in captured.out
+    game.blitz_timer.display_time.assert_called_once()

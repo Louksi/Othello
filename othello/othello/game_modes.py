@@ -1,11 +1,20 @@
 import sys
-from othello.othello_board import BoardSize, OthelloBoard, Color
 import othello.parser as parser
+from othello.othello_board import BoardSize, OthelloBoard, Color
 from othello.blitz_timer import BlitzTimer
 
 
 class NormalGame:
     def __init__(self, board_size: BoardSize = BoardSize.EIGHT_BY_EIGHT):
+        """
+        Initialize the NormalGame with the given board size.
+
+        This sets up a new Othello game in Normal mode, initializing the board
+        and setting the starting player to black.
+
+        :param board_size: The size of the Othello board.
+        :type board_size: BoardSize
+        """
         if isinstance(board_size, int):
             board_size = BoardSize(board_size)
         self.board = OthelloBoard(board_size)
