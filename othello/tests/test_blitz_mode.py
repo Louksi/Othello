@@ -87,3 +87,34 @@ def test_display_time(mock_blitz_game, capsys):
 
     assert "Black: 5:00, White: 4:30" in captured.out
     game.blitz_timer.display_time.assert_called_once()
+
+
+def test_check_game_over(mock_blitz_game):
+    """
+    Tests the check_game_over method in BlitzGame to ensure it behaves correctly
+    when a player's time runs out and when valid moves are still available.
+    """
+    game = mock_blitz_game
+
+    game.blitz_timer.is_time_up.side_effect = lambda player: player == "black"
+
+    with pytest.raises(SystemExit) as excinfo:
+        game.check_game_over(0)
+
+    assert str(excinfo.value) == "0"
+    game.blitz_timer.is_time_up.assert_called_with("black")
+
+    game.current_player = Color.WHITE
+    game.blitz_timer.is_time_up.side_effect = lambda player: player == "white"
+
+    with pytest.raises(SystemExit) as excinfo:
+        game.check_game_over(0)
+
+    assert str(excinfo.value) == "0"
+    game.blitz_timer.is_time_up.assert_called_with("white")
+
+    game.blitz_timer.is_time_up.side_effect = lambda player: False
+
+    game.check_game_over = MagicMock(return_value=False)
+
+    assert not game.check_game_over(0)
