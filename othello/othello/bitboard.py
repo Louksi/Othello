@@ -121,8 +121,7 @@ class Bitboard:
 
     def popcount(self) -> int:
         """
-        popcount (SWAR) simple python port supporting arbitrary-sized bitboards
-        because python is very permissive...
+        popcount (SWAR) simple python port supporting arbitrary-sized bitboards.
 
         :returns: The number of hot bits in the bitboard representation
         :rtype: int
@@ -148,6 +147,12 @@ class Bitboard:
         return summed
 
     def empty(self) -> bool:
+        """
+        Check wether or not the bitboard is empty (popcount of 0).
+
+        :returns: The truth value of the emptyness of the bitboard
+        :rtype: bool
+        """
         return self.popcount() == 0
 
     def __shift_w(self) -> Bitboard:
@@ -335,6 +340,11 @@ class Bitboard:
         """
         rez = copy(self)
         return Bitboard(self.size, ~rez.bits)
+
+    def __eq__(self, other):
+        if isinstance(other, Bitboard):
+            return other.size == self.size and other.bits == self.bits
+        return False
 
     def __str__(self) -> str:
         """

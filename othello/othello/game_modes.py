@@ -99,20 +99,19 @@ class NormalGame:
 
     def get_player_move(self):
         """
-        Asks the user to enter a move and returns the coordinates of the move.
+        Prompts the current player to enter their move.
 
-        The function asks the user to enter a move in the format "a1" and
-        returns the coordinates of the move as a tuple of (x, y). If the
-        user enters an invalid move, the function prints an error message
-        and returns None.
+        This function reads the player's move input in the format of a letter
+        followed by a number (e.g., "a1"). It converts the input into x and y
+        coordinates, where 'a' corresponds to 0 and '1' corresponds to 0, and
+        returns these coordinates.
 
-        :return: A tuple of (x, y) coordinates of the move.
-        :rtype: tuple or None
+        :return: A tuple containing the x and y coordinates of the move.
+        :rtype: tuple[int, int]
         """
+
         move = input("Enter your move: ").strip().lower()
-        if len(move) < 2 or move[0] not in "abcdef"[:self.board.size.value] or not move[1:].isdigit():
-            print("Invalid move format. Try again.")
-            return None
+
         x_coord = ord(move[0]) - ord('a')
         y_coord = int(move[1]) - 1
         return x_coord, y_coord
