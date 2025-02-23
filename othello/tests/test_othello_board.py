@@ -33,32 +33,32 @@ def test_init_eight():
 def test_init_ten():
     b = OthelloBoard(BoardSize.TEN_BY_TEN)
     print(b)
-    assert str(b) == """  a b c d e f g h i j
-1 _ _ _ _ _ _ _ _ _ _
-2 _ _ _ _ _ _ _ _ _ _
-3 _ _ _ _ _ _ _ _ _ _
-4 _ _ _ _ _ _ _ _ _ _
-5 _ _ _ _ O X _ _ _ _
-6 _ _ _ _ X O _ _ _ _
-7 _ _ _ _ _ _ _ _ _ _
-8 _ _ _ _ _ _ _ _ _ _
-9 _ _ _ _ _ _ _ _ _ _
+    assert str(b) == """   a b c d e f g h i j
+1  _ _ _ _ _ _ _ _ _ _
+2  _ _ _ _ _ _ _ _ _ _
+3  _ _ _ _ _ _ _ _ _ _
+4  _ _ _ _ _ _ _ _ _ _
+5  _ _ _ _ O X _ _ _ _
+6  _ _ _ _ X O _ _ _ _
+7  _ _ _ _ _ _ _ _ _ _
+8  _ _ _ _ _ _ _ _ _ _
+9  _ _ _ _ _ _ _ _ _ _
 10 _ _ _ _ _ _ _ _ _ _"""
 
 
 def test_init_twelve():
     b = OthelloBoard(BoardSize.TWELVE_BY_TWELVE)
     print(b)
-    assert str(b) == """  a b c d e f g h i j k l
-1 _ _ _ _ _ _ _ _ _ _ _ _
-2 _ _ _ _ _ _ _ _ _ _ _ _
-3 _ _ _ _ _ _ _ _ _ _ _ _
-4 _ _ _ _ _ _ _ _ _ _ _ _
-5 _ _ _ _ _ _ _ _ _ _ _ _
-6 _ _ _ _ _ O X _ _ _ _ _
-7 _ _ _ _ _ X O _ _ _ _ _
-8 _ _ _ _ _ _ _ _ _ _ _ _
-9 _ _ _ _ _ _ _ _ _ _ _ _
+    assert str(b) == """   a b c d e f g h i j k l
+1  _ _ _ _ _ _ _ _ _ _ _ _
+2  _ _ _ _ _ _ _ _ _ _ _ _
+3  _ _ _ _ _ _ _ _ _ _ _ _
+4  _ _ _ _ _ _ _ _ _ _ _ _
+5  _ _ _ _ _ _ _ _ _ _ _ _
+6  _ _ _ _ _ O X _ _ _ _ _
+7  _ _ _ _ _ X O _ _ _ _ _
+8  _ _ _ _ _ _ _ _ _ _ _ _
+9  _ _ _ _ _ _ _ _ _ _ _ _
 10 _ _ _ _ _ _ _ _ _ _ _ _
 11 _ _ _ _ _ _ _ _ _ _ _ _
 12 _ _ _ _ _ _ _ _ _ _ _ _"""
@@ -228,6 +228,35 @@ def test_complex_position():
     assert cap.bits == thruth_mask
 
 
+def test_export_board():
+    board_raw = """# board
+O
+_ _ _ _ _ _ _ _ _ _
+_ _ _ _ _ _ _ _ _ _
+_ _ _ _ _ _ _ _ _ _
+_ _ X _ X _ _ _ _ _
+_ _ X X O O O _ _ _
+_ _ X _ X X X _ _ _
+_ _ _ _ _ _ _ _ _ _
+_ _ _ _ _ _ _ _ _ _
+_ _ _ _ _ _ _ _ _ _
+_ _ _ _ _ _ _ _ _ _
+# history
+1. X g6 O g5
+2. X e4 O d5
+3. X c6 O c5
+4. X c4"""
+    board = OthelloBoard(BoardSize.TEN_BY_TEN)
+    board.play(6, 5)
+    board.play(6, 4)
+    board.play(4, 3)
+    board.play(3, 4)
+    board.play(2, 5)
+    board.play(2, 4)
+    board.play(2, 3)
+    assert board_raw == board.export()
+
+
 def test_game_over_exception_when_board_full():
     size = BoardSize.SIX_BY_SIX
     board = OthelloBoard(size)
@@ -307,7 +336,7 @@ def test_cant_build_illegal_board():
     black = Bitboard(6)
     white = Bitboard(10)
     with pytest.raises(Exception):
-        b = OthelloBoard(BoardSize.SIX_BY_SIX, black=black, white=white)
+        OthelloBoard(BoardSize.SIX_BY_SIX, black=black, white=white)
 
 
 def test__str__():

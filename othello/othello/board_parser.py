@@ -1,3 +1,6 @@
+"""
+This modules contains utilities used for loading an OthelloBoard from a save
+"""
 import re
 from othello.bitboard import Bitboard
 from othello.othello_board import BoardSize, Color, IllegalMoveException, OthelloBoard
@@ -13,6 +16,11 @@ class BoardParserException(Exception):
 
 
 class BoardParser:
+    """
+    Takes a board at initialization and allows for retrieving an OthelloBoard matching
+    the state of the board save str representation.
+    """
+
     def __init__(self, raw_save: str):
         self.__buffer = raw_save.split("\n")
         self.__x = 0
@@ -34,13 +42,14 @@ class BoardParser:
         color = None
         # first we need to find the color.
         self.__skip_newlines()
+        if self.__eof():
+            raise BoardParserException(
+                "trying to parse an empty board", self.__y)
         if self.__current() not in (Color.BLACK.value, Color.WHITE.value):
             raise BoardParserException("expected to find color", self.__y)
         color = Color.BLACK if self.__current() == Color.BLACK.value else Color.WHITE
         # then we need to find the start of the board
         self.__skip_newlines()
-        if self.__current() not in (c.value for c in Color):
-            raise BoardParserException("expected to find a case", self.__y)
         self.__x = 0
         self.__next_line()
         # we pre-parse the first line to find the supposed size of the board
@@ -61,7 +70,8 @@ class BoardParser:
             white_mask |= line_white_mask
             if board_y < board_size - 1:
                 self.__next_line()
-        return OthelloBoard(BoardSize.from_value(board_size), black=black_mask, white=white_mask, current_player=color)
+        return OthelloBoard(BoardSize.from_value(board_size),
+                            black=black_mask, white=white_mask, current_player=color)
 
     def __parse_history(self, board: OthelloBoard):
         self.__skip_newlines()
@@ -69,17 +79,14 @@ class BoardParser:
             return None
         str_board_max_column = chr(ord('a') + board.size.value)
         str_board_max_line = board.size.value + 1
-        play_regex = fr"([a-{str_board_max_column}][1-{str_board_max_line}])"
-        line_regex = fr"(\d)\. X {play_regex}( O {play_regex})?"
+        play_regex = fr"(([a-{str_board_max_column}][1-{str_board_max_line}])|(-1-1))"
+        line_regex = fr"(\d+)\. X {play_regex}( O {play_regex})?"
         line_regex_compiled = re.compile(line_regex)
 
         computed_board = OthelloBoard(board.size)
         while not self.__eof():
             self.__parse_history_turn(computed_board, line_regex_compiled)
             self.__skip_newlines()
-        if computed_board != board:
-            raise BoardParserException(
-                "history is not coherent with board representation", self.__y)
         return computed_board
 
     def __parse_history_turn(self, board: OthelloBoard, line_regex):
@@ -87,33 +94,36 @@ class BoardParser:
         while not self.__eol():
             line += self.__current()
             self.__next_char()
-        m = line_regex.match(line)
+        matches = line_regex.match(line)
 
-        turn_id = int(m.group(1))
-        black_play = m.group(2)
-        white_play = m.group(4)
+        if matches is None:
+            raise BoardParserException(
+                f"incorrect line format: \"{line}\"", self.__y)
+        turn_id = int(matches.group(1))
+        black_play = matches.group(2)
+        white_play = matches.group(6)
         if turn_id != board.get_turn_id():
             raise BoardParserException(
                 "incorrect turn number in history", self.__y)
-        elif black_play is None:
-            raise BoardParserException(
-                "missing black play in one history line", self.__y)
         try:
             move = self.__parse_move(black_play)
             board.play(move[0], move[1])
-        except IllegalMoveException:
+        except IllegalMoveException as exc:
             raise BoardParserException(
-                f"black move {black_play} is illegal", self.__y)
+                f"black move {black_play} is illegal ({exc})", self.__y)
 
         if white_play is not None:
             try:
                 move = self.__parse_move(white_play)
                 board.play(move[0], move[1])
-            except IllegalMoveException:
+            except IllegalMoveException as exc:
+                print(board)
                 raise BoardParserException(
-                    f"white move {white_play} is illegal", self.__y)
+                    f"white move {white_play} is illegal ({exc})", self.__y)
 
     def __parse_move(self, move: str) -> tuple[int, int]:
+        if move == "-1-1":
+            return (-1, -1)
         move_x_coord = ord(move[0]) - ord('a')
         move_y_coord = int(move[1:])-1
         return (move_x_coord, move_y_coord)
@@ -133,7 +143,8 @@ class BoardParser:
             raise BoardParserException("already reached EOF", self.__y)
 
     def __eol(self, peek_cursor=0):
-        return self.__x+peek_cursor == len(self.__buffer[self.__y]) or self.__peek(peek_cursor) == "#"
+        return self.__x+peek_cursor == len(self.__buffer[self.__y])\
+            or self.__peek(peek_cursor) == "#"
 
     def __eof(self):
         return self.__eol() and self.__y >= len(self.__buffer)-1
