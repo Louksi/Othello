@@ -218,7 +218,7 @@ def parse_args() -> Tuple[GameMode, dict]:
         parse_error(parser, "Time limit must be positive")
 
     # not specifying a file in contest mode raises an error
-    if mode == GameMode.CONTEST.value and not args.contest:
+    if mode == GameMode.CONTEST.value and args.contest == None:
         parse_error(parser, "Contest mode requires a file (-c FILENAME)")
 
     if args.contest is not None and args.contest == "":
