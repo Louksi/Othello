@@ -1,6 +1,6 @@
 import pytest
-from othello.othello_board import OthelloBoard, BoardSize, Color
-from othello.ai_features import corners_captured_heuristic
+from othello.othello_board import OthelloBoard, BoardSize, Color, GameOverException
+from othello.ai_features import corners_captured_heuristic, minimax
 
 
 @pytest.fixture
@@ -57,3 +57,53 @@ def test_one_corner_each():
     board.white.set(7, 7, True)
     assert corners_captured_heuristic(board, Color.BLACK) == 0
     assert corners_captured_heuristic(board, Color.WHITE) == 0
+
+
+@pytest.fixture
+def board_game_over():
+    """Creates an Othello board with no available moves (game over)."""
+    board = OthelloBoard(BoardSize.EIGHT_BY_EIGHT)
+    board.current_player = Color.BLACK
+    return board
+
+
+def test_minimax_depth_limit(board_with_corners):
+    """Tests that minimax returns the correct heuristic at depth 0."""
+    result = minimax(board_with_corners, depth=0,
+                     max_player=Color.BLACK, maximizing=True)
+    assert result == corners_captured_heuristic(
+        board_with_corners, Color.BLACK)
+
+
+def test_minimax_game_over(board_game_over):
+    """Tests that minimax evaluates the board correctly when there are no legal moves."""
+    result = minimax(board_game_over, depth=3,
+                     max_player=Color.BLACK, maximizing=True)
+    assert result == corners_captured_heuristic(board_game_over, Color.BLACK)
+
+
+def test_minimax_maximizing_player(board_with_corners):
+    """Tests that minimax maximizes correctly for a player with more corners."""
+    result = minimax(board_with_corners, depth=3,
+                     max_player=Color.BLACK, maximizing=True)
+    assert result > 0
+
+
+def test_minimax_minimizing_player(board_with_corners):
+    """Tests that minimax minimizes correctly for a player with fewer corners."""
+    result = minimax(board_with_corners, depth=3,
+                     max_player=Color.WHITE, maximizing=False)
+    assert result < 0
+
+
+def test_minimax_equal_corners():
+    """Tests that minimax returns a score of 0 when both players have the same number of corners."""
+    board = OthelloBoard(BoardSize.EIGHT_BY_EIGHT)
+    board.black.set(0, 0, True)
+    board.white.set(7, 7, True)
+    result_black = minimax(
+        board, depth=3, max_player=Color.BLACK, maximizing=True)
+    result_white = minimax(
+        board, depth=3, max_player=Color.WHITE, maximizing=False)
+    assert result_black == 0
+    assert result_white == 0
