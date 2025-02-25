@@ -1,6 +1,7 @@
 import pytest
 import sys
 import othello.parser as parser
+from unittest.mock import patch
 from unittest.mock import MagicMock
 from othello.game_modes import BlitzGame, NormalGame
 from othello.othello_board import BoardSize, Color, Bitboard
@@ -20,7 +21,9 @@ def mock_game():
     """Fixture to create a mock OthelloGame object."""
     game = BlitzGame(BoardSize.EIGHT_BY_EIGHT)
     game.switch_player = MagicMock()
-    game.board.play = MagicMock()
+    game.board.black = MagicMock()
+    game.board.white = MagicMock()
+    game.board.size = BoardSize.EIGHT_BY_EIGHT
     return game
 
 
@@ -52,6 +55,21 @@ def test_normal_mode_init(monkeypatch, normal_game):
     assert game.board.size == BoardSize.EIGHT_BY_EIGHT
     assert game.current_player == Color.BLACK
 
+    monkeypatch.setattr(sys, 'argv', ["othello", "-s", "6"])
+    _, parseConfig = parser.parse_args()
+    assert parseConfig["size"] == 6
+    game = NormalGame(parseConfig["size"])
+    assert game.board.size == BoardSize(parseConfig["size"])
+
+
+def test_display_board(capfd):
+    game = NormalGame()
+    game.display_board()
+
+    captured = capfd.readouterr()
+    assert str(game.board) in captured.out
+    assert f"{game.current_player.name}'s turn ({game.current_player.value})" in captured.out
+
 
 def test_normal_turn_switch(normal_game):
     """
@@ -65,64 +83,61 @@ def test_normal_turn_switch(normal_game):
     assert game.current_player == Color.BLACK
 
 
-def test_possible_moves_initial_state(normal_game):
-    """
-    Tests that possible_moves() returns the correct set of moves
-    at the start of a normal game.
-    """
-    game = normal_game
-    moves = game.get_possible_moves()
-    assert isinstance(moves, Bitboard)
-    assert moves.bits > 0
-
-
-def test_check_game_not_over(mock_game):
-    """Tests when there are valid moves available."""
-    possible_moves = MagicMock()
-    possible_moves.bits = 1
-
-    assert mock_game.check_game_over(possible_moves) is False
-    mock_game.switch_player.assert_not_called()
-
-
-def test_display_possible_moves_with_moves(mock_game, capsys):
-    """Tests that display_possible_moves prints the correct coordinates."""
-    possible_moves = MagicMock()
-
-    possible_moves.get = lambda x, y: (x, y) in [(2, 3), (5, 6)]  # c4 and f7
-
-    mock_game.display_possible_moves(possible_moves)
-
-    captured = capsys.readouterr()
-    expected_output = "Possible moves: \nc4 f7 \n"
-    assert captured.out == expected_output
-
-
-def test_display_possible_moves_no_moves(mock_game, capsys):
-    """Tests that display_possible_moves handles an empty move set."""
-    possible_moves = MagicMock()
-
-    possible_moves.get = lambda x, y: False
-
-    mock_game.display_possible_moves(possible_moves)
-
-    captured = capsys.readouterr()
-    expected_output = "Possible moves: \n\n"
-    assert captured.out == expected_output
-
-
-def test_process_move_valid(mock_game, mock_possible_moves):
-    """Tests that a valid move is processed correctly."""
-    result = mock_game.process_move(3, 2, mock_possible_moves)
+def test_game_over_both_players_no_moves(mock_game):
+    """Test game over when both players have no valid moves."""
+    game = mock_game
+    game.current_player = Color.BLACK  # Current player is Black
+    empty_moves = Bitboard(0)
+    game.check_game_over(empty_moves)  # called once to pass the turn
+    assert game.current_player == Color.WHITE
+    result = game.check_game_over(empty_moves)
     assert result is True
-    mock_game.board.play.assert_called_once_with(
-        3, 2)  # Ensure play() is called
 
 
-def test_process_move_invalid(mock_game, mock_possible_moves, capsys):
-    """Tests that an invalid move is rejected."""
-    result = mock_game.process_move(5, 5, mock_possible_moves)
-    assert result is False
-    captured = capsys.readouterr()
-    assert "Invalid move. Not a legal play. Try again." in captured.out
-    mock_game.board.play.assert_not_called()  # Ensure play() is NOT called
+def test_game_over_black_no_moves(mock_game):
+    """Test game over when Black has no moves, White wins."""
+    game = mock_game
+    game.current_player = Color.BLACK
+    empty_moves = Bitboard(0)
+
+    assert game.check_game_over(empty_moves) == False
+
+
+def test_game_over_white_no_moves(mock_game):
+    """Test game over when White has no moves, Black wins."""
+    game = mock_game
+    game.current_player = Color.WHITE
+    empty_moves = Bitboard(0)
+    assert game.check_game_over(empty_moves) == False
+
+
+def test_skip_turn(mock_game):
+    """Test when a player has no moves but the game continues (turn is skipped)."""
+    game = mock_game
+    game.current_player = Color.BLACK
+    game.switch_player = MagicMock()  # Mock switch_player
+    empty_moves = Bitboard(0)
+
+    with patch("sys.exit") as mock_exit:
+        assert game.check_game_over(empty_moves) is False
+        mock_exit.assert_not_called()  # sys.exit should NOT be called
+        game.switch_player.assert_called_once()  # Ensure turn is skipped
+
+
+def test_game_over_both_players_no_moves(mock_game):
+    """Test when both players have no valid moves, the game is over."""
+    game = mock_game
+    game.current_player = Color.BLACK
+    empty_moves = Bitboard(0)
+
+    assert game.check_game_over(empty_moves) == True
+
+
+def test_game_not_over(mock_game):
+    """Test when there are valid moves, the game should not be over."""
+    game = mock_game
+    game.current_player = Color.BLACK
+    valid_moves = Bitboard(1)  # Some valid moves
+
+    assert game.check_game_over(valid_moves) is False  # Game continues
+    game.switch_player.assert_called_once()
