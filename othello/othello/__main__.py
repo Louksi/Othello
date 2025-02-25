@@ -28,16 +28,16 @@ def main():
     """
     mode, config = parser.parse_args()
 
-    # current_config = parser.default_config.copy()
-    # current_config.update(config)
+    current_config = parser.default_config.copy()
+    current_config.update(config)
 
 
-    # filename_prefix = "config"
+    filename_prefix = "config"
 
-    # configuration.save_config(current_config, filename_prefix)
+    configuration.save_config(current_config, filename_prefix)
 
-    # #loaded_config = configuration.load_config(filename_prefix)
-    # #print("Config loaded:", loaded_config)
+    loaded_config = configuration.load_config(filename_prefix)
+    print("Config loaded:", loaded_config)
 
 
 
