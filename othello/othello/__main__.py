@@ -1,6 +1,8 @@
 import sys
 import othello.parser as parser
 import othello.game_modes as Modes
+import othello.config as configuration
+
 
 
 def main():
@@ -25,6 +27,19 @@ def main():
         None
     """
     mode, config = parser.parse_args()
+
+    # current_config = parser.default_config.copy()
+    # current_config.update(config)
+
+
+    # filename_prefix = "config"
+
+    # configuration.save_config(current_config, filename_prefix)
+
+    # #loaded_config = configuration.load_config(filename_prefix)
+    # #print("Config loaded:", loaded_config)
+
+
 
     match mode:
         case parser.GameMode.NORMAL.value:
