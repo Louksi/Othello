@@ -1,6 +1,8 @@
 import sys
+import logging
 import othello.parser as parser
 import othello.game_modes as Modes
+import othello.logger as log
 
 
 def main():
@@ -24,7 +26,15 @@ def main():
     Returns:
         None
     """
+
+
     mode, config = parser.parse_args()
+
+    log.logging_config(config["debug"])
+    logger = logging.getLogger("Othello")
+
+    logger.debug("Start of a Othello game.")
+    logger.debug("Debug mode is enabled.")
 
     match mode:
         case parser.GameMode.NORMAL.value:
