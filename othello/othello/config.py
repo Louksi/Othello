@@ -12,7 +12,6 @@
 # ai_time = 5/X (en secondes)
 
 
-
 def save_config(config, filename_prefix="default"):
     """
     Save configuration into a .othellorc file, .ini format
