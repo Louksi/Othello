@@ -72,9 +72,9 @@ def test_get():
     """
     Test the get method of the Bitboard class.
 
-    This test checks if the get method accurately retrieves the truth value of bits 
-    at specified coordinates. It initializes a 6x6 Bitboard, sets bits at (0, 3) and 
-    (4, 5) to True, and verifies that the get method returns True for these coordinates 
+    This test checks if the get method accurately retrieves the truth value of bits
+    at specified coordinates. It initializes a 6x6 Bitboard, sets bits at (0, 3) and
+    (4, 5) to True, and verifies that the get method returns True for these coordinates
     and False for unset coordinates such as (4, 2) and (0, 0).
     """
 
@@ -237,8 +237,28 @@ def test_xor():
     b = Bitboard(8)
     b.set(4, 7, True)
     b.set(2, 3, True)
-    assert (b.bits ^ 0b0000000000000000000000000000000000100000000000000000000000000)\
+    assert (b ^ Bitboard(b.size, bits=0b0000000000000000000000000000000000100000000000000000000000000)).bits\
         == 0b1000000000000000000000000000000000000000000000000000000000000
+
+
+def test_empty():
+    b = Bitboard(8)
+    assert b.empty()
+
+
+def test_eq():
+    def __set(b: Bitboard):
+        b.set(4, 5, True)
+        b.set(7, 4, True)
+        b.set(8, 4, True)
+    b = Bitboard(8)
+    b2 = Bitboard(8)
+    __set(b)
+    __set(b2)
+    assert b == b2
+    b.set(1, 1, True)
+    assert b != b2
+    assert b != 3
 
 
 def test_str():
