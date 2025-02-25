@@ -12,8 +12,6 @@
 # ai_time = 5/X (en secondes)
 
 
-from othello.parser import parse_args, default_config
-
 
 def save_config(config, filename_prefix="default"):
     """
@@ -21,11 +19,11 @@ def save_config(config, filename_prefix="default"):
     """
     filename = f"{filename_prefix}.othellorc"
     try:
-        with open(filename, "w") as f:
+        with open(filename, "w") as file:
             for key, value in config.items():
-                f.write(f"{key}={value}\n")
-    except IOError as e:
-        print(f"Error while saving configuration: {e}")
+                file.write(f"{key}={value}\n")
+    except IOError as err:
+        print(f"Error while saving configuration: {err}")
         raise
 
 
@@ -39,8 +37,8 @@ def load_config(filename_prefix="default") -> dict:
     filename = f"{filename_prefix}.othellorc"
     config = {}
     try:
-        with open(filename, "r") as f:
-            for line in f:
+        with open(filename, "r") as file:
+            for line in file:
                 if "=" in line:
                     key, value = line.strip().split("=", 1)
                     config[key] = value
