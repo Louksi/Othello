@@ -5,7 +5,7 @@ import othello.parser as parser
 from unittest.mock import MagicMock, patch
 from othello.blitz_timer import BlitzTimer
 from othello.game_modes import BlitzGame
-from othello.othello_board import BoardSize, Color
+from othello.othello_board import BoardSize, Color, Bitboard
 
 
 @pytest.fixture
@@ -34,33 +34,41 @@ def test_blitzMode_init(monkeypatch):
     assert isinstance(game.blitz_timer, BlitzTimer)
 
 
-@patch('sys.exit')  # Mock sys.exit to prevent test termination
+def test_blitz_game_init_with_custom_time():
+    """Test BlitzGame initialization with a custom time parameter."""
+    custom_time = 15
+    game = BlitzGame(BoardSize.EIGHT_BY_EIGHT, time=custom_time)
+
+    assert game.blitz_timer.total_time == custom_time * 60
+
+
+def test_blitz_game_init_with_int_board_size():
+    """Test BlitzGame initialization with an integer board size."""
+    game = BlitzGame(board_size=8)
+    assert game.board.size == BoardSize.EIGHT_BY_EIGHT
+
+
+@patch('sys.exit')
 def test_switch_player_time_up_black(mock_exit, mock_blitz_game):
     """Test switch_player when black's time is up."""
     game = mock_blitz_game
     game.current_player = Color.BLACK
 
-    # Simulate black's time up
     game.blitz_timer.is_time_up.side_effect = lambda player: player == 'black'
 
     game.switch_player()
 
-    # Assert sys.exit was called (game should end)
     mock_exit.assert_called_once_with(0)
 
 
-@patch('sys.exit')  # Mock sys.exit to prevent test termination
+@patch('sys.exit')
 def test_switch_player_time_up_white(mock_exit, mock_blitz_game):
     """Test switch_player when white's time is up."""
     game = mock_blitz_game
     game.current_player = Color.WHITE
 
-    # Simulate white's time up
     game.blitz_timer.is_time_up.side_effect = lambda player: player == 'white'
-
     game.switch_player()
-
-    # Assert sys.exit was called (game should end)
     mock_exit.assert_called_once_with(0)
 
 

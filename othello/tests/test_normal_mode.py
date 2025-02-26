@@ -38,7 +38,7 @@ def mock_possible_moves():
     """Fixture to create a mock bitboard for possible moves."""
     bitboard = MagicMock()
     bitboard.get.side_effect = lambda x, y: (
-        x, y) == (3, 2)  # Only (3,2) is valid
+        x, y) == (3, 2)
     return bitboard
 
 
@@ -94,9 +94,9 @@ def test_normal_turn_switch(normal_game):
 def test_game_over_both_players_no_moves(mock_game):
     """Test game over when both players have no valid moves."""
     game = mock_game
-    game.current_player = Color.BLACK  # Current player is Black
+    game.current_player = Color.BLACK
     empty_moves = Bitboard(0)
-    game.check_game_over(empty_moves)  # called once to pass the turn
+    game.check_game_over(empty_moves)
     assert game.current_player == Color.WHITE
     result = game.check_game_over(empty_moves)
     assert result is True
@@ -123,12 +123,12 @@ def test_skip_turn(mock_game):
     """Test when a player has no moves but the game continues (turn is skipped)."""
     game = mock_game
     game.current_player = Color.BLACK
-    game.switch_player = MagicMock()  # Mock switch_player
+    game.switch_player = MagicMock()
     empty_moves = Bitboard(0)
 
     with patch("sys.exit") as mock_exit:
         assert game.check_game_over(empty_moves) is False
-        mock_exit.assert_not_called()  # sys.exit should NOT be called
+        mock_exit.assert_not_called()
 
 
 def test_game_over_both_players_no_moves(mock_game):
@@ -149,7 +149,7 @@ def test_game_not_over(mock_game):
     """Test when there are valid moves, the game should not be over."""
     game = mock_game
     game.current_player = Color.BLACK
-    valid_moves = Bitboard(1)  # Some valid moves
+    valid_moves = Bitboard(1)
 
     assert game.check_game_over(valid_moves) is False
 
@@ -157,57 +157,45 @@ def test_game_not_over(mock_game):
 def test_display_possible_moves(mock_game, capsys):
     """Test if display_possible_moves correctly prints the possible moves."""
     game = mock_game
-
-    # Mock possible_moves.get(x, y) to return True for specific positions
     possible_moves = MagicMock()
     possible_moves.get = MagicMock(side_effect=lambda x, y: (
-        x, y) in [(2, 3), (4, 5)])  # Example: "c4" and "e6"
+        x, y) in [(2, 3), (4, 5)])
 
-    # Call the function
     game.display_possible_moves(possible_moves)
-
-    # Capture printed output
     captured = capsys.readouterr()
 
-    # Verify the expected output
     expected_output = "Possible moves: \nc4 e6 \n"
     assert captured.out == expected_output
 
 
 def test_process_move():
-    game = NormalGame(BoardSize.EIGHT_BY_EIGHT)  # Or any valid game instance
-
-    # Mock the possible moves bitboard
+    '''Use Mock functions to play the game and process some illegal moves'''
+    game = NormalGame(BoardSize.EIGHT_BY_EIGHT)
     possible_moves = MagicMock()
     possible_moves.get.side_effect = lambda x, y: (
-        x, y) in [(3, 2), (4, 5)]  # Valid moves: c4 and e6
+        x, y) in [(3, 2), (4, 5)]
 
-    # Mock the board's play function
     game.board.play = MagicMock()
 
-    # Test a valid move
     assert game.process_move(3, 2, possible_moves) is True
     game.board.play.assert_called_with(3, 2)
 
-    # Test another valid move
     assert game.process_move(4, 5, possible_moves) is True
     game.board.play.assert_called_with(4, 5)
 
-    # Test an invalid move
     with patch("builtins.print") as mock_print:
-        # Move "b2" is not in valid moves
         assert game.process_move(1, 1, possible_moves) is False
         mock_print.assert_called_with(
             "Invalid move. Not a legal play. Try again.")
 
 
 def test_switch_player():
-    game = NormalGame(BoardSize.EIGHT_BY_EIGHT)  # Or any valid game instance
+    '''Tests valid switches between players'''
+    game = NormalGame(BoardSize.EIGHT_BY_EIGHT)
 
-    # Initial state
     game.current_player = Color.BLACK
     game.switch_player()
-    assert game.current_player == Color.WHITE  # Should switch to WHITE
+    assert game.current_player == Color.WHITE
 
     game.switch_player()
-    assert game.current_player == Color.BLACK  # Should switch back to BLACK
+    assert game.current_player == Color.BLACK
