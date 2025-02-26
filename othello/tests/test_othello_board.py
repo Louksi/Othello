@@ -254,6 +254,7 @@ _ _ _ _ _ _ _ _ _ _
     board.play(2, 5)
     board.play(2, 4)
     board.play(2, 3)
+    print(board.export())
     assert board_raw == board.export()
 
 
@@ -366,3 +367,15 @@ def test__str__():
 7 _ _ _ _ _ _ _ _
 8 _ _ _ _ _ _ _ _"""
     assert str(b) == starting_board
+
+
+def test_restart():
+    board = OthelloBoard(BoardSize.TEN_BY_TEN)
+    init_state = copy(board)
+    board.play(6, 5)
+    board.play(6, 4)
+    board.play(4, 3)
+    board.play(3, 4)
+    assert board != init_state
+    board.restart()
+    assert board == init_state
