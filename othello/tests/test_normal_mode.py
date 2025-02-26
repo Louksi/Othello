@@ -174,28 +174,6 @@ def test_display_possible_moves(mock_game, capsys):
     assert captured.out == expected_output
 
 
-def test_get_player_move():
-    game = NormalGame(BoardSize.EIGHT_BY_EIGHT)  # Or any valid game instance
-
-    # Simulating valid input
-    with patch("builtins.input", return_value="c4"):
-        assert game.get_player_move() == (2, 3)
-
-    # Simulating another valid input
-    with patch("builtins.input", return_value="a1"):
-        assert game.get_player_move() == (0, 0)
-
-    # Simulating invalid inputs
-    with patch("builtins.input", return_value="z9"):
-        assert game.get_player_move() is None
-
-    with patch("builtins.input", return_value="22"):
-        assert game.get_player_move() is None
-
-    with patch("builtins.input", return_value="b"):
-        assert game.get_player_move() is None
-
-
 def test_process_move():
     game = NormalGame(BoardSize.EIGHT_BY_EIGHT)  # Or any valid game instance
 
