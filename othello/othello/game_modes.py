@@ -68,12 +68,12 @@ class NormalGame:
             if self.no_black_move and self.no_white_move:
                 print("No valid moves for both players. Game over.")
                 return True
-            else:
-                print(
-                    f"No valid moves for {self.current_player.name}. Skipping turn.")
-                self.switch_player()
-                return False
 
+            print(
+                f"No valid moves for {self.current_player.name}. Skipping turn.")
+            return False
+
+        print(self.no_black_move, self.no_white_move)
         if self.board.black.popcount() + self.board.white.popcount() == self.board.size.value * self.board.size.value:
             if self.board.black.popcount() > self.board.white.popcount():
                 print("Black wins!")
@@ -181,7 +181,7 @@ class NormalGame:
         while True:
             self.display_board()
             possible_moves = self.get_possible_moves()
-            # BAD LOGIC TODO
+
             if self.check_game_over(possible_moves):
                 continue
 

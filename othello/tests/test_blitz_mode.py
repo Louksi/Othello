@@ -2,7 +2,7 @@ import pytest
 import sys
 import time
 import othello.parser as parser
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 from othello.blitz_timer import BlitzTimer
 from othello.game_modes import BlitzGame
 from othello.othello_board import BoardSize, Color
@@ -34,45 +34,34 @@ def test_blitzMode_init(monkeypatch):
     assert isinstance(game.blitz_timer, BlitzTimer)
 
 
-def test_turn_switch(mock_blitz_game):
-    """
-    Tests that switch_player() correctly alternates the player
-    and updates the Blitz timer.
-    """
+@patch('sys.exit')  # Mock sys.exit to prevent test termination
+def test_switch_player_time_up_black(mock_exit, mock_blitz_game):
+    """Test switch_player when black's time is up."""
     game = mock_blitz_game
-    assert game.current_player == Color.BLACK
+    game.current_player = Color.BLACK
+
+    # Simulate black's time up
+    game.blitz_timer.is_time_up.side_effect = lambda player: player == 'black'
 
     game.switch_player()
-    assert game.current_player == Color.WHITE
-    game.blitz_timer.change_player.assert_called_with("white")
 
-    game.switch_player()
-    assert game.current_player == Color.BLACK
-    game.blitz_timer.change_player.assert_called_with("black")
+    # Assert sys.exit was called (game should end)
+    mock_exit.assert_called_once_with(0)
 
 
-def test_blitz_time_expiry(mock_blitz_game):
-    """
-    Tests that the game ends when a player's time runs out.
-    """
+@patch('sys.exit')  # Mock sys.exit to prevent test termination
+def test_switch_player_time_up_white(mock_exit, mock_blitz_game):
+    """Test switch_player when white's time is up."""
     game = mock_blitz_game
-
-    # Mock that Black's time is up
-    game.blitz_timer.is_time_up.side_effect = lambda player: player == "black"
-
-    with pytest.raises(SystemExit) as excinfo:
-        game.switch_player()
-
-    assert str(excinfo.value) == "0"  # Game should exit when time runs out
-
-    # Reset mock and test for White
     game.current_player = Color.WHITE
-    game.blitz_timer.is_time_up.side_effect = lambda player: player == "white"
 
-    with pytest.raises(SystemExit) as excinfo:
-        game.switch_player()
+    # Simulate white's time up
+    game.blitz_timer.is_time_up.side_effect = lambda player: player == 'white'
 
-    assert str(excinfo.value) == "0"
+    game.switch_player()
+
+    # Assert sys.exit was called (game should end)
+    mock_exit.assert_called_once_with(0)
 
 
 def test_display_time(mock_blitz_game, capsys):
