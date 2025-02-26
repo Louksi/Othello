@@ -132,11 +132,14 @@ class OthelloWindow(Gtk.ApplicationWindow):
         except GameOverException as err:
             self.show_error_dialog(err)
         self.drawing_area.queue_draw()
+        self.update_nb_pieces()
+        self.update_play_history(x, y)
+
+    def update_nb_pieces(self):
         self.black_nb_pieces.set_label(
             f"Black has {self.board.black.popcount()} pieces")
         self.white_nb_pieces.set_label(
             f"White has {self.board.white.popcount()} pieces")
-        self.update_play_history(x, y)
 
     def update_timers(self):
         self.black_timer_label.set_text("Black: 11:59")
@@ -263,6 +266,21 @@ class OthelloWindow(Gtk.ApplicationWindow):
         except Exception as e:
             self.show_error_dialog(f"Failed to save game: {str(e)}")
 
+    def show_confirm_dialog(self, message, cb):
+        def call_cb(d, r):
+            d.destroy()
+            cb(r)
+
+        dialog = Gtk.MessageDialog(
+            transient_for=self,
+            modal=True,
+            message_type=Gtk.MessageType.QUESTION,
+            buttons=Gtk.ButtonsType.OK_CANCEL,
+            text=message
+        )
+        dialog.connect("response", call_cb)
+        dialog.present()
+
     def show_error_dialog(self, message):
         dialog = Gtk.MessageDialog(
             transient_for=self,
@@ -275,7 +293,15 @@ class OthelloWindow(Gtk.ApplicationWindow):
         dialog.present()
 
     def restart_handler(self, _button: Gtk.Button):
-        print("clicked restart button")
+        self.show_confirm_dialog(
+            "Are you sure you want to restart the game ?", self.actual_restart_handler)
+
+    def actual_restart_handler(self, confirmation):
+        if confirmation == -5:
+            self.board.restart()
+            for i in range(len(self.plays_list)):
+                self.plays_list.get_last_child()
+            self.update_nb_pieces()
 
     def save_history_handler(self, _button: Gtk.Button):
         print("clicked save history button")
