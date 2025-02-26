@@ -273,18 +273,19 @@ class OthelloBoard:
         """
         return copy(self.__history)
 
-    def export(self) -> str:
-        """
-        Returns a string representation of the whole game state (board + history)
-        matching the save file format
+    @staticmethod
+    def move_to_str(move):
+        if move[2] == -1 and move[3] == -1:
+            return "-1-1"
+        return f"{chr(ord('a') + move[2])}{move[3]+1}"
 
-        :returns: the string representation
+    def export_board(self) -> str:
+        """
+        Returns a string representation of the board matching the save file format
+
+        :returns: the board string representation
         :rtype: str
         """
-        def move_to_str(move):
-            if move[2] == -1 and move[3] == -1:
-                return "-1-1"
-            return f"{chr(ord('a') + move[2])}{move[3]+1}"
         export_str = f"# board\n{self.current_player.value}\n"
         for coord_y in range(self.size.value):
             for coord_x in range(self.size.value):
@@ -296,21 +297,50 @@ class OthelloBoard:
                     export_str += Color.EMPTY.value
                 if coord_x < self.size.value - 1:
                     export_str += " "
-            export_str += "\n"
+            if coord_y < self.size.value - 1:
+                export_str += "\n"
+        return export_str
 
-        export_str += "# history\n"
+    def export_history(self):
+        """
+        Returns a string representation of the history of the game matching the save file format.
+
+        :returns: the history string representation
+        :rtype: str
+        """
+        export_str = "# history\n"
         for move_index, move in enumerate(self.__history):
             move = self.__history[move_index]
             if move[4] is Color.BLACK:
-                move_str = move_to_str(move)
+                move_str = OthelloBoard.move_to_str(move)
                 export_str += f"{move_index // 2 + 1}. X {move_str}"
             else:
                 if not move_index & 1:
                     export_str += f"{move_index // 2 + 1}. X -1-1"
-                move_str = move_to_str(move)
+                move_str = OthelloBoard.move_to_str(move)
                 export_str += f" O {move_str}"
                 export_str += "\n"
         return export_str
+
+    def export(self) -> str:
+        """
+        Returns a string representation of the whole game state (board + history)
+        matching the save file format
+
+        :returns: the string representation
+        :rtype: str
+        """
+        return f"{self.export_board()}\n{self.export_history()}"
+
+    def restart(self):
+        """
+        Resets the state of the game to a starting one with the same size.
+        """
+        self.__history = []
+        self.black = Bitboard(self.size.value)
+        self.white = Bitboard(self.size.value)
+        self.current_player = Color.BLACK
+        self.__init_board()
 
     def __empty_mask(self) -> Bitboard:
         """
