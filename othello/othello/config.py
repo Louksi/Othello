@@ -12,12 +12,20 @@
 # ai_time = 5/X (en secondes)
 
 
+# from othello.parser import parse_args, default_config
+
+
 def save_config(config, filename_prefix="default"):
     """
     Save configuration into a .othellorc file, .ini format
     """
     filename = f"{filename_prefix}.othellorc"
     try:
+        # converts all boolean values into str
+        for key in config:
+            if isinstance(config[key], bool):
+                config[key] = str(config[key]).lower()
+
         with open(filename, "w") as file:
             for key, value in config.items():
                 file.write(f"{key}={value}\n")
