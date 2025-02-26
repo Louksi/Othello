@@ -19,6 +19,8 @@ class NormalGame:
             board_size = BoardSize(board_size)
         self.board = OthelloBoard(board_size)
         self.current_player = Color.BLACK
+        self.no_black_move = False
+        self.no_white_move = False
 
     def display_board(self):
         """
@@ -58,22 +60,26 @@ class NormalGame:
         :rtype: bool
         """
         if possible_moves.bits == 0:
-            no_black = self.current_player == Color.BLACK
-            no_white = self.current_player == Color.WHITE
+            if self.current_player == Color.BLACK:
+                self.no_black_move = True
+            if self.current_player == Color.WHITE:
+                self.no_white_move = True
 
-            if no_black and no_white:
+            if self.no_black_move and self.no_white_move:
                 print("No valid moves for both players. Game over.")
-                sys.exit(0)
-            elif no_black:
-                print("No valid moves for black. White wins!")
-                sys.exit(0)
-            elif no_white:
-                print("No valid moves for white. Black wins!")
-                sys.exit(0)
-            else:
-                print(
-                    f"No valid moves for {self.current_player.name}. Skipping turn.")
-                self.switch_player()
+                return True
+
+            print(
+                f"No valid moves for {self.current_player.name}. Skipping turn.")
+            return False
+
+        print(self.no_black_move, self.no_white_move)
+        if self.board.black.popcount() + self.board.white.popcount() == self.board.size.value * self.board.size.value:
+            if self.board.black.popcount() > self.board.white.popcount():
+                print("Black wins!")
+                return True
+            if self.board.black.popcount() < self.board.white.popcount():
+                print("White wins!")
                 return True
         return False
 
@@ -99,20 +105,19 @@ class NormalGame:
 
     def get_player_move(self):
         """
-        Asks the user to enter a move and returns the coordinates of the move.
+        Prompts the current player to enter their move.
 
-        The function asks the user to enter a move in the format "a1" and
-        returns the coordinates of the move as a tuple of (x, y). If the
-        user enters an invalid move, the function prints an error message
-        and returns None.
+        This function reads the player's move input in the format of a letter
+        followed by a number (e.g., "a1"). It converts the input into x and y
+        coordinates, where 'a' corresponds to 0 and '1' corresponds to 0, and
+        returns these coordinates.
 
-        :return: A tuple of (x, y) coordinates of the move.
-        :rtype: tuple or None
+        :return: A tuple containing the x and y coordinates of the move.
+        :rtype: tuple[int, int]
         """
+
         move = input("Enter your move: ").strip().lower()
-        if len(move) < 2 or move[0] not in "abcdef"[:self.board.size.value] or not move[1:].isdigit():
-            print("Invalid move format. Try again.")
-            return None
+
         x_coord = ord(move[0]) - ord('a')
         y_coord = int(move[1]) - 1
         return x_coord, y_coord
@@ -175,6 +180,7 @@ class NormalGame:
         while True:
             self.display_board()
             possible_moves = self.get_possible_moves()
+
             if self.check_game_over(possible_moves):
                 continue
 
