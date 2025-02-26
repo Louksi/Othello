@@ -1,4 +1,4 @@
-from othello.othello_board import Color, OthelloBoard
+from othello.othello_board import Color, GameOverException, OthelloBoard
 from gi.repository import Gtk, GLib, Adw
 import cairo
 import gi
@@ -127,9 +127,11 @@ class OthelloWindow(Gtk.ApplicationWindow):
         main_grid.attach(last_moves_box, 1, 3, 1, 1)
 
     def update_game_state(self, x: int, y: int):
-        self.board.play(x, y)
+        try:
+            self.board.play(x, y)
+        except GameOverException as err:
+            self.show_error_dialog(err)
         self.drawing_area.queue_draw()
-        print(self.board.export())
         self.black_nb_pieces.set_label(
             f"Black has {self.board.black.popcount()} pieces")
         self.white_nb_pieces.set_label(
@@ -187,7 +189,6 @@ class OthelloWindow(Gtk.ApplicationWindow):
         BLACK_PIECE_COLOR = (0, 0, 0, .3)
         WHITE_PIECE_COLOR = (1, 1, 1, .3)
         legal_moves = self.board.line_cap_move(self.board.current_player)
-        print(legal_moves)
 
         color = BLACK_PIECE_COLOR if self.board.current_player == Color.BLACK else WHITE_PIECE_COLOR
         cr.set_source_rgba(*color)
@@ -263,8 +264,15 @@ class OthelloWindow(Gtk.ApplicationWindow):
             self.show_error_dialog(f"Failed to save game: {str(e)}")
 
     def show_error_dialog(self, message):
-        dialog = Gtk.AlertDialog.new(message)
-        dialog.show(self)
+        dialog = Gtk.MessageDialog(
+            transient_for=self,
+            modal=True,
+            message_type=Gtk.MessageType.ERROR,
+            buttons=Gtk.ButtonsType.OK,
+            text=message
+        )
+        dialog.connect("response", lambda d, _: d.destroy())
+        dialog.present()
 
     def restart_handler(self, _button: Gtk.Button):
         print("clicked restart button")
