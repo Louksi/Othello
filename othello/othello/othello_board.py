@@ -133,6 +133,12 @@ class OthelloBoard:
         self.black.set(self.size.value//2-1, self.size.value//2, True)
         self.black.set(self.size.value//2, self.size.value//2-1, True)
 
+    def is_game_over(self) -> bool:
+        """
+        Checks wether or not a board is in a game over state.
+        """
+        return self.line_cap_move(self.current_player).popcount() == self.line_cap_move(~self.current_player).popcount() == 0
+
     def line_cap_move(self, current_player: Color) -> Bitboard:
         """
         Returns a bitboard of the possibles plays for `current_player`
