@@ -45,6 +45,8 @@ def main():
 
     logger.debug("Start of a Othello game.")
     logger.debug("Debug mode is enabled.")
+    logger.debug(f"Game mode: {mode}")
+    # logger.debug(f"Current configuration: \n {configuration.get_config()}")
 
     match mode:
         case parser.GameMode.NORMAL.value:

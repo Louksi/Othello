@@ -1,7 +1,12 @@
 import sys
+import logging
 import othello.parser as parser
 from othello.othello_board import BoardSize, OthelloBoard, Color
 from othello.blitz_timer import BlitzTimer
+import othello.logger as log
+
+
+logger = logging.getLogger("Othello")
 
 
 class NormalGame:
@@ -15,6 +20,8 @@ class NormalGame:
         :param board_size: The size of the Othello board.
         :type board_size: BoardSize
         """
+        logger.debug(
+            f"Entering game initialization function from game_modes.py, with parameter board size: {board_size}.")
         if isinstance(board_size, int):
             board_size = BoardSize(board_size)
         self.board = OthelloBoard(board_size)
@@ -24,11 +31,11 @@ class NormalGame:
         """
         Display the current state of the board and indicate the current player's turn.
 
-        This function prints a string representation of the Othello board and 
-        indicates which player's turn it is by displaying the player's name 
+        This function prints a string representation of the Othello board and
+        indicates which player's turn it is by displaying the player's name
         and corresponding symbol.
         """
-
+        logger.debug("Entering display_board function from game_modes.py.")
         print(str(self.board))
         print(f"\n{self.current_player.name}'s turn ({self.current_player.value})")
 
@@ -42,6 +49,8 @@ class NormalGame:
         :return: A Bitboard of the possible capture moves for the current player.
         :rtype: Bitboard
         """
+        logger.debug(
+            "Entering get_possible_moves function from game_modes.py.")
         return self.board.line_cap_move(self.current_player)
 
     def check_game_over(self, possible_moves):
@@ -57,6 +66,7 @@ class NormalGame:
         :return: True if the game is over, False otherwise.
         :rtype: bool
         """
+        logger.debug("Entering check_game_over function from game_modes.py.")
         if possible_moves.bits == 0:
             no_black = self.current_player == Color.BLACK
             no_white = self.current_player == Color.WHITE
