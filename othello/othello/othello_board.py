@@ -26,6 +26,13 @@ class Color(Enum):
             return Color.BLACK
         return Color.EMPTY
 
+    def __str__(self) -> str:
+        if self is Color.BLACK:
+            return "black"
+        elif self is Color.WHITE:
+            return "white"
+        return "empty"
+
 
 class IllegalMoveException(Exception):
     """
@@ -160,6 +167,13 @@ class OthelloBoard:
         :rtype: int
         """
         return len(self.__history)//2+1
+
+    def get_last_play(self):
+        last_play, last_play_idx = self.__history[-1], 0
+        while last_play[2] == -1 and last_play[3] == -1:
+            last_play_idx += 1
+            last_play = self.__history[-last_play_idx]
+        return last_play
 
     def line_cap(self, x_coord: int, y_coord: int, current_player: Color) -> Bitboard:
         """
