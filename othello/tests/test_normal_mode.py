@@ -91,6 +91,18 @@ def test_normal_turn_switch(normal_game):
     assert game.current_player == Color.BLACK
 
 
+def test_get_possible_moves(normal_game):
+    """
+    Tests that get_possible_moves() correctly returns the possible moves for the current player.
+    The result is compared to the line_cap_move() result of the game board.
+    """
+    board = normal_game
+    possible_moves = board.get_possible_moves()
+
+    expected_moves = board.board.line_cap_move(board.current_player)
+    assert possible_moves == expected_moves, f"Expected {expected_moves}, got {possible_moves}"
+
+
 def test_game_over_both_players_no_moves(mock_game):
     """Test game over when both players have no valid moves."""
     game = mock_game
@@ -187,6 +199,28 @@ def test_process_move():
         assert game.process_move(1, 1, possible_moves) is False
         mock_print.assert_called_with(
             "Invalid move. Not a legal play. Try again.")
+
+
+@pytest.mark.parametrize("user_input, expected_output", [
+    ("a1", (0, 0)),  # 'a' -> 0, '1' -> 0
+    ("h8", (7, 7)),  # 'h' -> 7, '8' -> 7
+    ("c3", (2, 2)),  # 'c' -> 2, '3' -> 2
+])
+def test_get_player_move(monkeypatch, user_input, expected_output, normal_game):
+    """
+    Tests if get_player_move() correctly converts user input into (x, y) coordinates.
+
+    The test uses the monkeypatch fixture to replace the built-in input() function
+    with a mock function that returns the user_input param. The expected_output
+    param is the expected result of the get_player_move() call.
+
+    The test is parametrized to run for different inputs, to ensure that the
+    function works correctly for different user inputs.
+    """
+    board = normal_game
+    monkeypatch.setattr("builtins.input", lambda _: user_input)
+
+    assert board.get_player_move() == expected_output
 
 
 def test_switch_player():
