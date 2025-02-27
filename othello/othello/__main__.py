@@ -1,4 +1,6 @@
 import sys
+from othello.gui import OthelloGUI
+from othello.othello_board import BoardSize, OthelloBoard
 import othello.parser as parser
 import othello.game_modes as Modes
 import othello.config as configuration
@@ -36,6 +38,10 @@ def main():
 
     loaded_config = configuration.load_config(filename_prefix)
     print("Config loaded:", loaded_config)
+    b = OthelloBoard(BoardSize.SIX_BY_SIX)
+    g = OthelloGUI(b)
+    g.run()
+    exit()
 
     match mode:
         case parser.GameMode.NORMAL.value:

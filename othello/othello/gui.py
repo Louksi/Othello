@@ -2,6 +2,7 @@ from othello.othello_board import Color, GameOverException, OthelloBoard
 from gi.repository import Gtk, GLib, Adw
 import cairo
 import gi
+import math
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
@@ -27,6 +28,19 @@ class ListBoxWithLength(Gtk.ListBox):
         return self.length
 
 
+class OthelloGUI(Gtk.Application):
+    PLAYS_IN_HISTORY = 15
+
+    def __init__(self, board: OthelloBoard):
+        super().__init__(application_id="othello")
+        GLib.set_application_name("othello")
+        self.board = board
+
+    def do_activate(self):
+        window = OthelloWindow(self, self.board)
+        window.present()
+
+
 class OthelloWindow(Gtk.ApplicationWindow):
     def __init__(self, application, board: OthelloBoard):
         super().__init__(application=application, title="Othello")
@@ -49,8 +63,8 @@ class OthelloWindow(Gtk.ApplicationWindow):
         self.black_timer_label = Gtk.Label(label="Black: 12:00")
         self.white_timer_label = Gtk.Label(label="White: 12:00")
         self.plays_list = ListBoxWithLength()
-        self.black_last_move = Gtk.Label(label="Black last move: --:--")
-        self.white_last_move = Gtk.Label(label="White last move: --:--")
+        # self.black_last_move = Gtk.Label(label="Black last move: --:--")
+        # self.white_last_move = Gtk.Label(label="White last move: --:--")
         self.black_nb_pieces = Gtk.Label(label="Black has 2 pieces")
         self.white_nb_pieces = Gtk.Label(label="White has 2 pieces")
 
@@ -109,7 +123,8 @@ class OthelloWindow(Gtk.ApplicationWindow):
         main_grid.attach(nb_pieces_box, 0, 2, 1, 1)
 
         plays_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
-        plays_box.append(Gtk.Label(label="Last 5 Plays"))
+        plays_box.append(
+            Gtk.Label(label=f"Last {OthelloGUI.PLAYS_IN_HISTORY} Plays"))
         plays_box.append(self.plays_list)
         main_grid.attach(plays_box, 1, 1, 1, 1)
 
@@ -122,10 +137,11 @@ class OthelloWindow(Gtk.ApplicationWindow):
 
         last_moves_box = Gtk.Box(
             orientation=Gtk.Orientation.VERTICAL, spacing=5)
-        last_moves_box.append(self.black_last_move)
-        last_moves_box.append(self.white_last_move)
+        # last_moves_box.append(self.black_last_move)
+        # last_moves_box.append(self.white_last_move)
         main_grid.attach(last_moves_box, 1, 3, 1, 1)
 
+    # Game state management methods
     def update_game_state(self, x: int, y: int):
         try:
             self.board.play(x, y)
@@ -149,19 +165,14 @@ class OthelloWindow(Gtk.ApplicationWindow):
         new_move = Gtk.Label(
             label=f"{self.board.get_last_play()[4]} placed a piece at {chr(ord('A') + x)}{y + 1}")
         self.plays_list.prepend(new_move)
-        if len(self.plays_list) > 5:
+        if len(self.plays_list) > OthelloGUI.PLAYS_IN_HISTORY:
             self.plays_list.remove(self.plays_list.get_last_child())
 
-    def update_last_moves(self, x: int, y: int):
-        self.black_last_move.set_text(
-            f"Black last move: {chr(ord('A') + x)}{y + 1}")
+    # def update_last_moves(self, x: int, y: int):
+    #     self.black_last_move.set_text(
+    #         f"Black last move: {chr(ord('A') + x)}{y + 1}")
 
-    def board_click(self, _gesture, _n_press, click_x: float, click_y: float):
-        board_x = int(click_x / self.cell_size)
-        board_y = int(click_y / self.cell_size)
-        if 0 <= board_x < self.grid_size and 0 <= board_y < self.grid_size:
-            self.update_game_state(board_x, board_y)
-
+    # Drawing functions
     def draw(self, _area: Gtk.DrawingArea, cr: cairo.Context, width: int, height: int):
         self.draw_board(cr)
         self.draw_grid(cr)
@@ -202,7 +213,7 @@ class OthelloWindow(Gtk.ApplicationWindow):
                     center_x = x * self.cell_size + self.cell_size // 2
                     center_y = y * self.cell_size + self.cell_size // 2
                     radius = self.cell_size // 2 - 2
-                    cr.arc(center_x, center_y, radius, 0, 2*3.14159)
+                    cr.arc(center_x, center_y, radius, 0, 2*math.pi)
                     cr.fill()
 
     def draw_pieces(self, cr: cairo.Context):
@@ -226,10 +237,35 @@ class OthelloWindow(Gtk.ApplicationWindow):
                 cr.arc(center_x, center_y, radius, 0, 2 * 3.14159)
                 cr.fill()
 
-    def forfeit_handler(self, _button: Gtk.Button):
-        print("clicked forfeit button")
+    # Event handlers
+    def board_click(self, _gesture, _n_press, click_x: float, click_y: float):
+        board_x = int(click_x / self.cell_size)
+        board_y = int(click_y / self.cell_size)
+        if 0 <= board_x < self.grid_size and 0 <= board_y < self.grid_size:
+            self.update_game_state(board_x, board_y)
 
-    def save_and_quit_handler(self, _button: Gtk.Button):
+    # Game action handlers
+    def forfeit_handler(self, _button: Gtk.Button):
+        self.show_confirm_dialog(
+            "are you sure ? this will close the program and your progression will be lost!", self.forfeit_handler_callback)
+
+    def forfeit_handler_callback(self, response):
+        if response == -5:
+            exit(0)  # todo: maybe be a little more subtle
+
+    def restart_handler(self, _button: Gtk.Button):
+        self.show_confirm_dialog(
+            "Are you sure you want to restart the game ?", self.restart_handler_callback)
+
+    def restart_handler_callback(self, confirmation):
+        if confirmation == -5:
+            self.board.restart()
+            for _ in range(len(self.plays_list)):
+                self.plays_list.remove(self.plays_list.get_last_child())
+            self.update_nb_pieces()
+
+    # File operations
+    def file_chooser(self, callback):
         dialog = Gtk.FileChooserDialog(
             title="Save Game",
             parent=self,
@@ -247,8 +283,11 @@ class OthelloWindow(Gtk.ApplicationWindow):
         filter_all.set_name("All Files")
         filter_all.add_pattern("*")
         dialog.add_filter(filter_all)
-        dialog.connect("response", self.on_save_dialog_response)
+        dialog.connect("response", callback)
         dialog.present()
+
+    def save_and_quit_handler(self, _button: Gtk.Button):
+        self.file_chooser(self.on_save_dialog_response)
 
     def on_save_dialog_response(self, dialog, response):
         if response == Gtk.ResponseType.ACCEPT:
@@ -266,6 +305,19 @@ class OthelloWindow(Gtk.ApplicationWindow):
         except Exception as e:
             self.show_error_dialog(f"Failed to save game: {str(e)}")
 
+    def save_history_handler(self, _button: Gtk.Button):
+        self.file_chooser(self.save_history_handler_callback)
+
+    def save_history_handler_callback(self, file_path):
+        try:
+            with open(file_path, "w") as file:
+                game_data = self.board.export_history()
+                file.write(game_data)
+            print(f"Game saved to {file_path}")
+        except Exception as e:
+            self.show_error_dialog(f"Failed to save game history: {str(e)}")
+
+    # Dialog utilities
     def show_confirm_dialog(self, message, cb):
         def call_cb(d, r):
             d.destroy()
@@ -291,28 +343,3 @@ class OthelloWindow(Gtk.ApplicationWindow):
         )
         dialog.connect("response", lambda d, _: d.destroy())
         dialog.present()
-
-    def restart_handler(self, _button: Gtk.Button):
-        self.show_confirm_dialog(
-            "Are you sure you want to restart the game ?", self.actual_restart_handler)
-
-    def actual_restart_handler(self, confirmation):
-        if confirmation == -5:
-            self.board.restart()
-            for i in range(len(self.plays_list)):
-                self.plays_list.get_last_child()
-            self.update_nb_pieces()
-
-    def save_history_handler(self, _button: Gtk.Button):
-        print("clicked save history button")
-
-
-class OthelloGUI(Gtk.Application):
-    def __init__(self, board: OthelloBoard):
-        super().__init__(application_id="othello")
-        GLib.set_application_name("othello")
-        self.board = board
-
-    def do_activate(self):
-        window = OthelloWindow(self, self.board)
-        window.present()
