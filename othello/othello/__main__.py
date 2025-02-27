@@ -1,6 +1,10 @@
+'''
+Entry point for the othello executable.
+'''
 import sys
-import othello.parser as parser
+from othello.parser import GameMode, parse_args, default_config
 import othello.game_modes as Modes
+import othello.config as configuration
 
 
 def main():
@@ -24,23 +28,33 @@ def main():
     Returns:
         None
     """
-    mode, config = parser.parse_args()
+    mode, config = parse_args()
+
+    current_config = default_config.copy()
+    current_config.update(config)
+
+    filename_prefix = "config"
+
+    configuration.save_config(current_config, filename_prefix)
+
+    loaded_config = configuration.load_config(filename_prefix)
+    print("Config loaded:", loaded_config)
 
     match mode:
-        case parser.GameMode.NORMAL.value:
+        case GameMode.NORMAL.value:
             print("Starting Normal Mode...")
             Modes.NormalGame(config["size"]).play()
 
-        case parser.GameMode.BLITZ.value:
+        case GameMode.BLITZ.value:
             print("Starting Blitz Mode...")
             Modes.BlitzGame(config["size"], config["blitz_time"]).play()
             print(f"Blitz mode with time limit: {config['bTime']} minutes")
 
-        case parser.GameMode.CONTEST.value:
+        case GameMode.CONTEST.value:
             print("Starting Contest Mode...")
             print(f"Loading contest from file: {config['cFile']}")
 
-        case parser.GameMode.AI.value:
+        case GameMode.AI.value:
             print("Starting AI Mode...")
             print(f"AI plays as: {config['AIColor']}")
 

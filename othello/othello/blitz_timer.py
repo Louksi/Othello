@@ -122,4 +122,6 @@ class BlitzTimer:
         black_time_seconds = black_time % 60
         white_time_seconds = white_time % 60
 
-        return f"Black Time: {black_time_minutes:02d}:{black_time_seconds:02d}\nWhite Time: {white_time_minutes:02d}:{white_time_seconds:02d}\n"
+        black_print = f"Black Time: {black_time_minutes:02d}:{black_time_seconds:02d}\n"
+        white_print = f"White Time: {white_time_minutes:02d}:{white_time_seconds:02d}\n"
+        return f"{black_print}{white_print}"
