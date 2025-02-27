@@ -27,21 +27,19 @@ def minimax(board: OthelloBoard, depth: int, max_player: Color, maximizing: bool
         if depth == 0:
             return corners_captured_heuristic(board, max_player)
 
-        legal_moves = board.line_cap_move(board.current_player)
-
         eval = float("-inf") if maximizing else float("inf")
         for move_x in range(board.size.value):
             for move_y in range(board.size.value):
-                if legal_moves.get(move_x, move_y):
-                    new_board = OthelloBoard(
-                        board.size, board.black, board.white, board.current_player)
+                if board.line_cap_move(board.current_player).get(move_x, move_y):
+                    print(board.export())
                     try:
-                        new_board.play(move_x, move_y)
+                        # Need a copy, problem for future us
+                        board.play(move_x, move_y)
                     except GameOverException:
                         return corners_captured_heuristic(board, max_player)
 
                     eval_score = minimax(
-                        new_board, depth - 1, max_player, not maximizing)
+                        board, depth - 1, max_player, not maximizing)
                     if maximizing:
                         eval = max(eval, eval_score)
                     else:
