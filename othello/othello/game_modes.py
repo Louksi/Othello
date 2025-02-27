@@ -1,10 +1,17 @@
+'''
+Game Modes for Othello
+'''
 import sys
-import othello.parser as parser
+from othello.parser import DEFAULT_BLITZ_TIME
 from othello.othello_board import BoardSize, OthelloBoard, Color
 from othello.blitz_timer import BlitzTimer
 
 
 class NormalGame:
+    '''
+    A class representing a Normal Othello game.
+    '''
+
     def __init__(self, board_size: BoardSize = BoardSize.EIGHT_BY_EIGHT):
         """
         Initialize the NormalGame with the given board size.
@@ -73,8 +80,8 @@ class NormalGame:
                 f"No valid moves for {self.current_player.name}. Skipping turn.")
             return False
 
-        print(self.no_black_move, self.no_white_move)
-        if self.board.black.popcount() + self.board.white.popcount() == self.board.size.value * self.board.size.value:
+        total_moves = self.board.black.popcount() + self.board.white.popcount()
+        if total_moves == self.board.size.value * self.board.size.value:
             if self.board.black.popcount() > self.board.white.popcount():
                 print("Black wins!")
                 return True
@@ -197,6 +204,11 @@ class NormalGame:
 
 
 class BlitzGame(NormalGame):
+    '''
+    A class representing a Blitz game of Othello. A time limit has been
+    added to the normal game rules.
+    '''
+
     def __init__(self, board_size: BoardSize = BoardSize.EIGHT_BY_EIGHT, time: int = None):
         """
         Initialize the BlitzGame with the given board size and time limit.
@@ -214,7 +226,7 @@ class BlitzGame(NormalGame):
 
         super().__init__(BoardSize(board_size) if isinstance(board_size, int) else board_size)
         self.blitz_timer = BlitzTimer(
-            time if time is not None else parser.DEFAULT_BLITZ_TIME)
+            time if time is not None else DEFAULT_BLITZ_TIME)
         self.blitz_timer.start_timer('black')
 
     def switch_player(self):

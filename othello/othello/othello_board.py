@@ -261,6 +261,14 @@ class OthelloBoard:
 
     @staticmethod
     def move_to_str(move):
+        """
+        Converts a move tuple to a string matching the save file format
+
+        :param move: a move tuple
+        :type move: tuple
+        :returns: the string representation of the move
+        :rtype: str
+        """
         if move[2] == -1 and move[3] == -1:
             return "-1-1"
         return f"{chr(ord('a') + move[2])}{move[3]+1}"
