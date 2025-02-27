@@ -114,6 +114,8 @@ class NormalGame:
         :param possible_moves: A bitboard of the possible capture moves for the current player.
         :type possible_moves: Bitboard
         """
+        logger.debug(
+            f"Entering display_possible_moves function from game_modes.py, with parameter possible_moves: {possible_moves}.")
         print("Possible moves: ")
         for y in range(self.board.size.value):
             for x in range(self.board.size.value):
@@ -133,7 +135,7 @@ class NormalGame:
         :return: A tuple containing the x and y coordinates of the move.
         :rtype: tuple[int, int]
         """
-
+        logger.debug("Entering get_player_move function from game_modes.py.")
         move = input("Enter your move: ").strip().lower()
 
         x_coord = ord(move[0]) - ord('a')
@@ -158,7 +160,8 @@ class NormalGame:
         :return: True if the move is successfully processed, False if the move is invalid.
         :rtype: bool
         """
-
+        logger.debug(
+            f"Entering process_move function from game_modes.py, with parameters x_coord: {x_coord}, y_coord: {y_coord}, and possible_moves: {possible_moves}.")
         if not possible_moves.get(x_coord, y_coord):
             print("Invalid move. Not a legal play. Try again.")
             return False
@@ -172,7 +175,7 @@ class NormalGame:
         This function toggles the current player between black and white.
         It does not return any value.
         """
-
+        logger.debug("Entering switch_player function from game_modes.py.")
         self.current_player = (
             Color.WHITE if self.current_player == Color.BLACK else Color.BLACK
         )
@@ -195,6 +198,7 @@ class NormalGame:
 
         :return: None
         """
+        logger.debug("Entering play function from game_modes.py.")
         while True:
             self.display_board()
             possible_moves = self.get_possible_moves()
@@ -234,7 +238,8 @@ class BlitzGame(NormalGame):
                     parser's DEFAULT_BLITZ_TIME if not specified.
         :type time: int, optional
         """
-
+        logger.debug(
+            "Entering initialization function for Blitz mode, from game_modes.py.")
         super().__init__(BoardSize(board_size) if isinstance(board_size, int) else board_size)
         self.blitz_timer = BlitzTimer(
             time if time is not None else DEFAULT_BLITZ_TIME)
@@ -248,6 +253,8 @@ class BlitzGame(NormalGame):
         Otherwise, the Blitz timer is updated by switching the current player and
         starting the timer for the new player.
         """
+        logger.debug(
+            "Entering switch_player function for Blitz mode, from game_modes.py.")
         if self.blitz_timer.is_time_up('black'):
             print("Black's time is up! White wins!")
             sys.exit(0)
@@ -267,6 +274,8 @@ class BlitzGame(NormalGame):
         which shows the remaining time for both black and white players in minutes and
         seconds.
         """
+        logger.debug(
+            "Entering display_time function for Blitz mode, from game_modes.py.")
         print(self.blitz_timer.display_time())
 
     def check_game_over(self, possible_moves):
@@ -283,7 +292,8 @@ class BlitzGame(NormalGame):
         :return: True if the game is over, False otherwise.
         :rtype: bool
         """
-
+        logger.debug(
+            f"Entering check_game_over function for Blitz mode, from game_modes.py, with parameter possible_moves: {possible_moves}.")
         if self.blitz_timer.is_time_up('black'):
             print("Black's time is up! White wins!")
             sys.exit(0)
@@ -315,6 +325,8 @@ class BlitzGame(NormalGame):
         8. Switch the current player.
         9. Print the remaining time for both players.
         """
+        logger.debug(
+            "Entering play function for Blitz mode, from game_modes.py.")
         while True:
             self.display_board()
             possible_moves = self.get_possible_moves()

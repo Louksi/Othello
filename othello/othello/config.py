@@ -20,6 +20,7 @@ def save_config(config, filename_prefix="default"):
     """
     Save configuration into a .othellorc file, .ini format
     """
+
     filename = f"{filename_prefix}.othellorc"
     try:
         # converts all boolean values into str

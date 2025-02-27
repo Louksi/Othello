@@ -1,7 +1,5 @@
 import logging
 
-# basic configuration
-
 
 def logging_config(debug: bool) -> None:
     """
@@ -19,7 +17,7 @@ def logging_config(debug: bool) -> None:
                             handlers=[
                                 logging.StreamHandler(),  # Log to the console
                                 logging.FileHandler(
-                                    "othello.log")  # Log to a file
+                                    "othello.log", mode="w")  # Log to a file
                             ])
 
 
