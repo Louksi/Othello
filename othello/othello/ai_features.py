@@ -113,6 +113,73 @@ def alphabeta(board: OthelloBoard,
     return eval
 
 
+def find_best_move(board: OthelloBoard, depth: int,
+                   max_player: Color, maximizing: bool, search_algo: str) -> tuple[int, int]:
+    """
+    Finds the best move according to the given search algorithm.
+
+    :param board: The current state of the Othello board.
+    :type board: OthelloBoard
+    :param depth: The maximum depth to explore in the game tree.
+    :type depth: int
+    :param max_player: The player for whom the best move is being calculated (BLACK or WHITE).
+    :type max_player: Color
+    :param maximizing: A Boolean indicating whether the current step is maximizing or minimizing
+    the score.
+    :type maximizing: bool
+    :param search_algo: The search algorithm to use, either "minimax" or "alphabeta".
+    :type search_algo: str
+    :return: The coordinates of the best move found from the current board state.
+    :rtype: tuple[int, int]
+    """
+
+    if depth == 0 or board.is_game_over():
+        return (-1, -1)
+
+    if maximizing:
+        best_move = (-1, -1)
+        best_score = float("-inf")
+        for move_x in range(board.size.value):
+            for move_y in range(board.size.value):
+                if board.line_cap_move(board.current_player).get(move_x, move_y):
+                    board.play(move_x, move_y)
+                    if search_algo == "minimax":
+                        score = minimax(board, depth - 1,
+                                        max_player, not maximizing)
+                    else:
+                        score = alphabeta(
+                            board, depth - 1, float("-inf"), float("inf"),
+                            max_player, not maximizing)
+                    board.pop()
+
+                    if score > best_score:
+                        best_score = score
+                        best_move = (move_x, move_y)
+
+        return best_move
+
+    worst_move = (-1, -1)
+    best_score = float("inf")
+    for move_x in range(board.size.value):
+        for move_y in range(board.size.value):
+            if board.line_cap_move(board.current_player).get(move_x, move_y):
+                board.play(move_x, move_y)
+                if search_algo == "minimax":
+                    score = minimax(board, depth - 1,
+                                    max_player, not maximizing)
+                else:
+                    score = alphabeta(
+                        board, depth - 1, float("-inf"), float("inf"),
+                        max_player, not maximizing)
+                board.pop()
+
+                if score < best_score:
+                    best_score = score
+                    worst_move = (move_x, move_y)
+
+    return worst_move
+
+
 def corners_captured_heuristic(board: OthelloBoard, max_player: Color) -> int:
     """
     Computes the Corners Captured heuristic.
