@@ -149,6 +149,18 @@ def corners_captured_heuristic(board: OthelloBoard, max_player: Color) -> int:
 
 
 def coin_parity_heuristic(board: OthelloBoard, max_player: Color) -> int:
+    """
+    Computes the Coin Parity heuristic.
+
+    A high score means the max_player has more pieces on the board, while a low (negative) score means the opponent has more.
+
+    :param board: The Othello board instance.
+    :type board: OthelloBoard
+    :param max_player: The player for whom we calculate the heuristic (BLACK or WHITE).
+    :type max_player: Color
+    :returns: A heuristic value between -100 and 100.
+    :rtype: int
+    """
 
     if max_player == Color.BLACK:
         return int(100 * (board.black.popcount() - board.white.popcount())/(board.black.popcount() + board.white.popcount()))
