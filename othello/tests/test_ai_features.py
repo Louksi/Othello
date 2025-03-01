@@ -87,10 +87,21 @@ def test_coin_parity_advantage_black(board_with_corners):
     assert coin_parity_heuristic(board_with_corners, Color.WHITE) < 0
 
 
+def test_coin_parity_advantage_white(board_one_corner_each):
+    """Tests that WHITE gets a negative score when having more coins than BLACK."""
+    board_one_corner_each.white.set(1, 1, True)
+    assert coin_parity_heuristic(board_one_corner_each, Color.BLACK) < 0
+    assert coin_parity_heuristic(board_one_corner_each, Color.WHITE) > 0
+
+
 def test_draw_coin_parity(board_one_corner_each):
     """Tests that if both players have the same number of coins, the score is 0."""
     assert coin_parity_heuristic(board_one_corner_each, Color.BLACK) == 0
     assert coin_parity_heuristic(board_one_corner_each, Color.WHITE) == 0
 
+
+def test_invalid_color_empty_coin_parity(empty_board):
+    """Tests that the function returns Color.EMPTY when no color is given. (invalid color)"""
+    assert coin_parity_heuristic(empty_board, Color.EMPTY) == Color.EMPTY
 
 # endregion Coin Parity

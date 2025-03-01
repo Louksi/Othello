@@ -1,7 +1,4 @@
-import sys
-import othello.parser as parser
-from othello.othello_board import BoardSize, OthelloBoard, Color, GameOverException
-from othello.bitboard import Bitboard
+from othello.othello_board import OthelloBoard, Color
 
 
 def minimax(board: OthelloBoard, depth: int, max_player: Color, maximizing: bool) -> int:
@@ -9,7 +6,7 @@ def minimax(board: OthelloBoard, depth: int, max_player: Color, maximizing: bool
     Implements the minimax algorithm to evaluate the best possible move for a given board state.
 
     This function recursively explores possible moves up to a given depth, evaluating each position
-    using the Corners Captured heuristic when the maximum depth is reached or the game is over.
+    using an heuristic when the maximum depth is reached or the game is over.
     It returns the heuristic value of the best possible move for the given player.
 
     :param board: The current state of the Othello board.
@@ -18,7 +15,8 @@ def minimax(board: OthelloBoard, depth: int, max_player: Color, maximizing: bool
     :type depth: int
     :param max_player: The player for whom the best move is being calculated (BLACK or WHITE).
     :type max_player: Color
-    :param maximizing: A Boolean indicating whether the current step is maximizing or minimizing the score.
+    :param maximizing: A Boolean indicating whether the current step is maximizing or minimizing
+    the score.
     :type maximizing: bool
     :return: The heuristic value of the best move found from the current board state.
     :rtype: int
@@ -53,12 +51,14 @@ def minimax(board: OthelloBoard, depth: int, max_player: Color, maximizing: bool
     return eval
 
 
-def alphabeta(board: OthelloBoard, depth: int, alpha: int, beta: int, max_player: Color, maximizing: bool) -> int:
+def alphabeta(board: OthelloBoard,
+              depth: int, alpha: int, beta: int, max_player: Color, maximizing: bool) -> int:
     """
-    Implements the Alpha-Beta Pruning algorithm to evaluate the best possible move for a given board state.
+    Implements the Alpha-Beta Pruning algorithm to evaluate the best possible move for a given
+    board state.
 
     This function recursively explores possible moves up to a given depth, evaluating each position
-    using the Corners Captured heuristic when the maximum depth is reached or the game is over.
+    using an heuristic when the maximum depth is reached or the game is over.
     It returns the heuristic value of the best move found from the current board state.
 
     :param board: The current state of the Othello board.
@@ -71,7 +71,8 @@ def alphabeta(board: OthelloBoard, depth: int, alpha: int, beta: int, max_player
     :type beta: int
     :param max_player: The player for whom the best move is being calculated (BLACK or WHITE).
     :type max_player: Color
-    :param maximizing: A Boolean indicating whether the current step is maximizing or minimizing the score.
+    :param maximizing: A Boolean indicating whether the current step is maximizing or minimizing
+    the score.
     :type maximizing: bool
     :return: The heuristic value of the best move found from the current board state.
     :rtype: int
@@ -116,7 +117,8 @@ def corners_captured_heuristic(board: OthelloBoard, max_player: Color) -> int:
     """
     Computes the Corners Captured heuristic.
 
-    A high score means the max_player has more corners, while a low (negative) score means the opponent has more.
+    A high score means the max_player has more corners, while a low (negative) score means the
+    opponent has more.
 
     :param board: The Othello board instance.
     :type board: OthelloBoard
@@ -134,7 +136,7 @@ def corners_captured_heuristic(board: OthelloBoard, max_player: Color) -> int:
         """Helper function to determine which player occupies a given board position."""
         if board.black.get(x, y):
             return Color.BLACK
-        elif board.white.get(x, y):
+        if board.white.get(x, y):
             return Color.WHITE
         return Color.EMPTY
 
@@ -143,7 +145,7 @@ def corners_captured_heuristic(board: OthelloBoard, max_player: Color) -> int:
     min_corners = sum(
         1 for x, y in corners if get_player_at(x, y) == ~max_player)
 
-    if (max_corners + min_corners != 0):
+    if max_corners + min_corners != 0:
         return int(100 * (max_corners - min_corners) / (max_corners + min_corners))
     return 0
 
@@ -152,7 +154,8 @@ def coin_parity_heuristic(board: OthelloBoard, max_player: Color) -> int:
     """
     Computes the Coin Parity heuristic.
 
-    A high score means the max_player has more pieces on the board, while a low (negative) score means the opponent has more.
+    A high score means the max_player has more pieces on the board, while a low (negative)
+    score means the opponent has more.
 
     :param board: The Othello board instance.
     :type board: OthelloBoard
@@ -163,6 +166,9 @@ def coin_parity_heuristic(board: OthelloBoard, max_player: Color) -> int:
     """
 
     if max_player == Color.BLACK:
-        return int(100 * (board.black.popcount() - board.white.popcount())/(board.black.popcount() + board.white.popcount()))
+        return int(100 * (board.black.popcount() - board.white.popcount()) /
+                   (board.black.popcount() + board.white.popcount()))
     if max_player == Color.WHITE:
-        return int(100 * (board.white.popcount() - board.black.popcount())/(board.white.popcount() + board.black.popcount()))
+        return int(100 * (board.white.popcount() - board.black.popcount()) /
+                   (board.white.popcount() + board.black.popcount()))
+    return Color.EMPTY
