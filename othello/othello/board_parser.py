@@ -53,6 +53,8 @@ class BoardParser:
         self.__x = 0
         self.__next_line()
         # we pre-parse the first line to find the supposed size of the board
+        if self.__eof():
+            raise BoardParserException("reached end of file", self.__y)
         board_size = self.__find_board_size()
         if board_size not in (bs.value for bs in BoardSize):
             raise BoardParserException("illegal board size value", self.__y)
@@ -147,7 +149,7 @@ class BoardParser:
             or self.__peek(peek_cursor) == "#"
 
     def __eof(self):
-        return self.__eol() and self.__y >= len(self.__buffer)-1
+        return self.__y >= len(self.__buffer) or (self.__eol() and self.__y >= len(self.__buffer)-1)
 
     def __line_mask(self, board_y: int, board_size: int) -> tuple[Bitboard, Bitboard]:
         black_mask = Bitboard(board_size)

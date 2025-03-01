@@ -237,7 +237,6 @@ class OthelloBoard:
         if x_coord == -1 and y_coord == -1:
             self.__history.append(
                 (self.black, self.white, -1, -1, self.current_player))
-            self.current_player = ~self.current_player
         else:
             legal_moves = self.line_cap_move(self.current_player)
             move_mask = Bitboard(self.size.value)
