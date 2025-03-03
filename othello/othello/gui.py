@@ -168,11 +168,6 @@ class OthelloWindow(Gtk.ApplicationWindow):
         if len(self.plays_list) > OthelloGUI.PLAYS_IN_HISTORY:
             self.plays_list.remove(self.plays_list.get_last_child())
 
-    # def update_last_moves(self, x: int, y: int):
-    #     self.black_last_move.set_text(
-    #         f"Black last move: {chr(ord('A') + x)}{y + 1}")
-
-    # Drawing functions
     def draw(self, _area: Gtk.DrawingArea, cr: cairo.Context, width: int, height: int):
         self.draw_board(cr)
         self.draw_grid(cr)
@@ -237,14 +232,12 @@ class OthelloWindow(Gtk.ApplicationWindow):
                 cr.arc(center_x, center_y, radius, 0, 2 * 3.14159)
                 cr.fill()
 
-    # Event handlers
     def board_click(self, _gesture, _n_press, click_x: float, click_y: float):
         board_x = int(click_x / self.cell_size)
         board_y = int(click_y / self.cell_size)
         if 0 <= board_x < self.grid_size and 0 <= board_y < self.grid_size:
             self.update_game_state(board_x, board_y)
 
-    # Game action handlers
     def forfeit_handler(self, _button: Gtk.Button):
         self.show_confirm_dialog(
             "are you sure ? this will close the program and your progression will be lost!", self.forfeit_handler_callback)
@@ -264,8 +257,7 @@ class OthelloWindow(Gtk.ApplicationWindow):
                 self.plays_list.remove(self.plays_list.get_last_child())
             self.update_nb_pieces()
 
-    # File operations
-    def file_chooser(self, callback):
+    def file_chooser(self, callback, default_file_name: str, file_extension: str):
         dialog = Gtk.FileChooserDialog(
             title="Save Game",
             parent=self,
@@ -274,10 +266,10 @@ class OthelloWindow(Gtk.ApplicationWindow):
         dialog.add_button("Cancel", Gtk.ResponseType.CANCEL)
         dialog.add_button("Save", Gtk.ResponseType.ACCEPT)
         dialog.set_modal(True)
-        dialog.set_current_name("othello_game.sav")
+        dialog.set_current_name(f"{default_file_name}.{file_extension}")
         filter_sav = Gtk.FileFilter()
         filter_sav.set_name("Othello Save Files")
-        filter_sav.add_pattern("*.sav")
+        filter_sav.add_pattern(f"*.{file_extension}")
         dialog.add_filter(filter_sav)
         filter_all = Gtk.FileFilter()
         filter_all.set_name("All Files")
@@ -287,7 +279,7 @@ class OthelloWindow(Gtk.ApplicationWindow):
         dialog.present()
 
     def save_and_quit_handler(self, _button: Gtk.Button):
-        self.file_chooser(self.on_save_dialog_response)
+        self.file_chooser(self.on_save_dialog_response, "my_game", ".sav")
 
     def on_save_dialog_response(self, dialog, response):
         if response == Gtk.ResponseType.ACCEPT:
@@ -306,7 +298,8 @@ class OthelloWindow(Gtk.ApplicationWindow):
             self.show_error_dialog(f"Failed to save game: {str(e)}")
 
     def save_history_handler(self, _button: Gtk.Button):
-        self.file_chooser(self.save_history_handler_callback)
+        self.file_chooser(self.save_history_handler_callback,
+                          "my_hist", ".hist")
 
     def save_history_handler_callback(self, file_path):
         try:
@@ -317,7 +310,6 @@ class OthelloWindow(Gtk.ApplicationWindow):
         except Exception as e:
             self.show_error_dialog(f"Failed to save game history: {str(e)}")
 
-    # Dialog utilities
     def show_confirm_dialog(self, message, cb):
         def call_cb(d, r):
             d.destroy()
