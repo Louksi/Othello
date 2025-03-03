@@ -4,6 +4,7 @@ Internals of an othello bitboard, to store the presence or absence of elements o
 """
 from __future__ import annotations  # used for self-referencing classes...
 
+
 from enum import Enum, auto
 from copy import copy
 
@@ -50,7 +51,7 @@ class Bitboard:
             self.mask |= (1 << i)
             self.west_mask |= (1 << i) if i % self.size != 0 else 0
             self.east_mask |= (1 << i) if i % self.size != self.size-1 else 0
-        self.bits = bits
+        self.bits = bits & self.mask
 
     def set(self, x_coord: int, y_coord: int, value: bool) -> None:
         """
@@ -145,6 +146,24 @@ class Bitboard:
             summed += chunk_n
             remaining_bits >>= 64
         return summed
+
+    def hot_bits_coordinates(self) -> list[tuple[int, int]]:
+        """
+        Returns a list of (x, y) coordinates, one for each hot bit in the bitboard.
+        :returns: The list of coordinates set to 1 in the bitboard, in the form list[(x, y)...].
+        :rtype: list[tuple[int, int]]
+        """
+        positions = []
+        bits_copy = self.bits
+        while bits_copy > 0:
+            last_hot_bit = bits_copy & -bits_copy
+            position_1d = (last_hot_bit).bit_length() - 1
+            positions.append((
+                position_1d % self.size,
+                position_1d // self.size
+            ))
+            bits_copy &= bits_copy - 1
+        return positions
 
     def empty(self) -> bool:
         """

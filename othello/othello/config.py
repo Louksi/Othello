@@ -1,16 +1,17 @@
-# CONFIG FILE
-# mode = normal/blitz/contest/ai
-# filename = save.feur/None
-# size = 6/8/10/12
-# debug = false/true
-# blitz_time = 30/X (en minutes)
-# ai_color = X/O/A
-# ai_mode = minimax/alphabeta
-# ai_shallow = true/false
-# ai_depth = 3/X (sachant que root_depth = 0)
-# ai_heuristic = default/autre
-# ai_time = 5/X (en secondes)
-
+'''
+        CONFIG FILE
+mode = normal/blitz/contest/ai
+filename = save.feur/None
+size = 6/8/10/12
+debug = false/true
+blitz_time = 30/X (en minutes)
+ai_color = X/O/A
+ai_mode = minimax/alphabeta
+ai_shallow = true/false
+ai_depth = 3/X (sachant que root_depth = 0)
+ai_heuristic = default/autre
+ai_time = 5/X (en secondes)
+'''
 
 # from othello.parser import parse_args, default_config
 
@@ -26,7 +27,7 @@ def save_config(config, filename_prefix="default"):
             if isinstance(config[key], bool):
                 config[key] = str(config[key]).lower()
 
-        with open(filename, "w") as file:
+        with open(filename, "w", encoding="utf-8") as file:
             for key, value in config.items():
                 file.write(f"{key}={value}\n")
     except IOError as err:
@@ -44,7 +45,7 @@ def load_config(filename_prefix="default") -> dict:
     filename = f"{filename_prefix}.othellorc"
     config = {}
     try:
-        with open(filename, "r") as file:
+        with open(filename, "r", encoding="utf-8") as file:
             for line in file:
                 if "=" in line:
                     key, value = line.strip().split("=", 1)

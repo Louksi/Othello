@@ -2,6 +2,7 @@
 Testing the agnostic bitboard implementation
 """
 import pytest
+import random
 from copy import copy
 from othello.bitboard import Bitboard, Direction
 
@@ -269,3 +270,35 @@ def test_str():
 | | |·| | |
 |·| | | | |"""
 # ·
+
+
+def test_minux_one():
+    b = Bitboard(6, bits=-1)
+    assert b.popcount() == 36
+
+
+def test_pseudo_rand_values():
+    def __count_hot_bits(n: int):
+        return len(list(filter(lambda x: x == "1", bin(n))))
+    random.seed(23)
+    random_bits = random.randint(0, 8*8)
+    b = Bitboard(8, bits=random_bits)
+    assert b.popcount() == __count_hot_bits(random_bits)
+
+    random_bits = random.randint(0, 9*9)
+    b = Bitboard(9, bits=random_bits)
+    assert b.popcount() == __count_hot_bits(random_bits)
+
+    random_bits = random.randint(0, 64*64)  # bc why not?
+    b = Bitboard(64, bits=random_bits)
+    assert b.popcount() == __count_hot_bits(random_bits)
+
+
+def test_hot_bits_coordinates():
+    b = Bitboard(3, bits=0b000110001)
+    must_be_positions = [(0, 0), (1, 1), (2, 1)]
+    assert b.hot_bits_coordinates() == must_be_positions
+    b = Bitboard(6, bits=0b000010100001001000000000000010100001)
+    must_be_positions = [(0, 0), (5, 0), (1, 1), (3, 3),
+                         (0, 4), (5, 4), (1, 5)]
+    assert b.hot_bits_coordinates() == must_be_positions

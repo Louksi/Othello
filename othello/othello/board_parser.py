@@ -27,6 +27,15 @@ class BoardParser:
         self.__y = 0
         self.__case_values = tuple(c.value for c in Color)
 
+    def get_current_line(self) -> str:
+        """
+        Returns the current line of the raw save.
+
+        :return: The raw string of the current line
+        :rtype: str
+        """
+        return self.__buffer[self.__y]
+
     def parse(self) -> OthelloBoard:
         """
         Parses the board given at init time and returns an OthelloBoard configured accordingly.
@@ -112,7 +121,7 @@ class BoardParser:
             board.play(move[0], move[1])
         except IllegalMoveException as exc:
             raise BoardParserException(
-                f"black move {black_play} is illegal ({exc})", self.__y)
+                f"black move {black_play} is illegal ({exc})", self.__y) from exc
 
         if white_play is not None:
             try:
@@ -121,7 +130,7 @@ class BoardParser:
             except IllegalMoveException as exc:
                 print(board)
                 raise BoardParserException(
-                    f"white move {white_play} is illegal ({exc})", self.__y)
+                    f"white move {white_play} is illegal ({exc})", self.__y) from exc
 
     def __parse_move(self, move: str) -> tuple[int, int]:
         if move == "-1-1":
