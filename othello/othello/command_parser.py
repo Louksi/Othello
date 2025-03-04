@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from enum import Enum, auto
 import re
 import argparse
-from typing import Tuple, Union
+from typing import Tuple, Union, Literal
 
 
 class CommandParserException(Exception):
@@ -41,15 +41,15 @@ class PlayCommand:
 
 
 CommandType = Union[  # This type is used to kind of mimic some sort of algebraic datatype
-    Tuple[CommandKind.PLAY_MOVE, PlayCommand],
+    Tuple[Literal[CommandKind.PLAY_MOVE], PlayCommand],
     Tuple[Union[
-        CommandKind.HELP,
-        CommandKind.RULES,
-        CommandKind.SAVE_AND_QUIT,
-        CommandKind.SAVE_HISTORY,
-        CommandKind.FORFEIT,
-        CommandKind.RESTART,
-        CommandKind.QUIT]]
+        Literal[CommandKind.HELP],
+        Literal[CommandKind.RULES],
+        Literal[CommandKind.SAVE_AND_QUIT],
+        Literal[CommandKind.SAVE_HISTORY],
+        Literal[CommandKind.FORFEIT],
+        Literal[CommandKind.RESTART],
+        Literal[CommandKind.QUIT]]]
 ]
 
 
