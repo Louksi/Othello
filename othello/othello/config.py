@@ -15,6 +15,7 @@ ai_time = 5/X (en secondes)
 
 import sys
 
+
 def save_config(config: dict, filename_prefix: str = "current_config") -> None:
     """
     Save configuration into a .othellorc file, .ini format.
@@ -60,6 +61,7 @@ def load_config(filename_prefix: str = "current_config") -> dict:
         print("No config file found, will take default configuration.")
         raise
     return config
+
 
 def display_config(config: dict) -> None:
     """
