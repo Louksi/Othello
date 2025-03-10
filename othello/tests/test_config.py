@@ -1,6 +1,8 @@
 import pytest
 import os
-from othello.config import save_config, load_config
+import sys
+from io import StringIO
+from othello.config import save_config, load_config, display_config
 
 
 @pytest.fixture
@@ -70,3 +72,42 @@ def test_save_and_load_empty_config(temp_config_file):
         filename_prefix=temp_config_file.replace(".othellorc", ""))
 
     assert loaded_config == empty_config
+
+
+def test_display_config():
+    """
+    Test display_config with an empty dictionnary, and one containing a small configuration
+    """
+    dummy_config = {}
+    expected_output = "Configuration:\n"
+    captured_output = StringIO()
+
+    # redirect stdout into our variable, then reset it
+    sys.stdout = captured_output
+    display_config(dummy_config)
+    sys.stdout = sys.__stdout__
+
+    assert expected_output == captured_output.getvalue()
+
+    dummy_config2 = {"mode": "normal", "filename": None, "size": 8}
+    expected_output2 = "Configuration:\n  mode: normal\n  filename: None\n  size: 8\n"
+    captured_output2 = StringIO()
+
+    sys.stdout = captured_output2
+    display_config(dummy_config2)
+    sys.stdout = sys.__stdout__
+
+    assert expected_output2 == captured_output2.getvalue()
+
+
+def test_invalid_display_config():
+    invalid_config = ["not a dict"]
+    invalid_config2 = "not_a_dict"
+    invalid_config3 = 299.792
+
+    with pytest.raises(SystemExit):
+        display_config(invalid_config)
+    with pytest.raises(SystemExit):
+        display_config(invalid_config2)
+    with pytest.raises(SystemExit):
+        display_config(invalid_config3)
