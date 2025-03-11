@@ -351,6 +351,7 @@ class BlitzGame(NormalGame):
                     x_coord, y_coord = play_command.x_coord, play_command.y_coord
                     if not self.process_move(x_coord, y_coord, possible_moves):
                         continue
+                    self.switch_player()
                 else:
                     kind = command_result[0]
                     match kind:
@@ -358,10 +359,9 @@ class BlitzGame(NormalGame):
                             parser.print_help()
                         case CommandKind.RULES:
                             parser.print_rules()
-                        case CommandKind.SAVE_AND_QUIT:
-                            print("waiting for branch merge")
-                        case CommandKind.SAVE_HISTORY:
-                            print("waiting for branch merge")
+                        case CommandKind.SAVE_AND_QUIT | CommandKind.SAVE_HISTORY:
+                            save_board_state_history(self.board)
+                            sys.exit(0)
                         case CommandKind.FORFEIT:
                             print(f"{self.current_player.name} forfeited.")
                             self.switch_player()
@@ -369,17 +369,16 @@ class BlitzGame(NormalGame):
                                 f"Game Over, {self.current_player.name} wins!")
                             sys.exit(0)
                         case CommandKind.RESTART:
-                            parser.restart()
+                            self.board.restart()
                         case CommandKind.QUIT:
                             print("Exiting without saving...")
                             sys.exit(0)
                         case _:
                             print("Invalid command. Try again.")
-                            continue
+                            parser.print_help()
 
             except CommandParserException as e:
                 print(f"Error: {e}")
                 print("Invalid command. Please try again.")
                 continue
-            self.switch_player()
             self.display_time()
