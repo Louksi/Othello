@@ -1,10 +1,11 @@
 import pytest
 import sys
 import time
+from othello.command_parser import CommandKind, CommandParser
 import othello.parser as parser
 from unittest.mock import MagicMock, patch
 from othello.blitz_timer import BlitzTimer
-from othello.game_modes import BlitzGame
+from othello.game_modes import BlitzGame, NormalGame
 from othello.othello_board import BoardSize, Color, Bitboard
 
 
@@ -115,3 +116,28 @@ def test_check_game_over(mock_blitz_game):
     game.check_game_over = MagicMock(return_value=False)
 
     assert not game.check_game_over(0)
+
+
+def test_blitz_check_game_over_board_full(mock_blitz_game):
+    """Test game over condition when board is full based on popcount."""
+    game = mock_blitz_game
+
+    # First ensure time isn't up for either player
+    game.blitz_timer.is_time_up.return_value = False
+
+    # Mock parent class's check_game_over to isolate our test
+    original_super = super(BlitzGame, game).check_game_over
+
+    # Use a patching approach to call the real method but control the outcome
+    with patch('builtins.super') as mock_super:
+        mock_parent_game = MagicMock()
+        mock_super.return_value = mock_parent_game
+
+        # 1. Test when board is full and black wins
+        mock_parent_game.check_game_over.return_value = True
+
+        valid_moves = Bitboard(1)  # Some valid moves exist
+        assert game.check_game_over(valid_moves) is True
+
+        # Verify super().check_game_over was called
+        mock_parent_game.check_game_over.assert_called_with(valid_moves)

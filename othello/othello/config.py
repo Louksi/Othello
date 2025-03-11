@@ -14,6 +14,7 @@ ai_time = 5/X (en secondes)
 '''
 
 # from othello.parser import parse_args, default_config
+from othello.othello_board import OthelloBoard
 
 
 def save_config(config, filename_prefix="default"):
@@ -54,6 +55,23 @@ def load_config(filename_prefix="default") -> dict:
         print("No config file found, will take default configuration.")
         raise
     return config
+
+
+def save_board_state_history(board: OthelloBoard, filename_prefix="default"):
+    """
+    Save the board state history into a .othellorc file.
+
+    Args:
+        board (OthelloBoard): The Othello board object containing the game state.
+        filename_prefix (str): Prefix for the filename.
+    """
+    filename = f"{filename_prefix}.othellorc"
+    try:
+        with open(filename, "w", encoding="utf-8") as file:
+            file.write(board.export())  # Write the board state as a string
+    except IOError as err:
+        print(f"Error while saving board state: {err}")
+        raise
 
 
 # def main():
