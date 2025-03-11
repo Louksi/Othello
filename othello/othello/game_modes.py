@@ -336,6 +336,7 @@ class BlitzGame(NormalGame):
         8. Switch the current player.
         9. Print the remaining time for both players.
         """
+        parser = CommandParser(board_size=self.board.size.value)
         while True:
             self.display_board()
             possible_moves = self.get_possible_moves()
@@ -343,14 +344,46 @@ class BlitzGame(NormalGame):
                 continue
 
             self.display_possible_moves(possible_moves)
-            move = self.get_player_move()
-            if move is None:
-                continue
+            command_str = input("Enter your move or command: ").strip()
 
-            x_coord, y_coord = move
-            if not self.process_move(x_coord, y_coord, possible_moves):
-                continue
+            try:
+                command_result = parser.parse_str(command_str)
 
+                if command_result[0] == CommandKind.PLAY_MOVE:
+                    kind = command_result[0]
+                    play_command = command_result[1]
+                    x_coord, y_coord = play_command.x_coord, play_command.y_coord
+                    if not self.process_move(x_coord, y_coord, possible_moves):
+                        continue
+                else:
+                    kind = command_result[0]
+                    match kind:
+                        case CommandKind.HELP:
+                            parser.print_help()
+                        case CommandKind.RULES:
+                            parser.print_rules()
+                        case CommandKind.SAVE_AND_QUIT:
+                            print("waiting for branch merge")
+                        case CommandKind.SAVE_HISTORY:
+                            print("waiting for branch merge")
+                        case CommandKind.FORFEIT:
+                            print(f"{self.current_player.name} forfeited.")
+                            self.switch_player()
+                            print(
+                                f"Game Over, {self.current_player.name} wins!")
+                            sys.exit(0)
+                        case CommandKind.RESTART:
+                            parser.restart()
+                        case CommandKind.QUIT:
+                            print("Exiting without saving...")
+                            sys.exit(0)
+                        case _:
+                            print("Invalid command. Try again.")
+                            continue
+
+            except CommandParserException as e:
+                print(f"Error: {e}")
+                print("Invalid command. Please try again.")
+                continue
             self.switch_player()
-            print()
             self.display_time()
