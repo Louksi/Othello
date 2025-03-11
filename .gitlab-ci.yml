@@ -56,8 +56,7 @@ pre-commit:
     PRE_COMMIT_AUTO_FIX: "1"
     PRE_COMMIT_DEDUPLICATE_MR_AND_BRANCH: "true"
 
-  image: ghcr.io/pygobject/pygobject:latest
-
+  image: registry.gitlab.com/yesolutions/docker-pre-commit
   script: |
     if [[ -n "$PRE_COMMIT_AUTO_FIX_BRANCH_ONLY" && -n "$PRE_COMMIT_AUTO_FIX_MR_ONLY" ]]; then
         echo "invalid configuration. PRE_COMMIT_AUTO_FIX_BRANCH_ONLY and PRE_COMMIT_AUTO_FIX_MR_ONLY are mutually exclusive"
@@ -145,13 +144,14 @@ test-job:
     - shell
   stage: test
   before_script:
-  - wget https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-Linux-x86_64.sh -O ~/mambaforge.sh
-  - bash ~/mambaforge.sh -b -p ~/mambaforge
-  - source ~/mambaforge/bin/activate
-  - mamba create -n myenv python=3.11 pygobject -y
-  - conda activate myenv
-
-  - pip install ./
+    #- apt update
+    #- apt install -y libgirepository1.0-dev gcc libcairo2-dev pkg-config python3-dev gir1.2-gtk-4.0
+    - python -mvenv venv
+    - source venv/bin/activate
+    - python -m pip install --upgrade pip
+    - python --version ; pip --version
+    - cd othello
+    - pip install ./
   script:
     #- coverage run -m pytest --junitxml=test_report.xml
     #- coverage xml -o coverage_report.xml
