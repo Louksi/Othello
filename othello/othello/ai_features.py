@@ -1,4 +1,5 @@
 from othello.othello_board import OthelloBoard, Color
+from copy import deepcopy
 
 
 def minimax(board: OthelloBoard, depth: int, max_player: Color, maximizing: bool) -> int:
@@ -25,28 +26,25 @@ def minimax(board: OthelloBoard, depth: int, max_player: Color, maximizing: bool
     if depth == 0 or board.is_game_over():
         return corners_captured_heuristic(board, max_player)
 
+    valid_moves = board.line_cap_move(
+        board.current_player).hot_bits_coordinates()
+
     if maximizing:
         eval = float("-inf")
-        for move_x in range(board.size.value):
-            for move_y in range(board.size.value):
-                if board.line_cap_move(board.current_player).get(move_x, move_y):
-                    # Need a copy, problem for future us
-                    board.play(move_x, move_y)
-                    eval_score = minimax(
-                        board, depth - 1, max_player, not maximizing)
-                    eval = max(eval, eval_score)
-                    board.pop()
+        for move_x, move_y in valid_moves:
+            board.play(move_x, move_y)
+            eval_score = minimax(
+                board, depth - 1, max_player, not maximizing)
+            eval = max(eval, eval_score)
+            board.pop()
     else:
         eval = float("inf")
-        for move_x in range(board.size.value):
-            for move_y in range(board.size.value):
-                if board.line_cap_move(board.current_player).get(move_x, move_y):
-                    # Need a copy, problem for future us
-                    board.play(move_x, move_y)
-                    eval_score = minimax(
-                        board, depth - 1, max_player, maximizing)
-                    eval = min(eval, eval_score)
-                    board.pop()
+        for move_x, move_y in valid_moves:
+            board.play(move_x, move_y)
+            eval_score = minimax(
+                board, depth - 1, max_player, not maximizing)
+            eval = min(eval, eval_score)
+            board.pop()
 
     return eval
 
@@ -81,34 +79,31 @@ def alphabeta(board: OthelloBoard,
     if depth == 0 or board.is_game_over():
         return corners_captured_heuristic(board, max_player)
 
+    valid_moves = board.line_cap_move(
+        board.current_player).hot_bits_coordinates()
+
     if maximizing:
         eval = float("-inf")
-        for move_x in range(board.size.value):
-            for move_y in range(board.size.value):
-                if board.line_cap_move(board.current_player).get(move_x, move_y):
-                    # Need a copy, problem for future us
-                    board.play(move_x, move_y)
-                    eval_score = alphabeta(
-                        board, depth - 1, alpha, beta, max_player, not maximizing)
-                    eval = max(eval, eval_score)
-                    board.pop()
-                    alpha = max(alpha, eval)
-                    if beta <= alpha:
-                        break
+        for move_x, move_y in valid_moves:
+            board.play(move_x, move_y)
+            eval_score = alphabeta(
+                board, depth - 1, alpha, beta, max_player, not maximizing)
+            eval = max(eval, eval_score)
+            board.pop()
+            alpha = max(alpha, eval)
+            if beta <= alpha:
+                break
     else:
         eval = float("inf")
-        for move_x in range(board.size.value):
-            for move_y in range(board.size.value):
-                if board.line_cap_move(board.current_player).get(move_x, move_y):
-                    # Need a copy, problem for future us
-                    board.play(move_x, move_y)
-                    eval_score = alphabeta(
-                        board, depth - 1, alpha, beta, max_player, maximizing)
-                    eval = min(eval, eval_score)
-                    board.pop()
-                    beta = min(beta, eval)
-                    if beta <= alpha:
-                        break
+        for move_x, move_y in valid_moves:
+            board.play(move_x, move_y)
+            eval_score = alphabeta(
+                board, depth - 1, alpha, beta, max_player, not maximizing)
+            eval = min(eval, eval_score)
+            board.pop()
+            beta = min(beta, eval)
+            if beta <= alpha:
+                break
 
     return eval
 
@@ -136,46 +131,49 @@ def find_best_move(board: OthelloBoard, depth: int,
     if depth == 0 or board.is_game_over():
         return (-1, -1)
 
+    valid_moves = board.line_cap_move(
+        board.current_player).hot_bits_coordinates()
+
     if maximizing:
         best_move = (-1, -1)
         best_score = float("-inf")
-        for move_x in range(board.size.value):
-            for move_y in range(board.size.value):
-                if board.line_cap_move(board.current_player).get(move_x, move_y):
-                    board.play(move_x, move_y)
-                    if search_algo == "minimax":
-                        score = minimax(board, depth - 1,
-                                        max_player, not maximizing)
-                    else:
-                        score = alphabeta(
-                            board, depth - 1, float("-inf"), float("inf"),
-                            max_player, not maximizing)
-                    board.pop()
+        for move_x, move_y in valid_moves:
 
-                    if score > best_score:
-                        best_score = score
-                        best_move = (move_x, move_y)
+            new_board = deepcopy(board)
+
+            new_board.play(move_x, move_y)
+            if search_algo == "minimax":
+                score = minimax(new_board, depth - 1,
+                                max_player, not maximizing)
+            else:
+                score = alphabeta(
+                    new_board, depth - 1, float("-inf"), float("inf"),
+                    max_player, not maximizing)
+
+            if score > best_score:
+                best_score = score
+                best_move = (move_x, move_y)
 
         return best_move
 
     worst_move = (-1, -1)
-    best_score = float("inf")
-    for move_x in range(board.size.value):
-        for move_y in range(board.size.value):
-            if board.line_cap_move(board.current_player).get(move_x, move_y):
-                board.play(move_x, move_y)
-                if search_algo == "minimax":
-                    score = minimax(board, depth - 1,
-                                    max_player, not maximizing)
-                else:
-                    score = alphabeta(
-                        board, depth - 1, float("-inf"), float("inf"),
-                        max_player, not maximizing)
-                board.pop()
+    worst_score = float("inf")
+    for move_x, move_y in valid_moves:
 
-                if score < best_score:
-                    best_score = score
-                    worst_move = (move_x, move_y)
+        new_board = deepcopy(board)
+
+        new_board.play(move_x, move_y)
+        if search_algo == "minimax":
+            score = minimax(new_board, depth - 1,
+                            max_player, not maximizing)
+        else:
+            score = alphabeta(
+                new_board, depth - 1, float("-inf"), float("inf"),
+                max_player, not maximizing)
+
+        if score < worst_score:
+            worst_score = score
+            worst_move = (move_x, move_y)
 
     return worst_move
 

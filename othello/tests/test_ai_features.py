@@ -142,8 +142,8 @@ def test_1_move_possible(board_6_one_move_possible):
     print(find_best_move(board_6_one_move_possible,
           1, Color.WHITE, True, "alphabeta"))
     assert find_best_move(board_6_one_move_possible, 1,
-                          Color.WHITE, True, "minimax") == (1, 1)
+                          Color.WHITE, True, "minimax") == (5, 5)
     assert find_best_move(board_6_one_move_possible, 1,
-                          Color.WHITE, True, "alphabeta") == (1, 1)
+                          Color.WHITE, True, "alphabeta") == (5, 5)
 
 # endregion Find Best Move
