@@ -56,7 +56,8 @@ pre-commit:
     PRE_COMMIT_AUTO_FIX: "1"
     PRE_COMMIT_DEDUPLICATE_MR_AND_BRANCH: "true"
 
-  image: registry.gitlab.com/yesolutions/docker-pre-commit
+  image: debian:bullseye
+
   script: |
     if [[ -n "$PRE_COMMIT_AUTO_FIX_BRANCH_ONLY" && -n "$PRE_COMMIT_AUTO_FIX_MR_ONLY" ]]; then
         echo "invalid configuration. PRE_COMMIT_AUTO_FIX_BRANCH_ONLY and PRE_COMMIT_AUTO_FIX_MR_ONLY are mutually exclusive"
@@ -145,7 +146,7 @@ test-job:
   stage: test
   before_script:
     # - apt update
-    - apt install -y libgirepository1.0-dev gcc libcairo2-dev pkg-config python3-dev gir1.2-gtk-4.0
+    # - apt install -y libgirepository1.0-dev gcc libcairo2-dev pkg-config python3-dev gir1.2-gtk-4.0
     - python -mvenv venv
     - source venv/bin/activate
     - python -m pip install --upgrade pip
