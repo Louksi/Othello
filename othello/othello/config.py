@@ -14,6 +14,10 @@ ai_time = 5/X (en secondes)
 '''
 
 import sys
+import logging
+import othello.logger as log
+
+logger = logging.getLogger("Othello")
 
 
 def save_config(config: dict, filename_prefix: str = "current_config") -> None:
@@ -24,7 +28,8 @@ def save_config(config: dict, filename_prefix: str = "current_config") -> None:
       config (dict): The configuration to save
       filename_prefix (str): The prefix for the filename (default: "current_config")
     """
-
+    logger.debug(
+        f"Entering save configuration function from config.py, with parameters config: {config} and filename_prefix: {filename_prefix}.")
     filename = f"{filename_prefix}.othellorc"
     try:
         # converts all boolean values into str
@@ -36,6 +41,7 @@ def save_config(config: dict, filename_prefix: str = "current_config") -> None:
             for key, value in config.items():
                 file.write(f"{key}={value}\n")
     except IOError as err:
+        log.log_error_message(err, context="Error while saving configuration.")
         print(f"Error while saving configuration: {err}")
         raise
 
@@ -50,6 +56,8 @@ def load_config(filename_prefix: str = "current_config") -> dict:
     Returns:
       dict: Dictionnary containing the configuration from the file
     """
+    logger.debug(
+        f"Entering load configuration function from config.py, with parameter filename_prefix: {filename_prefix}.")
     filename = f"{filename_prefix}.othellorc"
     config = {}
     try:
@@ -58,8 +66,9 @@ def load_config(filename_prefix: str = "current_config") -> dict:
                 if "=" in line:
                     key, value = line.strip().split("=", 1)
                     config[key] = value
-    except FileNotFoundError:
-        print("No config file found, will take default configuration.")
+    except FileNotFoundError as err:
+        logger.log_error_message(err, context="No configuration file found.")
+        print(f"No config file found, will take default configuration: {err}")
         raise
     return config
 
@@ -74,7 +83,10 @@ def display_config(config: dict) -> None:
     Raises:
       SystemExit: if invalid arguments are provided
     """
+    logger.debug(
+        f"Entering display configuration function from config.py, with parameter config: {config}.")
     if not isinstance(config, dict):
+        logger.debug("Error: expected a dictionnary.")
         sys.stderr.write("Error: expected a dictionnary.\n\n")
         sys.exit(1)
 

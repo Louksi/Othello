@@ -1,17 +1,15 @@
 '''
 Game Modes for Othello
 '''
-'''
-Game Modes for Othello
-'''
-import sys
-from othello.parser import DEFAULT_BLITZ_TIME
-import logging
 import othello.parser as parser
-from othello.othello_board import BoardSize, OthelloBoard, Color
-from othello.blitz_timer import BlitzTimer
-from othello.command_parser import CommandParser, CommandKind, CommandParserException
+import logging
+import sys
 import othello.logger as log
+from othello.command_parser import CommandParser, CommandKind, CommandParserException
+from othello.blitz_timer import BlitzTimer
+from othello.othello_board import BoardSize, OthelloBoard, Color
+
+from othello.parser import DEFAULT_BLITZ_TIME
 
 
 logger = logging.getLogger("Othello")
@@ -121,7 +119,7 @@ class NormalGame:
         :type possible_moves: Bitboard
         """
         logger.debug(
-            f"Entering display_possible_moves function from game_modes.py, with parameter possible_moves: {possible_moves}.")
+            "Entering display_possible_moves function from game_modes.py, with parameter possible_moves.")
         print("Possible moves: ")
         for y in range(self.board.size.value):
             for x in range(self.board.size.value):
@@ -167,8 +165,9 @@ class NormalGame:
         :rtype: bool
         """
         logger.debug(
-            f"Entering process_move function from game_modes.py, with parameters x_coord: {x_coord}, y_coord: {y_coord}, and possible_moves: {possible_moves}.")
+            f"Entering process_move function from game_modes.py, with parameters x_coord: {x_coord}, y_coord: {y_coord}, and possible_moves.")
         if not possible_moves.get(x_coord, y_coord):
+            logger.debug("The move is not legal to play")
             print("Invalid move. Not a legal play. Try again.")
             return False
         self.board.play(x_coord, y_coord)
@@ -200,8 +199,8 @@ class NormalGame:
 
         :return: None
         """
-        parser = CommandParser(board_size=self.board.size.value)
         logger.debug("Entering play function from game_modes.py.")
+        parser = CommandParser(board_size=self.board.size.value)
         while True:
             self.display_board()
             possible_moves = self.get_possible_moves()
@@ -218,35 +217,59 @@ class NormalGame:
                     kind = command_result[0]
                     play_command = command_result[1]
                     x_coord, y_coord = play_command.x_coord, play_command.y_coord
+                    logger.debug(
+                        f"Player wants to play in {x_coord}, {y_coord}")
                     if not self.process_move(x_coord, y_coord, possible_moves):
                         continue
                 else:
                     kind = command_result[0]
                     match kind:
                         case CommandKind.HELP:
+                            logger.debug(
+                                "HELP command was called and will be executed")
                             parser.print_help()
                         case CommandKind.RULES:
+                            logger.debug(
+                                "RULES command was called and will be executed")
                             parser.print_rules()
                         case CommandKind.SAVE_AND_QUIT:
+                            logger.debug(
+                                "SAVE_AND_QUIT command was called and will be executed")
                             print("waiting for branch merge")
                         case CommandKind.SAVE_HISTORY:
+                            logger.debug(
+                                "SAVE_HISTORY command was called and will be executed")
                             print("waiting for branch merge")
                         case CommandKind.FORFEIT:
+                            logger.debug(
+                                "FORFEIT command was called and will be executed")
+                            logger.debug(
+                                f"{self.current_player.name} forfeited.")
                             print(f"{self.current_player.name} forfeited.")
                             self.switch_player()
+                            logger.debug(
+                                f"Game Over, {self.current_player.name} wins!")
                             print(
                                 f"Game Over, {self.current_player.name} wins!")
                             sys.exit(0)
                         case CommandKind.RESTART:
+                            logger.debug(
+                                "RESTART command was called and will be executed")
                             parser.restart()
                         case CommandKind.QUIT:
+                            logger.debug(
+                                "QUIT command was called and will be executed")
                             print("Exiting without saving...")
                             sys.exit(0)
                         case _:
+                            logger.debug(
+                                "'Invalid command. Try again' User entered a text not recognized as a move or a command during the game loop in play function from game_modes.py")
                             print("Invalid command. Try again.")
                             continue
 
             except CommandParserException as e:
+                log.log_error_message(
+                    e, context="Invalid command. Please try again")
                 print(f"Error: {e}")
                 print("Invalid command. Please try again.")
                 continue
@@ -329,7 +352,7 @@ class BlitzGame(NormalGame):
         :rtype: bool
         """
         logger.debug(
-            f"Entering check_game_over function for Blitz mode, from game_modes.py, with parameter possible_moves: {possible_moves}.")
+            f"Entering check_game_over function for Blitz mode, from game_modes.py, with parameter possible_moves.")
         if self.blitz_timer.is_time_up('black'):
             print("Black's time is up! White wins!")
             sys.exit(0)
@@ -380,35 +403,59 @@ class BlitzGame(NormalGame):
                     kind = command_result[0]
                     play_command = command_result[1]
                     x_coord, y_coord = play_command.x_coord, play_command.y_coord
+                    logger.debug(
+                        f"Player wants to play in {x_coord}, {y_coord}")
                     if not self.process_move(x_coord, y_coord, possible_moves):
                         continue
                 else:
                     kind = command_result[0]
                     match kind:
                         case CommandKind.HELP:
+                            logger.debug(
+                                "HELP command was called and will be executed")
                             parser.print_help()
                         case CommandKind.RULES:
+                            logger.debug(
+                                "RULES command was called and will be executed")
                             parser.print_rules()
                         case CommandKind.SAVE_AND_QUIT:
+                            logger.debug(
+                                "SAVE_AND_QUIT command was called and will be executed")
                             print("waiting for branch merge")
                         case CommandKind.SAVE_HISTORY:
+                            logger.debug(
+                                "SAVE_HISTORY command was called and will be executed")
                             print("waiting for branch merge")
                         case CommandKind.FORFEIT:
+                            logger.debug(
+                                "FORFEIT command was called and will be executed")
+                            logger.debug(
+                                f"{self.current_player.name} forfeited.")
                             print(f"{self.current_player.name} forfeited.")
                             self.switch_player()
+                            logger.debug(
+                                f"Game Over, {self.current_player.name} wins!")
                             print(
                                 f"Game Over, {self.current_player.name} wins!")
                             sys.exit(0)
                         case CommandKind.RESTART:
+                            logger.debug(
+                                "RESTART command was called and will be executed")
                             parser.restart()
                         case CommandKind.QUIT:
+                            logger.debug(
+                                "QUIT command was called and will be executed")
                             print("Exiting without saving...")
                             sys.exit(0)
                         case _:
+                            logger.debug(
+                                "'Invalid command. Try again' User entered a text not recognized as a move or a command during the game loop in play function from game_modes.py")
                             print("Invalid command. Try again.")
                             continue
 
             except CommandParserException as e:
+                log.log_error_message(
+                    e, context="Invalid command. Please try again")
                 print(f"Error: {e}")
                 print("Invalid command. Please try again.")
                 continue

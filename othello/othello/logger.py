@@ -15,7 +15,7 @@ def logging_config(debug: bool) -> None:
         logging.basicConfig(level=level,
                             format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                             handlers=[
-                                logging.StreamHandler(),  # Log to the console
+                                # logging.StreamHandler(),  # Log to the console, uncomment this line if you need it
                                 logging.FileHandler(
                                     "othello.log", mode="w")  # Log to a file
                             ])
@@ -32,4 +32,4 @@ def log_error_message(error: str, context: str | None = None) -> None:
     logger = logging.getLogger("Othello")
     if context is not None:
         logger.error(f"Context: {context}")
-    logging.error(f"Error: {error}", exc_info=True)
+    logger.error(f"Error: {error}", exc_info=True)

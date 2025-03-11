@@ -32,6 +32,14 @@ def main():
     """
     mode, config = parse_args()
 
+    log.logging_config(config["debug"])
+    logger = logging.getLogger("Othello")
+
+    logger.debug("Start of a Othello game.")
+    logger.debug("Debug mode is enabled.")
+    logger.debug(f"Game mode: {mode}")
+    log.log_error_message("dummy error message", "context")
+
     current_config = default_config.copy()
     current_config.update(config)
 
@@ -42,14 +50,6 @@ def main():
     loaded_config = configuration.load_config(filename_prefix)
     # print("Config loaded:", loaded_config)
     configuration.display_config(loaded_config)
-
-    log.logging_config(config["debug"])
-    logger = logging.getLogger("Othello")
-
-    logger.debug("Start of a Othello game.")
-    logger.debug("Debug mode is enabled.")
-    logger.debug(f"Game mode: {mode}")
-    # logger.debug(f"Current configuration: \n {configuration.display_config(loaded_config)}")
 
     match mode:
         case GameMode.NORMAL.value:
