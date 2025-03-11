@@ -5,6 +5,7 @@ import sys
 from othello.parser import DEFAULT_BLITZ_TIME
 from othello.othello_board import BoardSize, OthelloBoard, Color
 from othello.blitz_timer import BlitzTimer
+from othello.command_parser import CommandParser, CommandKind, CommandParserException
 
 
 class NormalGame:
@@ -24,10 +25,12 @@ class NormalGame:
         """
         if isinstance(board_size, int):
             board_size = BoardSize(board_size)
+            self.board_size = board_size
         self.board = OthelloBoard(board_size)
         self.current_player = Color.BLACK
         self.no_black_move = False
         self.no_white_move = False
+        self.board_size = board_size.value
 
     def display_board(self):
         """
@@ -168,36 +171,65 @@ class NormalGame:
 
     def play(self):
         """
-        Main game loop.
+        Starts the game loop.
 
-        This function implements the main game loop of Othello. It is an infinite loop
-        that continues until the game is over. The loop consists of the following steps:
+        This function starts the main game loop. The loop begins by displaying
+        the current state of the board. It then prompts the current player for
+        input. The input is parsed into a CommandType, which is a tuple of a
+        CommandKind and some relevant information for that kind. The function
+        then processes the command based on the kind.
 
-        1. Display the current state of the board.
-        2. Compute the possible moves for the current player.
-        3. If the game is over, continue to the next iteration.
-        4. Display the possible moves.
-        5. Get a move from the current player.
-        6. If the move is invalid, continue to the next iteration.
-        7. Process the move by playing it on the board.
-        8. Switch the current player.
+        The loop continues until the game is over, or the user quits.
 
         :return: None
         """
+        parser = CommandParser(board_size=self.board.size.value)
         while True:
             self.display_board()
             possible_moves = self.get_possible_moves()
-
             if self.check_game_over(possible_moves):
                 continue
-
             self.display_possible_moves(possible_moves)
-            move = self.get_player_move()
-            if move is None:
-                continue
+            command_str = input("Enter your move or command: ").strip()
 
-            x_coord, y_coord = move
-            if not self.process_move(x_coord, y_coord, possible_moves):
+            try:
+                command_result = parser.parse_str(command_str)
+
+                if command_result[0] == CommandKind.PLAY_MOVE:
+                    kind = command_result[0]
+                    play_command = command_result[1]
+                    x_coord, y_coord = play_command.x_coord, play_command.y_coord
+                    if not self.process_move(x_coord, y_coord, possible_moves):
+                        continue
+                else:
+                    kind = command_result[0]
+                    match kind:
+                        case CommandKind.HELP:
+                            parser.print_help()
+                        case CommandKind.RULES:
+                            parser.print_rules()
+                        case CommandKind.SAVE_AND_QUIT:
+                            print("waiting for branch merge")
+                        case CommandKind.SAVE_HISTORY:
+                            print("waiting for branch merge")
+                        case CommandKind.FORFEIT:
+                            print(f"{self.current_player.name} forfeited.")
+                            self.switch_player()
+                            print(
+                                f"Game Over, {self.current_player.name} wins!")
+                            sys.exit(0)
+                        case CommandKind.RESTART:
+                            parser.restart()
+                        case CommandKind.QUIT:
+                            print("Exiting without saving...")
+                            sys.exit(0)
+                        case _:
+                            print("Invalid command. Try again.")
+                            continue
+
+            except CommandParserException as e:
+                print(f"Error: {e}")
+                print("Invalid command. Please try again.")
                 continue
 
             self.switch_player()
@@ -304,6 +336,7 @@ class BlitzGame(NormalGame):
         8. Switch the current player.
         9. Print the remaining time for both players.
         """
+        parser = CommandParser(board_size=self.board.size.value)
         while True:
             self.display_board()
             possible_moves = self.get_possible_moves()
@@ -311,14 +344,46 @@ class BlitzGame(NormalGame):
                 continue
 
             self.display_possible_moves(possible_moves)
-            move = self.get_player_move()
-            if move is None:
-                continue
+            command_str = input("Enter your move or command: ").strip()
 
-            x_coord, y_coord = move
-            if not self.process_move(x_coord, y_coord, possible_moves):
-                continue
+            try:
+                command_result = parser.parse_str(command_str)
 
+                if command_result[0] == CommandKind.PLAY_MOVE:
+                    kind = command_result[0]
+                    play_command = command_result[1]
+                    x_coord, y_coord = play_command.x_coord, play_command.y_coord
+                    if not self.process_move(x_coord, y_coord, possible_moves):
+                        continue
+                else:
+                    kind = command_result[0]
+                    match kind:
+                        case CommandKind.HELP:
+                            parser.print_help()
+                        case CommandKind.RULES:
+                            parser.print_rules()
+                        case CommandKind.SAVE_AND_QUIT:
+                            print("waiting for branch merge")
+                        case CommandKind.SAVE_HISTORY:
+                            print("waiting for branch merge")
+                        case CommandKind.FORFEIT:
+                            print(f"{self.current_player.name} forfeited.")
+                            self.switch_player()
+                            print(
+                                f"Game Over, {self.current_player.name} wins!")
+                            sys.exit(0)
+                        case CommandKind.RESTART:
+                            parser.restart()
+                        case CommandKind.QUIT:
+                            print("Exiting without saving...")
+                            sys.exit(0)
+                        case _:
+                            print("Invalid command. Try again.")
+                            continue
+
+            except CommandParserException as e:
+                print(f"Error: {e}")
+                print("Invalid command. Please try again.")
+                continue
             self.switch_player()
-            print()
             self.display_time()
