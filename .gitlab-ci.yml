@@ -148,10 +148,9 @@ test-job:
     - python -m pip install --upgrade pip
     - python --version ; pip --version
     - pip install pycairo
+    - pip install pytest
     - cd othello
-    # Try to install PyGObject without system dependencies
     - pip install PyGObject --no-build-isolation --no-deps || echo "Failed to install PyGObject, continuing anyway"
-    # Try to install your package with --no-deps to avoid PyGObject dependency
     - pip install ./ --no-deps
   script:
     - python -m pytest
