@@ -13,12 +13,16 @@ ai_heuristic = default/autre
 ai_time = 5/X (en secondes)
 '''
 
-# from othello.parser import parse_args, default_config
+import sys
 
 
-def save_config(config, filename_prefix="default"):
+def save_config(config: dict, filename_prefix: str = "current_config") -> None:
     """
-    Save configuration into a .othellorc file, .ini format
+    Save configuration into a .othellorc file, .ini format.
+
+    Arguments:
+      config (dict): The configuration to save
+      filename_prefix (str): The prefix for the filename (default: "current_config")
     """
 
     filename = f"{filename_prefix}.othellorc"
@@ -36,9 +40,12 @@ def save_config(config, filename_prefix="default"):
         raise
 
 
-def load_config(filename_prefix="default") -> dict:
+def load_config(filename_prefix: str = "current_config") -> dict:
     """
-    Loading a configuration from a .othellorc file
+    Loading a configuration from a .othellorc file.
+
+    Argument:
+      filename_prefix (str): The prefix for the filename (default: "current_config")
 
     Returns:
       dict: Dictionnary containing the configuration from the file
@@ -57,25 +64,20 @@ def load_config(filename_prefix="default") -> dict:
     return config
 
 
-# def main():
+def display_config(config: dict) -> None:
+    """
+    Display the configuration.
 
-#     mode, config = parse_args()
+    Argument:
+      config (dict): The configuration to display
 
-#     current_config = default_config.copy()
-#     current_config.update(config)
+    Raises:
+      SystemExit: if invalid arguments are provided
+    """
+    if not isinstance(config, dict):
+        sys.stderr.write("Error: expected a dictionnary.\n\n")
+        sys.exit(1)
 
-#     # Converts all bool values into str
-#     for key in current_config:
-#         if isinstance(current_config[key], bool):
-#             current_config[key] = str(current_config[key]).lower()
-
-#     filename_prefix = "config"
-
-#     save_config(current_config, filename_prefix)
-
-#     loaded_config = load_config(filename_prefix)
-#     print("Config loaded:", loaded_config)
-
-
-# if __name__ == "__main__":
-#     main()
+    print("Configuration:")
+    for key, value in config.items():
+        print(f"  {key}: {value}")

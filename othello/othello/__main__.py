@@ -4,7 +4,6 @@ Entry point for the othello executable.
 import sys
 from othello.parser import GameMode, parse_args, default_config
 import logging
-import othello.parser as parser
 import othello.game_modes as Modes
 import othello.config as configuration
 import othello.logger as log
@@ -41,7 +40,8 @@ def main():
     configuration.save_config(current_config, filename_prefix)
 
     loaded_config = configuration.load_config(filename_prefix)
-    print("Config loaded:", loaded_config)
+    # print("Config loaded:", loaded_config)
+    configuration.display_config(loaded_config)
 
     log.logging_config(config["debug"])
     logger = logging.getLogger("Othello")
@@ -49,7 +49,7 @@ def main():
     logger.debug("Start of a Othello game.")
     logger.debug("Debug mode is enabled.")
     logger.debug(f"Game mode: {mode}")
-    # logger.debug(f"Current configuration: \n {configuration.get_config()}")
+    # logger.debug(f"Current configuration: \n {configuration.display_config(loaded_config)}")
 
     match mode:
         case GameMode.NORMAL.value:
