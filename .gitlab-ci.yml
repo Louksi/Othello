@@ -150,9 +150,9 @@ test-job:
   - python -mvenv venv
   - source venv/bin/activate
   - pip install --upgrade pip
-  - pip install --only-binary :all: PyGObject
   - python --version ; pip --version
   - cd othello
+  - pip install --only-binary :all: PyGObject
   - pip install ./
   script:
     #- coverage run -m pytest --junitxml=test_report.xml
