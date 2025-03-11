@@ -145,7 +145,7 @@ test-job:
   stage: test
   before_script:
     # - apt update
-    # - apt install -y libgirepository1.0-dev gcc libcairo2-dev pkg-config python3-dev gir1.2-gtk-4.0
+    - apt install -y libgirepository1.0-dev gcc libcairo2-dev pkg-config python3-dev gir1.2-gtk-4.0
     - python -mvenv venv
     - source venv/bin/activate
     - python -m pip install --upgrade pip
