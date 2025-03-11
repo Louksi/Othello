@@ -38,8 +38,8 @@ def main():
     configuration.save_config(current_config, filename_prefix)
 
     loaded_config = configuration.load_config(filename_prefix)
-    print("Config loaded:", loaded_config)
-    # configuration.display_config(loaded_config)
+    # print("Config loaded:", loaded_config)
+    configuration.display_config(loaded_config)
 
     match mode:
         case GameMode.NORMAL.value:
