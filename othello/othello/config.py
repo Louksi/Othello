@@ -67,7 +67,7 @@ def load_config(filename_prefix: str = "current_config") -> dict:
                     key, value = line.strip().split("=", 1)
                     config[key] = value
     except FileNotFoundError as err:
-        logger.log_error_message(err, context="No configuration file found.")
+        log.log_error_message(err, context="No configuration file found.")
         print(f"No config file found, will take default configuration: {err}")
         raise
     return config
