@@ -145,14 +145,14 @@ test-job:
     - shell
   stage: test
   before_script:
-    # - apt update
-    # - apt install -y libgirepository1.0-dev gcc libcairo2-dev pkg-config python3-dev gir1.2-gtk-4.0
-    - python -mvenv venv
-    - source venv/bin/activate
-    - python -m pip install --upgrade pip
-    - python --version ; pip --version
-    - cd othello
-    - pip install ./
+  - apt-get update
+  - apt-get install -y pkg-config libgirepository1.0-dev gir1.2-gtk-3.0
+  - python -mvenv venv
+  - source venv/bin/activate
+  - pip install --upgrade pip
+  - python --version ; pip --version
+  - cd othello
+  - pip install ./
   script:
     #- coverage run -m pytest --junitxml=test_report.xml
     #- coverage xml -o coverage_report.xml
