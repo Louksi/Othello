@@ -230,10 +230,13 @@ def coin_parity_heuristic(board: OthelloBoard, max_player: Color) -> int:
     :rtype: int
     """
 
+    black_count = board.black.popcount()
+    white_count = board.white.popcount()
+
     if max_player == Color.BLACK:
-        return int(100 * (board.black.popcount() - board.white.popcount()) /
-                   (board.black.popcount() + board.white.popcount()))
+        return int(100 * (black_count - white_count) /
+                   (black_count + white_count))
     if max_player == Color.WHITE:
-        return int(100 * (board.white.popcount() - board.black.popcount()) /
-                   (board.white.popcount() + board.black.popcount()))
+        return int(100 * (white_count - black_count) /
+                   (white_count + black_count))
     return Color.EMPTY
