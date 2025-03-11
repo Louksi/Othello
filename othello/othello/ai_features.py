@@ -2,7 +2,7 @@ from othello.othello_board import OthelloBoard, Color
 from copy import deepcopy
 
 
-def minimax(board: OthelloBoard, depth: int, max_player: Color, maximizing: bool) -> int:
+def minimax(board: OthelloBoard, depth: int, max_player: Color, maximizing: bool, heuristic) -> int:
     """
     Implements the minimax algorithm to evaluate the best possible move for a given board state.
 
@@ -24,7 +24,7 @@ def minimax(board: OthelloBoard, depth: int, max_player: Color, maximizing: bool
     """
 
     if depth == 0 or board.is_game_over():
-        return corners_captured_heuristic(board, max_player)
+        return heuristic(board, max_player)
 
     valid_moves = board.line_cap_move(
         board.current_player).hot_bits_coordinates()
@@ -49,8 +49,8 @@ def minimax(board: OthelloBoard, depth: int, max_player: Color, maximizing: bool
     return eval
 
 
-def alphabeta(board: OthelloBoard,
-              depth: int, alpha: int, beta: int, max_player: Color, maximizing: bool) -> int:
+def alphabeta(board: OthelloBoard, depth: int, alpha: int,
+              beta: int, max_player: Color, maximizing: bool, heuristic) -> int:
     """
     Implements the Alpha-Beta Pruning algorithm to evaluate the best possible move for a given
     board state.
@@ -77,7 +77,7 @@ def alphabeta(board: OthelloBoard,
     """
 
     if depth == 0 or board.is_game_over():
-        return corners_captured_heuristic(board, max_player)
+        return heuristic(board, max_player)
 
     valid_moves = board.line_cap_move(
         board.current_player).hot_bits_coordinates()
@@ -108,8 +108,8 @@ def alphabeta(board: OthelloBoard,
     return eval
 
 
-def find_best_move(board: OthelloBoard, depth: int,
-                   max_player: Color, maximizing: bool, search_algo: str) -> tuple[int, int]:
+def find_best_move(board: OthelloBoard, depth: int, max_player: Color,
+                   maximizing: bool, search_algo: str, heuristic: str) -> tuple[int, int]:
     """
     Finds the best move according to the given search algorithm.
 
@@ -131,6 +131,11 @@ def find_best_move(board: OthelloBoard, depth: int,
     if depth == 0 or board.is_game_over():
         return (-1, -1)
 
+    if heuristic == "coin_parity":
+        heuristic_function = coin_parity_heuristic
+    else:
+        heuristic_function = corners_captured_heuristic
+
     valid_moves = board.line_cap_move(
         board.current_player).hot_bits_coordinates()
 
@@ -144,11 +149,11 @@ def find_best_move(board: OthelloBoard, depth: int,
             new_board.play(move_x, move_y)
             if search_algo == "minimax":
                 score = minimax(new_board, depth - 1,
-                                max_player, not maximizing)
+                                max_player, not maximizing, heuristic_function)
             else:
                 score = alphabeta(
                     new_board, depth - 1, float("-inf"), float("inf"),
-                    max_player, not maximizing)
+                    max_player, not maximizing, heuristic_function)
 
             if score > best_score:
                 best_score = score
@@ -165,11 +170,11 @@ def find_best_move(board: OthelloBoard, depth: int,
         new_board.play(move_x, move_y)
         if search_algo == "minimax":
             score = minimax(new_board, depth - 1,
-                            max_player, not maximizing)
+                            max_player, not maximizing, heuristic_function)
         else:
             score = alphabeta(
                 new_board, depth - 1, float("-inf"), float("inf"),
-                max_player, not maximizing)
+                max_player, not maximizing, heuristic_function)
 
         if score < worst_score:
             worst_score = score

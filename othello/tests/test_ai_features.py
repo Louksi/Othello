@@ -66,6 +66,24 @@ def board_6_one_move_possible():
     board.white.set(4, 2, True)
     return board
 
+
+@pytest.fixture
+def board_6_test_best_moves():
+    """Creates an Othello board to test WHITE's best moves."""
+    board = OthelloBoard(BoardSize.SIX_BY_SIX)
+    board.current_player = Color.WHITE
+    board.black.set(1, 0, True)
+    board.black.set(1, 1, True)
+    board.black.set(1, 2, True)
+    board.black.set(1, 3, True)
+    board.black.set(1, 4, True)
+    board.black.set(2, 3, True)
+    board.black.set(3, 2, True)
+    board.white.set(2, 2, True)
+    board.white.set(3, 3, True)
+    return board
+
+
 # endregion Fixtures
 
 # region Corners Captured
@@ -137,13 +155,20 @@ def test_invalid_color_empty_coin_parity(empty_board):
 
 def test_1_move_possible(board_6_one_move_possible):
     """Tests that the function returns the only possible move."""
-    print(board_6_one_move_possible.export_board())
-    print(find_best_move(board_6_one_move_possible, 1, Color.WHITE, True, "minimax"))
-    print(find_best_move(board_6_one_move_possible,
-          1, Color.WHITE, True, "alphabeta"))
     assert find_best_move(board_6_one_move_possible, 1,
-                          Color.WHITE, True, "minimax") == (5, 5)
+                          Color.WHITE, True, "minimax", "corners_captured") == (5, 5)
     assert find_best_move(board_6_one_move_possible, 1,
-                          Color.WHITE, True, "alphabeta") == (5, 5)
+                          Color.WHITE, True, "alphabeta", "corners_captured") == (5, 5)
 
+
+def test_best_moves_corners_and_parity(board_6_test_best_moves):
+    print(board_6_test_best_moves.export_board())
+    assert find_best_move(board_6_test_best_moves, 1,
+                          Color.WHITE, True, "minimax", "corners_captured") == (0, 0)
+    assert find_best_move(board_6_test_best_moves, 1,
+                          Color.WHITE, True, "alphabeta", "corners_captured") == (0, 0)
+    assert find_best_move(board_6_test_best_moves, 1,
+                          Color.WHITE, True, "minimax", "coin_parity") == (0, 3)
+    assert find_best_move(board_6_test_best_moves, 1,
+                          Color.WHITE, True, "alphabeta", "coin_parity") == (0, 3)
 # endregion Find Best Move
