@@ -1,10 +1,10 @@
 import pytest
 import sys
 import othello.parser as parser
-from unittest.mock import patch
+from unittest.mock import mock_open, patch
 from unittest.mock import MagicMock
 from othello.game_modes import BlitzGame, NormalGame
-from othello.othello_board import BoardSize, Color, Bitboard
+from othello.othello_board import BoardSize, Color, Bitboard, OthelloBoard
 
 
 @pytest.fixture
@@ -45,32 +45,60 @@ def mock_possible_moves():
     return bitboard
 
 
-def test_normal_mode_init(monkeypatch, normal_game):
-    """
-    Tests the initialization of a NormalGame object.
-    Ensures the board size and initial player are correctly set.
-    """
-    monkeypatch.setattr(sys, 'argv', ["othello"])
-    mode, _ = parser.parse_args()
-    assert mode == parser.GameMode.NORMAL.value
+@pytest.fixture
+def mock_board_parser():
+    """Fixture to create a mocked BoardParser."""
+    mock_parser = MagicMock()
+    mock_parser.parse.return_value = MagicMock(current_player="BLACK")
+    return mock_parser
 
-    game = normal_game
+
+def test_normal_game_init_with_file(mock_board_parser):
+    """Tests initializing NormalGame with a file, mocking BoardParser."""
+    mock_file_content = "Mock Othello Board"
+
+    with patch("builtins.open", mock_open(read_data=mock_file_content)):
+        with patch("othello.game_modes.BoardParser", return_value=mock_board_parser):
+            game = NormalGame(filename="default.othellorc")
+
+    # Assertions
+    assert game.current_player == "BLACK"
+    mock_board_parser.parse.assert_called_once()
+
+
+def test_normal_game_init_without_file(mock_board_parser):
+    """Tests initializing NormalGame without a file."""
+    game = NormalGame(filename=None, board_size=BoardSize.EIGHT_BY_EIGHT)
+    assert isinstance(game.board, OthelloBoard)
     assert game.board.size == BoardSize.EIGHT_BY_EIGHT
     assert game.current_player == Color.BLACK
+    assert game.no_black_move is False
+    assert game.no_white_move is False
 
-    monkeypatch.setattr(sys, 'argv', ["othello", "-s", "6"])
-    _, parseConfig = parser.parse_args()
-    assert parseConfig["size"] == 6
-    game = NormalGame(filename=None, board_size=parseConfig["size"])
-    assert game.board.size == BoardSize(parseConfig["size"])
+    mock_board_parser.parse.assert_not_called()
 
 
-def test_normal_mode_size_init(monkeypatch, normal_game):
-    monkeypatch.setattr(sys, 'argv', ["othello", "-s", "6"])
-    _, parseConfig = parser.parse_args()
-    assert parseConfig["size"] == 6
-    game = NormalGame(filename=None, board_size=parseConfig["size"])
-    assert game.board.size == BoardSize(parseConfig["size"])
+def test_normal_mode_size_init():
+    """Tests initializing NormalGame with different board sizes."""
+    game = NormalGame(filename=None, board_size=6)
+    assert game.board.size == BoardSize(6)
+
+    game = NormalGame(filename=None, board_size=10)
+    assert game.board.size == BoardSize(10)
+
+
+def test_invalid_board_size():
+    """Tests passing an invalid board size value."""
+    with pytest.raises(ValueError):
+        # Assuming only 6, 8, and 10 are valid
+        NormalGame(filename=None, board_size=3)
+
+
+def test_game_initial_flags():
+    """Ensure no_black_move and no_white_move flags are properly initialized."""
+    game = NormalGame(filename=None, board_size=BoardSize.EIGHT_BY_EIGHT)
+    assert game.no_black_move is False
+    assert game.no_white_move is False
 
 
 def test_display_board(capfd):

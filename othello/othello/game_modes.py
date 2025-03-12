@@ -30,16 +30,21 @@ class NormalGame:
                 board_size = BoardSize(board_size)
                 self.board = OthelloBoard(board_size)
                 self.board_size = board_size
+                self.current_player = Color.BLACK
+
             else:
                 self.board = OthelloBoard(board_size)
                 self.board_size = board_size.value
+                self.current_player = Color.BLACK
         else:
+
             with open(f"{filename}", "r") as file:
                 file_content = file.read()
 
-            self.board = BoardParser(file_content).parse()
+            parsed_board = BoardParser(file_content).parse()
+            self.current_player = parsed_board.current_player
+            self.board = parsed_board
 
-        self.current_player = Color.BLACK
         self.no_black_move = False
         self.no_white_move = False
 
