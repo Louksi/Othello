@@ -1,6 +1,7 @@
 '''
 Game Modes for Othello
 '''
+from othello.board_parser import BoardParser
 import othello.parser as parser
 import logging
 import sys
@@ -14,7 +15,6 @@ from othello.parser import DEFAULT_BLITZ_TIME
 
 
 logger = logging.getLogger("Othello")
-from othello.board_parser import BoardParser
 
 
 class NormalGame:
@@ -36,10 +36,10 @@ class NormalGame:
             f"Entering game initialization function from game_modes.py, with parameter board size: {board_size}.")
         if filename is None:
             if isinstance(board_size, int):
-                    board_size = BoardSize(board_size)
-                    self.board = OthelloBoard(board_size)
-                    self.board_size = board_size
-                    self.current_player = Color.BLACK
+                board_size = BoardSize(board_size)
+                self.board = OthelloBoard(board_size)
+                self.board_size = board_size
+                self.current_player = Color.BLACK
 
             else:
                 self.board = OthelloBoard(board_size)

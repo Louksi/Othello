@@ -11,7 +11,6 @@ from othello.logger import logging_config, log_error_message
 # without debug mode
 
 
-
 # TEST DEBUG OUTPUT
 
 # in a file
@@ -25,8 +24,6 @@ from othello.logger import logging_config, log_error_message
 # log error writes exc_info
 
 
-
 # TEST ERRORS
 
 #
-
