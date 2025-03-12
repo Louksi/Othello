@@ -14,6 +14,8 @@ ai_time = 5/X (en secondes)
 '''
 
 import sys
+# from othello.parser import parse_args, default_config
+from othello.othello_board import OthelloBoard
 
 
 def save_config(config: dict, filename_prefix: str = "current_config") -> None:
@@ -63,6 +65,23 @@ def load_config(filename_prefix: str = "current_config") -> dict:
     return config
 
 
+def save_board_state_history(board: OthelloBoard, filename_prefix="default"):
+    """
+    Save the board state history into a .othellorc file.
+
+    Args:
+        board (OthelloBoard): The Othello board object containing the game state.
+        filename_prefix (str): Prefix for the filename.
+    """
+    filename = f"{filename_prefix}.othellorc"
+    try:
+        with open(filename, "w", encoding="utf-8") as file:
+            file.write(board.export())  # Write the board state as a string
+    except IOError as err:
+        print(f"Error while saving board state: {err}")
+        raise
+
+
 def display_config(config: dict) -> None:
     """
     Display the configuration.
@@ -80,3 +99,22 @@ def display_config(config: dict) -> None:
     print("Configuration:")
     for key, value in config.items():
         print(f"  {key}: {value}")
+
+
+"""
+def main():
+
+    Argument:
+      config (dict): The configuration to display
+
+    Raises:
+      SystemExit: if invalid arguments are provided
+ 
+    if not isinstance(config, dict):
+        sys.stderr.write("Error: expected a dictionnary.\n\n")
+        sys.exit(1)
+
+    print("Configuration:")
+    for key, value in config.items():
+        print(f"  {key}: {value}")
+"""

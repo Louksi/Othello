@@ -2,10 +2,12 @@
 Game Modes for Othello
 '''
 import sys
+from othello.config import save_board_state_history
 from othello.parser import DEFAULT_BLITZ_TIME
 from othello.othello_board import BoardSize, OthelloBoard, Color
 from othello.blitz_timer import BlitzTimer
 from othello.command_parser import CommandParser, CommandKind, CommandParserException
+from othello.board_parser import BoardParser
 
 
 class NormalGame:
@@ -13,7 +15,7 @@ class NormalGame:
     A class representing a Normal Othello game.
     '''
 
-    def __init__(self, board_size: BoardSize = BoardSize.EIGHT_BY_EIGHT):
+    def __init__(self, filename=str, board_size: BoardSize = BoardSize.EIGHT_BY_EIGHT):
         """
         Initialize the NormalGame with the given board size.
 
@@ -23,14 +25,28 @@ class NormalGame:
         :param board_size: The size of the Othello board.
         :type board_size: BoardSize
         """
-        if isinstance(board_size, int):
-            board_size = BoardSize(board_size)
-            self.board_size = board_size
-        self.board = OthelloBoard(board_size)
-        self.current_player = Color.BLACK
+        if filename is None:
+            if isinstance(board_size, int):
+                board_size = BoardSize(board_size)
+                self.board = OthelloBoard(board_size)
+                self.board_size = board_size
+                self.current_player = Color.BLACK
+
+            else:
+                self.board = OthelloBoard(board_size)
+                self.board_size = board_size.value
+                self.current_player = Color.BLACK
+        else:
+
+            with open(f"{filename}", "r") as file:
+                file_content = file.read()
+
+            parsed_board = BoardParser(file_content).parse()
+            self.current_player = parsed_board.current_player
+            self.board = parsed_board
+
         self.no_black_move = False
         self.no_white_move = False
-        self.board_size = board_size.value
 
     def display_board(self):
         """
@@ -171,47 +187,45 @@ class NormalGame:
 
     def play(self):
         """
-        Starts the game loop.
+        Starts the game loop for Normal mode.
 
-        This function starts the main game loop. The loop begins by displaying
-        the current state of the board. It then prompts the current player for
-        input. The input is parsed into a CommandType, which is a tuple of a
-        CommandKind and some relevant information for that kind. The function
-        then processes the command based on the kind.
-
-        The loop continues until the game is over, or the user quits.
-
-        :return: None
+        This function continuously displays the board, checks for game-over conditions, 
+        handles player moves, and processes commands until the game ends.
         """
         parser = CommandParser(board_size=self.board.size.value)
+
         while True:
             self.display_board()
             possible_moves = self.get_possible_moves()
+
             if self.check_game_over(possible_moves):
+                # If game over, restart the loop (display final board state)
                 continue
+
             self.display_possible_moves(possible_moves)
             command_str = input("Enter your move or command: ").strip()
 
             try:
-                command_result = parser.parse_str(command_str)
+                command_kind, *args = parser.parse_str(command_str)
 
-                if command_result[0] == CommandKind.PLAY_MOVE:
-                    kind = command_result[0]
-                    play_command = command_result[1]
+                if command_kind == CommandKind.PLAY_MOVE:
+                    play_command = args[0]
                     x_coord, y_coord = play_command.x_coord, play_command.y_coord
+
                     if not self.process_move(x_coord, y_coord, possible_moves):
-                        continue
+                        continue  # Invalid move, prompt player again
+
+                    self.switch_player()
+
                 else:
-                    kind = command_result[0]
-                    match kind:
+                    match command_kind:
                         case CommandKind.HELP:
                             parser.print_help()
                         case CommandKind.RULES:
                             parser.print_rules()
-                        case CommandKind.SAVE_AND_QUIT:
-                            print("waiting for branch merge")
-                        case CommandKind.SAVE_HISTORY:
-                            print("waiting for branch merge")
+                        case CommandKind.SAVE_AND_QUIT | CommandKind.SAVE_HISTORY:
+                            save_board_state_history(self.board)
+                            sys.exit(0)
                         case CommandKind.FORFEIT:
                             print(f"{self.current_player.name} forfeited.")
                             self.switch_player()
@@ -219,20 +233,17 @@ class NormalGame:
                                 f"Game Over, {self.current_player.name} wins!")
                             sys.exit(0)
                         case CommandKind.RESTART:
-                            parser.restart()
+                            self.board.restart()
                         case CommandKind.QUIT:
                             print("Exiting without saving...")
                             sys.exit(0)
                         case _:
                             print("Invalid command. Try again.")
-                            continue
+                            parser.print_help()
 
             except CommandParserException as e:
-                print(f"Error: {e}")
-                print("Invalid command. Please try again.")
-                continue
-
-            self.switch_player()
+                print(f"Error: {e}\nInvalid command. Please try again.")
+                parser.print_help()
 
 
 class BlitzGame(NormalGame):
@@ -241,7 +252,7 @@ class BlitzGame(NormalGame):
     added to the normal game rules.
     '''
 
-    def __init__(self, board_size: BoardSize = BoardSize.EIGHT_BY_EIGHT, time: int = None):
+    def __init__(self, filename: str, board_size: BoardSize = BoardSize.EIGHT_BY_EIGHT, time: int = None):
         """
         Initialize the BlitzGame with the given board size and time limit.
 
@@ -256,7 +267,8 @@ class BlitzGame(NormalGame):
         :type time: int, optional
         """
 
-        super().__init__(BoardSize(board_size) if isinstance(board_size, int) else board_size)
+        super().__init__(filename, BoardSize(board_size)
+                         if isinstance(board_size, int) else board_size)
         self.blitz_timer = BlitzTimer(
             time if time is not None else DEFAULT_BLITZ_TIME)
         self.blitz_timer.start_timer('black')
@@ -355,6 +367,7 @@ class BlitzGame(NormalGame):
                     x_coord, y_coord = play_command.x_coord, play_command.y_coord
                     if not self.process_move(x_coord, y_coord, possible_moves):
                         continue
+                    self.switch_player()
                 else:
                     kind = command_result[0]
                     match kind:
@@ -362,10 +375,9 @@ class BlitzGame(NormalGame):
                             parser.print_help()
                         case CommandKind.RULES:
                             parser.print_rules()
-                        case CommandKind.SAVE_AND_QUIT:
-                            print("waiting for branch merge")
-                        case CommandKind.SAVE_HISTORY:
-                            print("waiting for branch merge")
+                        case CommandKind.SAVE_AND_QUIT | CommandKind.SAVE_HISTORY:
+                            save_board_state_history(self.board)
+                            sys.exit(0)
                         case CommandKind.FORFEIT:
                             print(f"{self.current_player.name} forfeited.")
                             self.switch_player()
@@ -373,17 +385,16 @@ class BlitzGame(NormalGame):
                                 f"Game Over, {self.current_player.name} wins!")
                             sys.exit(0)
                         case CommandKind.RESTART:
-                            parser.restart()
+                            self.board.restart()
                         case CommandKind.QUIT:
                             print("Exiting without saving...")
                             sys.exit(0)
                         case _:
                             print("Invalid command. Try again.")
-                            continue
+                            parser.print_help()
 
             except CommandParserException as e:
                 print(f"Error: {e}")
                 print("Invalid command. Please try again.")
                 continue
-            self.switch_player()
             self.display_time()

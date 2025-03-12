@@ -35,12 +35,17 @@ def main():
     current_config = parser.default_config.copy()
     current_config.update(config)
 
-    filename_prefix = "config"
+    # filename_prefix = "config"
 
-    configuration.save_config(current_config, filename_prefix)
+    # configuration.save_config(current_config, config["filename"])
 
-    loaded_config = configuration.load_config(filename_prefix)
-    print("Config loaded:", loaded_config)  # todo make this a debug print
+    # loaded_config = configuration.load_config(config["filename"])
+    print("Config loaded:", config)
+
+    match mode:
+        case parser.GameMode.NORMAL.value:
+            print("Starting Normal Mode...")
+            Modes.NormalGame(config["filename"], config["size"]).play()
     if config["gui"]:
         size = BoardSize.from_value(config["size"])
         board = OthelloBoard(size)
@@ -60,7 +65,8 @@ def main():
 
             case parser.GameMode.BLITZ.value:
                 print("Starting Blitz Mode...")
-                Modes.BlitzGame(config["size"], config["blitz_time"]).play()
+                Modes.BlitzGame(config["filename"],
+                                config["size"], config["blitz_time"]).play()
                 print(f"Blitz mode with time limit: {config['bTime']} minutes")
 
             case parser.GameMode.CONTEST.value:
