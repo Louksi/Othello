@@ -1,5 +1,8 @@
+from othello.blitz_timer import BlitzTimer
 from othello.othello_board import Color, GameOverException, OthelloBoard
 from gi.repository import Gtk, GLib, Adw
+import time
+import threading
 import cairo
 import gi
 import math
@@ -31,28 +34,41 @@ class ListBoxWithLength(Gtk.ListBox):
 class OthelloGUI(Gtk.Application):
     PLAYS_IN_HISTORY = 15
 
-    def __init__(self, board: OthelloBoard):
+    def __init__(self, board: OthelloBoard, time_limit: int | None = None):
         super().__init__(application_id="othello")
         GLib.set_application_name("othello")
         self.board = board
+        self.time_limit = time_limit
 
     def do_activate(self):
-        window = OthelloWindow(self, self.board)
+        window = OthelloWindow(self, self.board, self.time_limit)
         window.present()
 
 
 class OthelloWindow(Gtk.ApplicationWindow):
-    def __init__(self, application, board: OthelloBoard):
+    def __init__(self, application, board: OthelloBoard, time_limit: int | None = None):
         super().__init__(application=application, title="Othello")
         self.set_default_size(800, 600)
+        self.over = False
+        self.over_message = None
+        self.__init(board, time_limit)
 
+    def __init(self, board, time_limit):
         self.board = board
+        self.blitz_timer: None | BlitzTimer = None
+        self.is_blitz = time_limit is not None
+        if self.is_blitz:
+            self.blitz_timer = BlitzTimer(time_limit)
+            self.time_limit = time_limit
         self.grid_size = board.size.value
         self.cell_size = 50
 
         self.initialize_ui_components()
         self.create_layout()
         self.connect_signals()
+        if self.blitz_timer is not None:
+            self.blitz_timer.start_timer("black")
+            self.blitz_loser = None
 
     def initialize_ui_components(self):
         self.drawing_area = Gtk.DrawingArea()
@@ -60,11 +76,14 @@ class OthelloWindow(Gtk.ApplicationWindow):
         self.drawing_area.set_content_width(self.grid_size * self.cell_size)
         self.drawing_area.set_content_height(self.grid_size * self.cell_size)
 
-        self.black_timer_label = Gtk.Label(label="Black: 12:00")
-        self.white_timer_label = Gtk.Label(label="White: 12:00")
+        if self.is_blitz:
+            self.black_timer_label = Gtk.Label()
+            self.white_timer_label = Gtk.Label()
+            self.blitz_thread = threading.Thread(
+                target=self.update_timers_thread)
+            self.blitz_thread.daemon = True
+            self.blitz_thread.start()
         self.plays_list = ListBoxWithLength()
-        # self.black_last_move = Gtk.Label(label="Black last move: --:--")
-        # self.white_last_move = Gtk.Label(label="White last move: --:--")
         self.black_nb_pieces = Gtk.Label(label="Black has 2 pieces")
         self.white_nb_pieces = Gtk.Label(label="White has 2 pieces")
 
@@ -91,11 +110,12 @@ class OthelloWindow(Gtk.ApplicationWindow):
         main_grid = Gtk.Grid(column_spacing=20, row_spacing=20)
         main_box.append(main_grid)
 
-        timer_box = Gtk.Box(spacing=10)
-        timer_box.append(self.black_timer_label)
-        timer_box.append(self.white_timer_label)
-        main_grid.attach(timer_box, 0, 0, 1, 1)
-        main_grid.attach(Gtk.Label(label=""), 1, 0, 1, 1)
+        if self.is_blitz:
+            timer_box = Gtk.Box(spacing=10)
+            timer_box.append(self.black_timer_label)
+            timer_box.append(self.white_timer_label)
+            main_grid.attach(timer_box, 0, 0, 1, 1)
+            main_grid.attach(Gtk.Label(label=""), 1, 0, 1, 1)
 
         board_container = Gtk.Grid()
         main_grid.attach(board_container, 0, 1, 1, 1)
@@ -142,14 +162,11 @@ class OthelloWindow(Gtk.ApplicationWindow):
         main_grid.attach(last_moves_box, 1, 3, 1, 1)
 
     # Game state management methods
-    def update_game_state(self, x: int, y: int):
-        try:
-            self.board.play(x, y)
-        except GameOverException as err:
-            self.show_error_dialog(err)
+    def update_game_state(self):
+        if self.over:
+            self.show_error_dialog(self.over_message)
         self.drawing_area.queue_draw()
         self.update_nb_pieces()
-        self.update_play_history(x, y)
 
     def update_nb_pieces(self):
         self.black_nb_pieces.set_label(
@@ -157,9 +174,22 @@ class OthelloWindow(Gtk.ApplicationWindow):
         self.white_nb_pieces.set_label(
             f"White has {self.board.white.popcount()} pieces")
 
+    def update_timers_thread(self):
+        if self.blitz_timer is not None:
+            while not self.over:
+                GLib.idle_add(self.update_timers)
+                if self.blitz_timer.is_time_up("black" if self.board.current_player is Color.BLACK else "white"):
+                    self.blitz_loser = self.board.current_player
+                    GLib.idle_add(self.update_game_state)
+                    self.over = True
+                    self.over_message = f"{self.blitz_loser} lost due to time"
+                time.sleep(1)
+
     def update_timers(self):
-        self.black_timer_label.set_text("Black: 11:59")
-        self.white_timer_label.set_text("White: 11:58")
+        self.black_timer_label.set_text(
+            f"Black: {self.blitz_timer.display_time_player(Color.BLACK)}")
+        self.white_timer_label.set_text(
+            f"White: {self.blitz_timer.display_time_player(Color.WHITE)}")
 
     def update_play_history(self, x: int, y: int):
         new_move = Gtk.Label(
@@ -233,10 +263,20 @@ class OthelloWindow(Gtk.ApplicationWindow):
                 cr.fill()
 
     def board_click(self, _gesture, _n_press, click_x: float, click_y: float):
+        if self.over:
+            return
         board_x = int(click_x / self.cell_size)
         board_y = int(click_y / self.cell_size)
         if 0 <= board_x < self.grid_size and 0 <= board_y < self.grid_size:
-            self.update_game_state(board_x, board_y)
+            try:
+                self.board.play(board_x, board_y)
+                self.update_play_history(board_x, board_y)
+                self.blitz_timer.change_player(
+                    "black" if self.board.current_player is Color.BLACK else "white")
+            except GameOverException as err:
+                self.over_message = err
+                self.over = True
+            self.update_game_state()
 
     def forfeit_handler(self, _button: Gtk.Button):
         self.show_confirm_dialog(
@@ -252,10 +292,14 @@ class OthelloWindow(Gtk.ApplicationWindow):
 
     def restart_handler_callback(self, confirmation):
         if confirmation == -5:
+            self.over = True
+            self.blitz_thread.join()
             self.board.restart()
             for _ in range(len(self.plays_list)):
                 self.plays_list.remove(self.plays_list.get_last_child())
             self.update_nb_pieces()
+            self.over = False
+            self.__init(self.board, self.time_limit)
 
     def file_chooser(self, callback, default_file_name: str, file_extension: str):
         dialog = Gtk.FileChooserDialog(

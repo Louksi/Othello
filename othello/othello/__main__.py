@@ -30,9 +30,9 @@ def main():
     Returns:
         None
     """
-    mode, config = parse_args()
+    mode, config = parser.parse_args()
 
-    current_config = default_config.copy()
+    current_config = parser.default_config.copy()
     current_config.update(config)
 
     filename_prefix = "config"
@@ -40,33 +40,40 @@ def main():
     configuration.save_config(current_config, filename_prefix)
 
     loaded_config = configuration.load_config(filename_prefix)
-    print("Config loaded:", loaded_config)
-    b = OthelloBoard(BoardSize.SIX_BY_SIX)
-    g = OthelloGUI(b)
-    g.run()
-    exit()
+    print("Config loaded:", loaded_config)  # todo make this a debug print
+    if config["gui"]:
+        size = BoardSize.from_value(config["size"])
+        board = OthelloBoard(size)
+        match mode:
+            case parser.GameMode.NORMAL.value:
+                gui = OthelloGUI(board)
+            case parser.GameMode.BLITZ.value:
+                gui = OthelloGUI(board, config["blitz_time"])
+            case _:
+                raise Exception("unsupported gui operation")
+        gui.run()
+    else:
+        match mode:
+            case parser.GameMode.NORMAL.value:
+                print("Starting Normal Mode...")
+                Modes.NormalGame(config["size"]).play()
 
-    match mode:
-        case GameMode.NORMAL.value:
-            print("Starting Normal Mode...")
-            Modes.NormalGame(config["size"]).play()
+            case parser.GameMode.BLITZ.value:
+                print("Starting Blitz Mode...")
+                Modes.BlitzGame(config["size"], config["blitz_time"]).play()
+                print(f"Blitz mode with time limit: {config['bTime']} minutes")
 
-        case GameMode.BLITZ.value:
-            print("Starting Blitz Mode...")
-            Modes.BlitzGame(config["size"], config["blitz_time"]).play()
-            print(f"Blitz mode with time limit: {config['bTime']} minutes")
+            case parser.GameMode.CONTEST.value:
+                print("Starting Contest Mode...")
+                print(f"Loading contest from file: {config['cFile']}")
 
-        case GameMode.CONTEST.value:
-            print("Starting Contest Mode...")
-            print(f"Loading contest from file: {config['cFile']}")
+            case parser.GameMode.AI.value:
+                print("Starting AI Mode...")
+                print(f"AI plays as: {config['AIColor']}")
 
-        case GameMode.AI.value:
-            print("Starting AI Mode...")
-            print(f"AI plays as: {config['AIColor']}")
-
-        case _:
-            print("Unknown game mode. Exiting.")
-            sys.exit(1)
+            case _:
+                print("Unknown game mode. Exiting.")
+                sys.exit(1)
 
 
 if __name__ == "__main__":

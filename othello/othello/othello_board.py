@@ -49,8 +49,8 @@ class GameOverException(Exception):
     Thrown when the game is over after a play
     """
 
-    def __init__(self):
-        super().__init__("The board is in Game Over")
+    def __init__(self, message="The board is in Game Over"):
+        super().__init__(message)
 
 
 class CannotPopException(Exception):
@@ -125,6 +125,7 @@ class OthelloBoard:
             self.__init_board()
         self.mask = self.black.mask
         self.__history: list[tuple[Bitboard, Bitboard, int, int, Color]] = []
+        self.forced_game_over = False
 
     def __init_board(self):
         """
@@ -140,11 +141,15 @@ class OthelloBoard:
         self.black.set(self.size.value//2-1, self.size.value//2, True)
         self.black.set(self.size.value//2, self.size.value//2-1, True)
 
+    def force_game_over(self):
+        self.forced_game_over = True
+
     def is_game_over(self) -> bool:
         """
         Checks wether or not a board is in a game over state.
         """
-        return self.line_cap_move(self.current_player).popcount() == self.line_cap_move(~self.current_player).popcount() == 0
+
+        return self.forced_game_over or self.line_cap_move(self.current_player).popcount() == self.line_cap_move(~self.current_player).popcount() == 0
 
     def line_cap_move(self, current_player: Color) -> Bitboard:
         """
