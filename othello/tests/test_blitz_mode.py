@@ -12,7 +12,7 @@ from othello.othello_board import BoardSize, Color, Bitboard
 @pytest.fixture
 def mock_blitz_game():
     """Fixture to create a BlitzGame with a mocked timer."""
-    game = BlitzGame(BoardSize.EIGHT_BY_EIGHT)
+    game = BlitzGame(filename=None, board_size=BoardSize.EIGHT_BY_EIGHT)
     game.blitz_timer = MagicMock()
     game.blitz_timer.is_time_up.return_value = False
     return game
@@ -28,7 +28,7 @@ def test_blitzMode_init(monkeypatch):
     assert mode == parser.GameMode.BLITZ.value
     assert parseConfig["blitz_time"] == 30
 
-    game = BlitzGame(BoardSize.EIGHT_BY_EIGHT)
+    game = BlitzGame(filename=None, board_size=BoardSize.EIGHT_BY_EIGHT)
 
     assert game.board.size == BoardSize.EIGHT_BY_EIGHT
     assert game.current_player == Color.BLACK
@@ -38,14 +38,15 @@ def test_blitzMode_init(monkeypatch):
 def test_blitz_game_init_with_custom_time():
     """Test BlitzGame initialization with a custom time parameter."""
     custom_time = 15
-    game = BlitzGame(BoardSize.EIGHT_BY_EIGHT, time=custom_time)
+    game = BlitzGame(
+        filename=None, board_size=BoardSize.EIGHT_BY_EIGHT, time=custom_time)
 
     assert game.blitz_timer.total_time == custom_time * 60
 
 
 def test_blitz_game_init_with_int_board_size():
     """Test BlitzGame initialization with an integer board size."""
-    game = BlitzGame(board_size=8)
+    game = BlitzGame(filename=None, board_size=8)
     assert game.board.size == BoardSize.EIGHT_BY_EIGHT
 
 

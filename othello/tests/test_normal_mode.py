@@ -10,7 +10,7 @@ from othello.othello_board import BoardSize, Color, Bitboard
 @pytest.fixture
 def mock_blitz_game():
     """Fixture to create a BlitzGame with a mocked timer."""
-    game = BlitzGame(BoardSize.EIGHT_BY_EIGHT)
+    game = BlitzGame(filename=None, board_size=BoardSize.EIGHT_BY_EIGHT)
     game.blitz_timer = MagicMock()
     game.blitz_timer.is_time_up.return_value = False
     return game
@@ -19,18 +19,21 @@ def mock_blitz_game():
 @pytest.fixture
 def mock_game():
     """Fixture to create a mock OthelloGame object."""
-    game = BlitzGame(BoardSize.EIGHT_BY_EIGHT)
-    game.switch_player = MagicMock()
+    game = BlitzGame(filename=None, board_size=BoardSize.EIGHT_BY_EIGHT)
+
+    # Mock board attributes
+    game.board = MagicMock()
     game.board.black = MagicMock()
     game.board.white = MagicMock()
     game.board.size = BoardSize.EIGHT_BY_EIGHT
+
     return game
 
 
 @pytest.fixture
 def normal_game():
     """Fixture to create a NormalGame instance."""
-    return NormalGame(BoardSize.EIGHT_BY_EIGHT)
+    return NormalGame(filename=None, board_size=BoardSize.EIGHT_BY_EIGHT)
 
 
 @pytest.fixture
@@ -58,7 +61,7 @@ def test_normal_mode_init(monkeypatch, normal_game):
     monkeypatch.setattr(sys, 'argv', ["othello", "-s", "6"])
     _, parseConfig = parser.parse_args()
     assert parseConfig["size"] == 6
-    game = NormalGame(parseConfig["size"])
+    game = NormalGame(filename=None, board_size=parseConfig["size"])
     assert game.board.size == BoardSize(parseConfig["size"])
 
 
@@ -66,12 +69,12 @@ def test_normal_mode_size_init(monkeypatch, normal_game):
     monkeypatch.setattr(sys, 'argv', ["othello", "-s", "6"])
     _, parseConfig = parser.parse_args()
     assert parseConfig["size"] == 6
-    game = NormalGame(parseConfig["size"])
+    game = NormalGame(filename=None, board_size=parseConfig["size"])
     assert game.board.size == BoardSize(parseConfig["size"])
 
 
 def test_display_board(capfd):
-    game = NormalGame()
+    game = NormalGame(filename=None, board_size=BoardSize.EIGHT_BY_EIGHT)
     game.display_board()
 
     captured = capfd.readouterr()
@@ -208,7 +211,7 @@ def test_popcount_game_over_condition(mock_game):
 
 def test_process_move():
     '''Use Mock functions to play the game and process some illegal moves'''
-    game = NormalGame(BoardSize.EIGHT_BY_EIGHT)
+    game = NormalGame(filename=None, board_size=BoardSize.EIGHT_BY_EIGHT)
     possible_moves = MagicMock()
     possible_moves.get.side_effect = lambda x, y: (
         x, y) in [(3, 2), (4, 5)]
@@ -229,7 +232,7 @@ def test_process_move():
 
 def test_switch_player():
     '''Tests valid switches between players'''
-    game = NormalGame(BoardSize.EIGHT_BY_EIGHT)
+    game = NormalGame(filename=None, board_size=BoardSize.EIGHT_BY_EIGHT)
 
     game.current_player = Color.BLACK
     game.switch_player()

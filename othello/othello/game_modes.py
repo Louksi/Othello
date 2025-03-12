@@ -7,6 +7,7 @@ from othello.parser import DEFAULT_BLITZ_TIME
 from othello.othello_board import BoardSize, OthelloBoard, Color
 from othello.blitz_timer import BlitzTimer
 from othello.command_parser import CommandParser, CommandKind, CommandParserException
+from othello.board_parser import BoardParser
 
 
 class NormalGame:
@@ -14,7 +15,7 @@ class NormalGame:
     A class representing a Normal Othello game.
     '''
 
-    def __init__(self, board_size: BoardSize = BoardSize.EIGHT_BY_EIGHT):
+    def __init__(self, filename=str, board_size: BoardSize = BoardSize.EIGHT_BY_EIGHT):
         """
         Initialize the NormalGame with the given board size.
 
@@ -24,14 +25,23 @@ class NormalGame:
         :param board_size: The size of the Othello board.
         :type board_size: BoardSize
         """
-        if isinstance(board_size, int):
-            board_size = BoardSize(board_size)
-            self.board_size = board_size
-        self.board = OthelloBoard(board_size)
+        if filename is None:
+            if isinstance(board_size, int):
+                board_size = BoardSize(board_size)
+                self.board = OthelloBoard(board_size)
+                self.board_size = board_size
+            else:
+                self.board = OthelloBoard(board_size)
+                self.board_size = board_size.value
+        else:
+            with open(f"{filename}", "r") as file:
+                file_content = file.read()
+
+            self.board = BoardParser(file_content).parse()
+
         self.current_player = Color.BLACK
         self.no_black_move = False
         self.no_white_move = False
-        self.board_size = board_size.value
 
     def display_board(self):
         """
@@ -237,7 +247,7 @@ class BlitzGame(NormalGame):
     added to the normal game rules.
     '''
 
-    def __init__(self, board_size: BoardSize = BoardSize.EIGHT_BY_EIGHT, time: int = None):
+    def __init__(self, filename: str, board_size: BoardSize = BoardSize.EIGHT_BY_EIGHT, time: int = None):
         """
         Initialize the BlitzGame with the given board size and time limit.
 
@@ -252,7 +262,8 @@ class BlitzGame(NormalGame):
         :type time: int, optional
         """
 
-        super().__init__(BoardSize(board_size) if isinstance(board_size, int) else board_size)
+        super().__init__(filename, BoardSize(board_size)
+                         if isinstance(board_size, int) else board_size)
         self.blitz_timer = BlitzTimer(
             time if time is not None else DEFAULT_BLITZ_TIME)
         self.blitz_timer.start_timer('black')
