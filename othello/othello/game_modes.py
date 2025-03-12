@@ -62,7 +62,7 @@ class NormalGame:
         self.no_black_move = False
         self.no_white_move = False
         logger.debug(
-            f"   NormalGame initialized with board_size: {self.board_size}, current_player: {self.current_player}.")
+            f"   NormalGame initialized with board_size: {board_size}, current_player: {self.current_player}.")
 
     def display_board(self):
         """
