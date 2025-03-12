@@ -140,28 +140,20 @@ pre-commit:
 test-job:
   tags:
     - Debian
-#    - Docker
     - shell
   stage: test
   before_script:
-    # - apt update
-    # - apt install -y libgirepository1.0-dev gcc libcairo2-dev pkg-config python3-dev gir1.2-gtk-4.0
     - python -mvenv venv
     - source venv/bin/activate
     - python -m pip install --upgrade pip
     - python --version ; pip --version
+    - pip install pycairo
+    - pip install pytest pytest-cov
     - cd othello
-    - pip install ./
+    - pip install PyGObject --no-build-isolation --no-deps || echo "Failed to install PyGObject, continuing anyway"
+    - pip install ./ --no-deps
   script:
-    #- coverage run -m pytest --junitxml=test_report.xml
-    #- coverage xml -o coverage_report.xml
     - python -m pytest
   coverage: '/TOTAL.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
-  #artifacts:
-  #  reports:
-  #    coverage_report:
-  #      coverage_format: cobertura
-  #      path: coverage_report.xml
-  #    junit: test_report.xml
   needs:
     - pre-commit
