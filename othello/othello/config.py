@@ -41,9 +41,11 @@ def save_config(config: dict, filename_prefix: str = "current_config") -> None:
         with open(filename, "w", encoding="utf-8") as file:
             for key, value in config.items():
                 file.write(f"{key}={value}\n")
+        logger.debug(
+            f"   Successfully loaded configuration with {len(config)} entries.")
     except IOError as err:
         log.log_error_message(err, context="Error while saving configuration.")
-        print(f"Error while saving configuration: {err}")
+        print(f"   Error while saving configuration: {err}")
         raise
 
 
@@ -82,11 +84,16 @@ def save_board_state_history(board: OthelloBoard, filename_prefix="default"):
         board (OthelloBoard): The Othello board object containing the game state.
         filename_prefix (str): Prefix for the filename.
     """
+    logger.debug(
+        f"Entering save_board_state_history with parameters board: {board} and filename_prefix: {filename_prefix}.")
     filename = f"{filename_prefix}.othellorc"
     try:
         with open(filename, "w", encoding="utf-8") as file:
             file.write(board.export())  # Write the board state as a string
+            logger.debug(f"   Board state successfully saved to {filename}.")
     except IOError as err:
+        log.log_error_message(
+            err, context=f"Failed to save board state to {filename}.")
         print(f"Error while saving board state: {err}")
         raise
 
@@ -104,7 +111,7 @@ def display_config(config: dict) -> None:
     logger.debug(
         f"Entering display configuration function from config.py, with parameter config: {config}.")
     if not isinstance(config, dict):
-        logger.debug("Error: expected a dictionnary.")
+        logger.debug("   Error: expected a dictionnary.")
         sys.stderr.write("Error: expected a dictionnary.\n\n")
         sys.exit(1)
 
