@@ -26,6 +26,13 @@ class Color(Enum):
             return Color.BLACK
         return Color.EMPTY
 
+    def __str__(self) -> str:
+        if self is Color.BLACK:
+            return "black"
+        elif self is Color.WHITE:
+            return "white"
+        return "empty"
+
 
 class IllegalMoveException(Exception):
     """
@@ -42,8 +49,8 @@ class GameOverException(Exception):
     Thrown when the game is over after a play
     """
 
-    def __init__(self):
-        super().__init__("The board is in Game Over")
+    def __init__(self, message="The board is in Game Over"):
+        super().__init__(message)
 
 
 class CannotPopException(Exception):
@@ -118,6 +125,7 @@ class OthelloBoard:
             self.__init_board()
         self.mask = self.black.mask
         self.__history: list[tuple[Bitboard, Bitboard, int, int, Color]] = []
+        self.forced_game_over = False
 
     def __init_board(self):
         """
@@ -133,11 +141,15 @@ class OthelloBoard:
         self.black.set(self.size.value//2-1, self.size.value//2, True)
         self.black.set(self.size.value//2, self.size.value//2-1, True)
 
+    def force_game_over(self):
+        self.forced_game_over = True
+
     def is_game_over(self) -> bool:
         """
         Checks wether or not a board is in a game over state.
         """
-        return self.line_cap_move(self.current_player).popcount() == self.line_cap_move(~self.current_player).popcount() == 0
+
+        return self.forced_game_over or self.line_cap_move(self.current_player).popcount() == self.line_cap_move(~self.current_player).popcount() == 0
 
     def line_cap_move(self, current_player: Color) -> Bitboard:
         """
@@ -166,6 +178,13 @@ class OthelloBoard:
         :rtype: int
         """
         return len(self.__history)//2+1
+
+    def get_last_play(self):
+        last_play, last_play_idx = self.__history[-1], 0
+        while last_play[2] == -1 and last_play[3] == -1:
+            last_play_idx += 1
+            last_play = self.__history[-last_play_idx]
+        return last_play
 
     def line_cap(self, x_coord: int, y_coord: int, current_player: Color) -> Bitboard:
         """
@@ -223,7 +242,6 @@ class OthelloBoard:
         if x_coord == -1 and y_coord == -1:
             self.__history.append(
                 (self.black, self.white, -1, -1, self.current_player))
-            self.current_player = ~self.current_player
         else:
             legal_moves = self.line_cap_move(self.current_player)
             move_mask = Bitboard(self.size.value)

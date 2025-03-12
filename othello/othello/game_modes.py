@@ -4,6 +4,7 @@ Game Modes for Othello
 import othello.parser as parser
 import logging
 import sys
+from othello.config import save_board_state_history
 import othello.logger as log
 from othello.command_parser import CommandParser, CommandKind, CommandParserException
 from othello.blitz_timer import BlitzTimer
@@ -13,6 +14,7 @@ from othello.parser import DEFAULT_BLITZ_TIME
 
 
 logger = logging.getLogger("Othello")
+from othello.board_parser import BoardParser
 
 
 class NormalGame:
@@ -20,7 +22,7 @@ class NormalGame:
     A class representing a Normal Othello game.
     '''
 
-    def __init__(self, board_size: BoardSize = BoardSize.EIGHT_BY_EIGHT):
+    def __init__(self, filename=str, board_size: BoardSize = BoardSize.EIGHT_BY_EIGHT):
         """
         Initialize the NormalGame with the given board size.
 
@@ -32,14 +34,28 @@ class NormalGame:
         """
         logger.debug(
             f"Entering game initialization function from game_modes.py, with parameter board size: {board_size}.")
-        if isinstance(board_size, int):
-            board_size = BoardSize(board_size)
-            self.board_size = board_size
-        self.board = OthelloBoard(board_size)
-        self.current_player = Color.BLACK
+        if filename is None:
+            if isinstance(board_size, int):
+                    board_size = BoardSize(board_size)
+                    self.board = OthelloBoard(board_size)
+                    self.board_size = board_size
+                    self.current_player = Color.BLACK
+
+            else:
+                self.board = OthelloBoard(board_size)
+                self.board_size = board_size.value
+                self.current_player = Color.BLACK
+        else:
+
+            with open(f"{filename}", "r") as file:
+                file_content = file.read()
+
+            parsed_board = BoardParser(file_content).parse()
+            self.current_player = parsed_board.current_player
+            self.board = parsed_board
+
         self.no_black_move = False
         self.no_white_move = False
-        self.board_size = board_size.value
 
     def display_board(self):
         """
@@ -187,7 +203,7 @@ class NormalGame:
 
     def play(self):
         """
-        Starts the game loop.
+        Starts the game loop for Normal mode.
 
         This function starts the main game loop. The loop begins by displaying
         the current state of the board. It then prompts the current player for
@@ -201,29 +217,34 @@ class NormalGame:
         """
         logger.debug("Entering play function from game_modes.py.")
         parser = CommandParser(board_size=self.board.size.value)
+
         while True:
             self.display_board()
             possible_moves = self.get_possible_moves()
 
             if self.check_game_over(possible_moves):
+                # If game over, restart the loop (display final board state)
                 continue
+
             self.display_possible_moves(possible_moves)
             command_str = input("Enter your move or command: ").strip()
 
             try:
-                command_result = parser.parse_str(command_str)
+                command_kind, *args = parser.parse_str(command_str)
 
-                if command_result[0] == CommandKind.PLAY_MOVE:
-                    kind = command_result[0]
-                    play_command = command_result[1]
+                if command_kind == CommandKind.PLAY_MOVE:
+                    play_command = args[0]
                     x_coord, y_coord = play_command.x_coord, play_command.y_coord
                     logger.debug(
                         f"Player wants to play in {x_coord}, {y_coord}")
+
                     if not self.process_move(x_coord, y_coord, possible_moves):
-                        continue
+                        continue  # Invalid move, prompt player again
+
+                    self.switch_player()
+
                 else:
-                    kind = command_result[0]
-                    match kind:
+                    match command_kind:
                         case CommandKind.HELP:
                             logger.debug(
                                 "HELP command was called and will be executed")
@@ -232,14 +253,9 @@ class NormalGame:
                             logger.debug(
                                 "RULES command was called and will be executed")
                             parser.print_rules()
-                        case CommandKind.SAVE_AND_QUIT:
-                            logger.debug(
-                                "SAVE_AND_QUIT command was called and will be executed")
-                            print("waiting for branch merge")
-                        case CommandKind.SAVE_HISTORY:
-                            logger.debug(
-                                "SAVE_HISTORY command was called and will be executed")
-                            print("waiting for branch merge")
+                        case CommandKind.SAVE_AND_QUIT | CommandKind.SAVE_HISTORY:
+                            save_board_state_history(self.board)
+                            sys.exit(0)
                         case CommandKind.FORFEIT:
                             logger.debug(
                                 "FORFEIT command was called and will be executed")
@@ -255,7 +271,7 @@ class NormalGame:
                         case CommandKind.RESTART:
                             logger.debug(
                                 "RESTART command was called and will be executed")
-                            parser.restart()
+                            self.board.restart()
                         case CommandKind.QUIT:
                             logger.debug(
                                 "QUIT command was called and will be executed")
@@ -265,16 +281,13 @@ class NormalGame:
                             logger.debug(
                                 "'Invalid command. Try again' User entered a text not recognized as a move or a command during the game loop in play function from game_modes.py")
                             print("Invalid command. Try again.")
-                            continue
+                            parser.print_help()
 
             except CommandParserException as e:
                 log.log_error_message(
                     e, context="Invalid command. Please try again")
-                print(f"Error: {e}")
-                print("Invalid command. Please try again.")
-                continue
-
-            self.switch_player()
+                print(f"Error: {e}\nInvalid command. Please try again.")
+                parser.print_help()
 
 
 class BlitzGame(NormalGame):
@@ -283,7 +296,7 @@ class BlitzGame(NormalGame):
     added to the normal game rules.
     '''
 
-    def __init__(self, board_size: BoardSize = BoardSize.EIGHT_BY_EIGHT, time: int = None):
+    def __init__(self, filename: str, board_size: BoardSize = BoardSize.EIGHT_BY_EIGHT, time: int = None):
         """
         Initialize the BlitzGame with the given board size and time limit.
 
@@ -299,7 +312,8 @@ class BlitzGame(NormalGame):
         """
         logger.debug(
             "Entering initialization function for Blitz mode, from game_modes.py.")
-        super().__init__(BoardSize(board_size) if isinstance(board_size, int) else board_size)
+        super().__init__(filename, BoardSize(board_size)
+                         if isinstance(board_size, int) else board_size)
         self.blitz_timer = BlitzTimer(
             time if time is not None else DEFAULT_BLITZ_TIME)
         self.blitz_timer.start_timer('black')
@@ -407,6 +421,7 @@ class BlitzGame(NormalGame):
                         f"Player wants to play in {x_coord}, {y_coord}")
                     if not self.process_move(x_coord, y_coord, possible_moves):
                         continue
+                    self.switch_player()
                 else:
                     kind = command_result[0]
                     match kind:
@@ -418,14 +433,9 @@ class BlitzGame(NormalGame):
                             logger.debug(
                                 "RULES command was called and will be executed")
                             parser.print_rules()
-                        case CommandKind.SAVE_AND_QUIT:
-                            logger.debug(
-                                "SAVE_AND_QUIT command was called and will be executed")
-                            print("waiting for branch merge")
-                        case CommandKind.SAVE_HISTORY:
-                            logger.debug(
-                                "SAVE_HISTORY command was called and will be executed")
-                            print("waiting for branch merge")
+                        case CommandKind.SAVE_AND_QUIT | CommandKind.SAVE_HISTORY:
+                            save_board_state_history(self.board)
+                            sys.exit(0)
                         case CommandKind.FORFEIT:
                             logger.debug(
                                 "FORFEIT command was called and will be executed")
@@ -441,7 +451,7 @@ class BlitzGame(NormalGame):
                         case CommandKind.RESTART:
                             logger.debug(
                                 "RESTART command was called and will be executed")
-                            parser.restart()
+                            self.board.restart()
                         case CommandKind.QUIT:
                             logger.debug(
                                 "QUIT command was called and will be executed")
@@ -451,7 +461,7 @@ class BlitzGame(NormalGame):
                             logger.debug(
                                 "'Invalid command. Try again' User entered a text not recognized as a move or a command during the game loop in play function from game_modes.py")
                             print("Invalid command. Try again.")
-                            continue
+                            parser.print_help()
 
             except CommandParserException as e:
                 log.log_error_message(
@@ -459,5 +469,4 @@ class BlitzGame(NormalGame):
                 print(f"Error: {e}")
                 print("Invalid command. Please try again.")
                 continue
-            self.switch_player()
             self.display_time()

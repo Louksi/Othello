@@ -4,6 +4,8 @@ a maximum time for all their plays (individually)
 """
 from time import time
 
+from othello.othello_board import Color
+
 # init: timeLimit (in minutes)
 # startTime,
 # totalTime (in seconds),
@@ -102,6 +104,18 @@ class BlitzTimer:
         """
         return self.get_remaining_time(player) <= 0
 
+    def time_player(self, player: Color):
+        p_time = int(self.get_remaining_time(
+            "black" if player is Color.BLACK else "white"))
+
+        p_time_minutes = p_time // 60
+        p_time_seconds = p_time % 60
+        return (p_time_minutes, p_time_seconds)
+
+    def display_time_player(self, player: Color):
+        p_time = self.time_player(player)
+        return f"{p_time[0]:02d}:{p_time[1]:02d}"
+
     def display_time(self) -> str:
         """
         Displays the remaining time for both players in a formatted string.
@@ -113,14 +127,11 @@ class BlitzTimer:
             str: A formatted string showing the remaining time for both players.
         """
 
-        black_time = int(self.get_remaining_time('black'))
-        white_time = int(self.get_remaining_time('white'))
+        black_time = self.time_player(Color.BLACK)
+        white_time = self.time_player(Color.WHITE)
 
-        black_time_minutes = black_time // 60
-        white_time_minutes = white_time // 60
-
-        black_time_seconds = black_time % 60
-        white_time_seconds = white_time % 60
+        black_time_minutes, black_time_seconds = black_time
+        white_time_minutes, white_time_seconds = white_time
 
         black_print = f"Black Time: {black_time_minutes:02d}:{black_time_seconds:02d}\n"
         white_print = f"White Time: {white_time_minutes:02d}:{white_time_seconds:02d}\n"
