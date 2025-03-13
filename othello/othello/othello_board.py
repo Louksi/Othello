@@ -17,6 +17,7 @@ class Color(Enum):
     """
     BLACK = "X"
     WHITE = "O"
+    POSSIBLE = "·"
     EMPTY = "_"
 
     def __invert__(self) -> Color:
@@ -390,6 +391,8 @@ class OthelloBoard:
             for x_coord in range(self.size.value):
                 has_black = self.black.get(x_coord, y_coord)
                 has_white = self.white.get(x_coord, y_coord)
+                has_possible = self.line_cap_move(
+                    self.current_player).get(x_coord, y_coord)
                 if x_coord == 0:
                     rez += str(y_coord+1) + " "
                     if self.size.value >= 10 and y_coord < 9:
@@ -398,6 +401,8 @@ class OthelloBoard:
                     rez += Color.BLACK.value
                 elif has_white:
                     rez += Color.WHITE.value
+                elif has_possible:
+                    rez += Color.POSSIBLE.value
                 else:
                     rez += Color.EMPTY.value
                 if x_coord < self.size.value-1:
