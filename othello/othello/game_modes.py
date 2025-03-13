@@ -154,7 +154,7 @@ class NormalGame:
         """
         logger.debug(
             "Entering display_possible_moves function from game_modes.py, with parameter possible_moves.")
-        logger.debug(f"   Available moves: \n{possible_moves}")
+        logger.debug(f"   Available moves:\n{possible_moves}")
         print("Possible moves: ")
         for y in range(self.board.size.value):
             for x in range(self.board.size.value):

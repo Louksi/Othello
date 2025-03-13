@@ -45,7 +45,7 @@ class OthelloGUI(Gtk.Application):
         GLib.set_application_name("othello")
         self.board = board
         self.time_limit = time_limit
-        logger.debug(f"   Game initialized with board: {self.board}.")
+        logger.debug(f"   Game initialized with board:\n{self.board}.")
 
     def do_activate(self):
         logger.debug("Entering do_activate function from gui.py.")
