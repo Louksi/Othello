@@ -2,15 +2,11 @@ import pytest
 import sys
 from othello.parser import GameMode, AIColor, AIMode, AIHeuristic, parse_args, default_config
 
+
 # TEST DEFAULT CONFIGURATION
 
 
 def test_default_config(monkeypatch):
-
-    # get the default config dictionary (hard coded here?)
-    # for now we do with 4 args but
-    # the idea is to get the config from parser,
-    # and check if both dicts are the same.
     """
     Test the default configuration of the parser.
 
@@ -25,6 +21,7 @@ def test_default_config(monkeypatch):
 
 
 # TEST REGULAR OPTIONS
+
 
 # file
 def test_file(monkeypatch):
@@ -45,7 +42,6 @@ def test_file(monkeypatch):
             sys, 'argv', ["othello", "dummyGame.txt", "-a", "s"])
         _, parse_config = parse_args()
 
-
 # help
 
 
@@ -59,7 +55,6 @@ def test_help(monkeypatch):
     with pytest.raises(SystemExit):
         monkeypatch.setattr(sys, 'argv', ["othello", "-h"])
         parse_args()
-
 
 # version
 
@@ -75,8 +70,8 @@ def test_version(monkeypatch):
         monkeypatch.setattr(sys, 'argv', ["othello", "-v"])
         parse_args()
 
-
 # debug
+
 
 def test_debug(monkeypatch):
     """
@@ -90,7 +85,6 @@ def test_debug(monkeypatch):
     mode, parse_config = parse_args()
 
     assert parse_config["debug"] is True
-
 
 # size
 
@@ -131,6 +125,7 @@ def test_size(monkeypatch):
 
 # TEST MODES
 
+
 # blitz mode
 def test_blitz_mode(monkeypatch):
     """
@@ -155,8 +150,9 @@ def test_blitz_mode(monkeypatch):
     assert parse_config["mode"] == GameMode.BLITZ.value
     assert parse_config["blitz_time"] == 60
 
-
 # contest
+
+
 def test_contest_mode(monkeypatch):
     """
     Test the contest mode option.
@@ -171,7 +167,6 @@ def test_contest_mode(monkeypatch):
     assert mode == GameMode.CONTEST.value
     assert parse_config["mode"] == GameMode.CONTEST.value
     assert parse_config["filename"] == "dummy_game.txt"
-
 
 # ai
 
@@ -269,6 +264,7 @@ def test_ai_mode(monkeypatch):
 
 
 # TEST ERRORS
+
 
 # incorrect option
 def test_err_option(monkeypatch):

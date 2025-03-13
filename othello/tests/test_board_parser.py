@@ -253,6 +253,13 @@ def test_empty_board():
     with pytest.raises(BoardParserException):
         b.parse()
 
+    board_raw = """
+    
+    """
+    b = BoardParser(board_raw)
+    with pytest.raises(BoardParserException):
+        b.parse()
+
 
 def test_next_char_on_eol():
     board_raw = """
@@ -318,3 +325,60 @@ _ _ _ _ _ _ _ _
     b = BoardParser(board_raw)
     o = b.parse()
     assert len(o.get_history()) == 5
+
+
+def test_only_color():
+    board_raw = "O"
+    b = BoardParser(board_raw)
+    with pytest.raises(BoardParserException):
+        b.parse()
+
+
+def test_fuzzy_board():
+    board_raw = "azazazaeiazjeoizajezoaiejazoiej  aaajzieajozaije"
+    b = BoardParser(board_raw)
+    with pytest.raises(BoardParserException):
+        b.parse()
+
+    board_raw = """O
+    _ _ _ _ _ _
+    _ _ _ _ _ _
+    _ _ _ _ _ _
+    f
+    _ _ _ _ _ _
+    _ _ _ _ _ _
+    _ _ _ _ _ _"""
+    b = BoardParser(board_raw)
+    with pytest.raises(BoardParserException):
+        b.parse()
+
+
+def test_onecantplay():
+    board_raw = """# board
+X
+O O O X X X
+O O X X X X
+O X O X X X
+O X O O X X
+O O O X O O
+O O O O O O
+# history
+1. X b3 O b2
+2. X c2 O d2
+3. X e1 O e2
+4. X f1 O f2
+5. X f3 O e4
+6. X e5 O f6
+7. X f4 O f5
+8. X d6 O e6
+9. X d5 O b5
+10. X e3 O a2
+11. X a3 O b4
+12. X c5 O a4
+13. X a5 O a6
+14. X b6 O c6
+15. X b1 O a1
+16. X -1-1 O c1
+"""
+    b = BoardParser(board_raw)
+    b.parse()

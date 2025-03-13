@@ -48,6 +48,7 @@ VALID_AIHEURISTICS = [x.value for x in AIHeuristic]
 DEFAULT_AI_DEPTH = 3
 DEFAULT_AI_TIME = 5
 DEFAULT_AI_HEURISTIC = "default"
+DEFAULT_GUI = False
 
 # Default configuration
 default_config = {
@@ -61,7 +62,8 @@ default_config = {
     "ai_shallow": False,
     "ai_depth": 3,
     "ai_heuristic": "default",
-    "ai_time": 5
+    "ai_time": 5,
+    "gui": DEFAULT_GUI
 }
 
 
@@ -164,6 +166,11 @@ def create_parser() -> argparse.ArgumentParser:
                         help=f"Set AI time limit (in seconds), default is {DEFAULT_AI_TIME} seconds"
                         )
 
+    parser.add_argument("--gui",
+                        action="store_true",
+                        default=DEFAULT_GUI,
+                        help="Launch the GUI version instead of the CLI one.")
+
     return parser
 
 
@@ -249,6 +256,7 @@ def parse_args() -> Tuple[GameMode, dict]:
         "ai_depth": DEFAULT_AI_DEPTH,
         "ai_heuristic": DEFAULT_AI_HEURISTIC,
         "ai_time": DEFAULT_AI_TIME,
+        "gui": args.gui
     }
 
     # specify game mode
