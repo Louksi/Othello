@@ -43,6 +43,8 @@ def test_file(monkeypatch):
         _, parse_config = parse_args()
 
 # help
+
+
 def test_help(monkeypatch):
     """
     Test the help option.
@@ -55,6 +57,8 @@ def test_help(monkeypatch):
         parse_args()
 
 # version
+
+
 def test_version(monkeypatch):
     """
     Test the version option.
@@ -67,6 +71,8 @@ def test_version(monkeypatch):
         parse_args()
 
 # debug
+
+
 def test_debug(monkeypatch):
     """
     Test the debug option.
@@ -81,6 +87,8 @@ def test_debug(monkeypatch):
     assert parse_config["debug"] is True
 
 # size
+
+
 def test_size(monkeypatch):
     """
     Test the size option.
@@ -143,6 +151,8 @@ def test_blitz_mode(monkeypatch):
     assert parse_config["blitz_time"] == 60
 
 # contest
+
+
 def test_contest_mode(monkeypatch):
     """
     Test the contest mode option.
@@ -159,6 +169,8 @@ def test_contest_mode(monkeypatch):
     assert parse_config["filename"] == "dummy_game.txt"
 
 # ai
+
+
 def test_ai_mode(monkeypatch):
     """
     Test the AI mode option.
@@ -322,6 +334,8 @@ def test_err_time(monkeypatch):  # trouver le moyen de faire plusieurs tests
         parse_args()
 
 # incorrect contest file
+
+
 def test_err_contest(monkeypatch):
     """
     Test the error handling of the parser for invalid contest mode arguments.
@@ -340,6 +354,8 @@ def test_err_contest(monkeypatch):
         parse_args()
 
 # incorrect ai color
+
+
 def test_err_AI_color(monkeypatch):
     """
     Test the error handling of the parser for invalid AI color arguments.
@@ -352,6 +368,8 @@ def test_err_AI_color(monkeypatch):
         parse_args()
 
 # incorrect ai argument
+
+
 def test_err_AI_arg(monkeypatch):
     """
     Test the error handling of the parser for invalid AI arguments.
@@ -365,6 +383,8 @@ def test_err_AI_arg(monkeypatch):
         parse_args()
 
 # incorrect ai depth
+
+
 def test_err_AI_depth(monkeypatch):
     """
     Test the error handling of the parser for invalid AI depth arguments.
@@ -382,6 +402,8 @@ def test_err_AI_depth(monkeypatch):
         parse_args()
 
 # incorrect ai time limit
+
+
 def test_err_AI_time(monkeypatch):
     """
     Test the error handling of the parser for invalid AI time limit arguments.

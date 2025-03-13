@@ -40,7 +40,6 @@ def main():
     logger.debug("Start of a Othello game.")
     logger.debug("Debug mode is enabled.")
     logger.debug(f"Game mode: {mode}")
-    log.log_error_message("dummy error message", "context")
 
     current_config = parser.default_config.copy()
     current_config.update(config)
