@@ -29,6 +29,9 @@ def minimax(board: OthelloBoard, depth: int, max_player: Color, maximizing: bool
     valid_moves = board.line_cap_move(
         board.current_player).hot_bits_coordinates()
 
+    if valid_moves == []:
+        return minimax(board, depth - 1, max_player, not maximizing, heuristic)
+
     if maximizing:
         eval = float("-inf")
         for move_x, move_y in valid_moves:
@@ -81,6 +84,9 @@ def alphabeta(board: OthelloBoard, depth: int, alpha: int,
 
     valid_moves = board.line_cap_move(
         board.current_player).hot_bits_coordinates()
+
+    if valid_moves == []:
+        return minimax(board, depth - 1, max_player, not maximizing, heuristic)
 
     if maximizing:
         eval = float("-inf")

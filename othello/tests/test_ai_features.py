@@ -84,6 +84,16 @@ def board_6_test_best_moves():
     return board
 
 
+@pytest.fixture
+def board_no_moves():
+    board = OthelloBoard(BoardSize.SIX_BY_SIX)
+    board.current_player = Color.BLACK
+    board.black.set(2, 2, True)
+    board.black.set(2, 3, True)
+    board.black.set(3, 2, True)
+    board.black.set(3, 3, True)
+    return board
+
 # endregion Fixtures
 
 # region Corners Captured
