@@ -2,15 +2,11 @@ import pytest
 import sys
 from othello.parser import GameMode, AIColor, AIMode, AIHeuristic, parse_args, default_config
 
+
 # TEST DEFAULT CONFIGURATION
 
 
 def test_default_config(monkeypatch):
-
-    # get the default config dictionary (hard coded here?)
-    # for now we do with 4 args but
-    # the idea is to get the config from parser,
-    # and check if both dicts are the same.
     """
     Test the default configuration of the parser.
 
@@ -25,6 +21,7 @@ def test_default_config(monkeypatch):
 
 
 # TEST REGULAR OPTIONS
+
 
 # file
 def test_file(monkeypatch):
@@ -45,10 +42,7 @@ def test_file(monkeypatch):
             sys, 'argv', ["othello", "dummyGame.txt", "-a", "s"])
         _, parse_config = parse_args()
 
-
 # help
-
-
 def test_help(monkeypatch):
     """
     Test the help option.
@@ -60,10 +54,7 @@ def test_help(monkeypatch):
         monkeypatch.setattr(sys, 'argv', ["othello", "-h"])
         parse_args()
 
-
 # version
-
-
 def test_version(monkeypatch):
     """
     Test the version option.
@@ -75,9 +66,7 @@ def test_version(monkeypatch):
         monkeypatch.setattr(sys, 'argv', ["othello", "-v"])
         parse_args()
 
-
 # debug
-
 def test_debug(monkeypatch):
     """
     Test the debug option.
@@ -91,10 +80,7 @@ def test_debug(monkeypatch):
 
     assert parse_config["debug"] is True
 
-
 # size
-
-
 def test_size(monkeypatch):
     """
     Test the size option.
@@ -131,6 +117,7 @@ def test_size(monkeypatch):
 
 # TEST MODES
 
+
 # blitz mode
 def test_blitz_mode(monkeypatch):
     """
@@ -155,7 +142,6 @@ def test_blitz_mode(monkeypatch):
     assert parse_config["mode"] == GameMode.BLITZ.value
     assert parse_config["blitz_time"] == 60
 
-
 # contest
 def test_contest_mode(monkeypatch):
     """
@@ -172,10 +158,7 @@ def test_contest_mode(monkeypatch):
     assert parse_config["mode"] == GameMode.CONTEST.value
     assert parse_config["filename"] == "dummy_game.txt"
 
-
 # ai
-
-
 def test_ai_mode(monkeypatch):
     """
     Test the AI mode option.
@@ -270,6 +253,7 @@ def test_ai_mode(monkeypatch):
 
 # TEST ERRORS
 
+
 # incorrect option
 def test_err_option(monkeypatch):
     """
@@ -338,8 +322,6 @@ def test_err_time(monkeypatch):  # trouver le moyen de faire plusieurs tests
         parse_args()
 
 # incorrect contest file
-
-
 def test_err_contest(monkeypatch):
     """
     Test the error handling of the parser for invalid contest mode arguments.
@@ -358,8 +340,6 @@ def test_err_contest(monkeypatch):
         parse_args()
 
 # incorrect ai color
-
-
 def test_err_AI_color(monkeypatch):
     """
     Test the error handling of the parser for invalid AI color arguments.
@@ -372,8 +352,6 @@ def test_err_AI_color(monkeypatch):
         parse_args()
 
 # incorrect ai argument
-
-
 def test_err_AI_arg(monkeypatch):
     """
     Test the error handling of the parser for invalid AI arguments.
@@ -387,8 +365,6 @@ def test_err_AI_arg(monkeypatch):
         parse_args()
 
 # incorrect ai depth
-
-
 def test_err_AI_depth(monkeypatch):
     """
     Test the error handling of the parser for invalid AI depth arguments.
@@ -406,8 +382,6 @@ def test_err_AI_depth(monkeypatch):
         parse_args()
 
 # incorrect ai time limit
-
-
 def test_err_AI_time(monkeypatch):
     """
     Test the error handling of the parser for invalid AI time limit arguments.
