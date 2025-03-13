@@ -14,8 +14,8 @@ def logging_config(debug: bool) -> None:
     Argument:
       debug: a boolean used to set the logging level
     """
-    # if not isinstance(debug, bool):
-    #     raise TypeError()
+    if not isinstance(debug, bool):
+        raise TypeError()
     if debug:
         level = logging.DEBUG
         logging.basicConfig(level=level,
@@ -35,10 +35,8 @@ def log_error_message(error: str, context: str | None = None) -> None:
       error: a string of the error message to be logged
       context: a string describing the context of the error, can be None if no context is given
     """
-    # if not isinstance(error, str):
-    #     raise TypeError()
-    # if context is not None and not isinstance(context, str):
-    #     raise TypeError()
+    if context is not None and not isinstance(context, str):
+        raise TypeError()
 
     logger = logging.getLogger("Othello")
     if context is not None:

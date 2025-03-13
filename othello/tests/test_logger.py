@@ -116,19 +116,19 @@ def test_log_error_exc_info():
 # TEST ERRORS
 
 
-# def test_logging_config_with_non_boolean():
-#     """
-#     Test that the debug argument must be a boolean.
-#     Testing with a string, an integer and None.
-#     """
-#     with pytest.raises(TypeError):
-#         logging_config("not a boolean")
+def test_logging_config_with_non_boolean():
+    """
+    Test that the debug argument must be a boolean.
+    Testing with a string, an integer and None.
+    """
+    with pytest.raises(TypeError):
+        logging_config("not a boolean")
 
-#     with pytest.raises(TypeError):
-#         logging_config(1)
+    with pytest.raises(TypeError):
+        logging_config(1)
 
-#     with pytest.raises(TypeError):
-#         logging_config(None)
+    with pytest.raises(TypeError):
+        logging_config(None)
 
 
 def test_logging_config_no_argument():
@@ -154,16 +154,16 @@ def test_logging_config_no_argument():
 #         log_error_message(error=None)
 
 
-# def test_log_error_nonstring_context_message():
-#     """
-#     Test that the context argument must be either a string or None.
-#     Testing with an integer and a boolean.
-#     """
-#     with pytest.raises(TypeError):
-#         log_error_message(error="Valid error", context=123)
+def test_log_error_nonstring_context_message():
+    """
+    Test that the context argument must be either a string or None.
+    Testing with an integer and a boolean.
+    """
+    with pytest.raises(TypeError):
+        log_error_message(error="Valid error", context=123)
 
-#     with pytest.raises(TypeError):
-#         log_error_message(error="Valid error", context=True)
+    with pytest.raises(TypeError):
+        log_error_message(error="Valid error", context=True)
 
 
 def test_log_error_message_missing_argument():
