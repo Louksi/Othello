@@ -37,7 +37,7 @@ def minimax(board: OthelloBoard, depth: int, max_player: Color, maximizing: bool
         for move_x, move_y in valid_moves:
             board.play(move_x, move_y)
             eval_score = minimax(
-                board, depth - 1, max_player, not maximizing)
+                board, depth - 1, max_player, not maximizing, heuristic)
             eval = max(eval, eval_score)
             board.pop()
     else:
@@ -45,7 +45,7 @@ def minimax(board: OthelloBoard, depth: int, max_player: Color, maximizing: bool
         for move_x, move_y in valid_moves:
             board.play(move_x, move_y)
             eval_score = minimax(
-                board, depth - 1, max_player, not maximizing)
+                board, depth - 1, max_player, not maximizing, heuristic)
             eval = min(eval, eval_score)
             board.pop()
 
@@ -93,7 +93,7 @@ def alphabeta(board: OthelloBoard, depth: int, alpha: int,
         for move_x, move_y in valid_moves:
             board.play(move_x, move_y)
             eval_score = alphabeta(
-                board, depth - 1, alpha, beta, max_player, not maximizing)
+                board, depth - 1, alpha, beta, max_player, not maximizing, heuristic)
             eval = max(eval, eval_score)
             board.pop()
             alpha = max(alpha, eval)
@@ -104,7 +104,7 @@ def alphabeta(board: OthelloBoard, depth: int, alpha: int,
         for move_x, move_y in valid_moves:
             board.play(move_x, move_y)
             eval_score = alphabeta(
-                board, depth - 1, alpha, beta, max_player, not maximizing)
+                board, depth - 1, alpha, beta, max_player, not maximizing, heuristic)
             eval = min(eval, eval_score)
             board.pop()
             beta = min(beta, eval)

@@ -1,14 +1,16 @@
 import pytest
+from copy import deepcopy
 from othello.othello_board import OthelloBoard, BoardSize, Color, GameOverException
-from othello.ai_features import corners_captured_heuristic, coin_parity_heuristic, find_best_move, minimax
+from othello.ai_features import corners_captured_heuristic, coin_parity_heuristic, find_best_move, minimax, alphabeta
 
 # region Fixtures
 
 
 @pytest.fixture
-def empty_board():
-    """Creates an empty Othello board."""
-    return OthelloBoard(BoardSize.EIGHT_BY_EIGHT)
+def board_start_pos():
+    """Creates an Othello board with the starting position."""
+    board = OthelloBoard(BoardSize.SIX_BY_SIX)
+    return board
 
 
 @pytest.fixture
@@ -85,6 +87,22 @@ def board_6_test_best_moves():
 
 
 @pytest.fixture
+def board_6_game_over():
+    """Creates an Othello board that is completely full and so in a game-over state."""
+    board = OthelloBoard(BoardSize.SIX_BY_SIX)
+    board.current_player = Color.BLACK
+
+    for x in range(6):
+        for y in range(6):
+            if (x + y) % 2 == 0:
+                board.black.set(x, y, True)
+            else:
+                board.white.set(x, y, True)
+
+    return board
+
+
+@pytest.fixture
 def board_no_moves():
     board = OthelloBoard(BoardSize.SIX_BY_SIX)
     board.current_player = Color.BLACK
@@ -99,10 +117,10 @@ def board_no_moves():
 # region Corners Captured
 
 
-def test_empty_board_corners(empty_board):
+def test_empty_board_corners(board_start_pos):
     """Tests that an empty board gives a score of 0 for both players."""
-    assert corners_captured_heuristic(empty_board, Color.BLACK) == 0
-    assert corners_captured_heuristic(empty_board, Color.WHITE) == 0
+    assert corners_captured_heuristic(board_start_pos, Color.BLACK) == 0
+    assert corners_captured_heuristic(board_start_pos, Color.WHITE) == 0
 
 
 def test_corners_advantage_black(board_with_corners):
@@ -129,10 +147,10 @@ def test_one_corner_each(board_one_corner_each):
 # region Coin Parity
 
 
-def test_empty_board_coin_parity(empty_board):
+def test_empty_board_coin_parity(board_start_pos):
     """Tests that an empty board gives a score of 0 for both players."""
-    assert coin_parity_heuristic(empty_board, Color.BLACK) == 0
-    assert coin_parity_heuristic(empty_board, Color.WHITE) == 0
+    assert coin_parity_heuristic(board_start_pos, Color.BLACK) == 0
+    assert coin_parity_heuristic(board_start_pos, Color.WHITE) == 0
 
 
 def test_coin_parity_advantage_black(board_with_corners):
@@ -154,11 +172,26 @@ def test_draw_coin_parity(board_one_corner_each):
     assert coin_parity_heuristic(board_one_corner_each, Color.WHITE) == 0
 
 
-def test_invalid_color_empty_coin_parity(empty_board):
+def test_invalid_color_empty_coin_parity(board_start_pos):
     """Tests that the function returns Color.EMPTY when no color is given. (invalid color)"""
-    assert coin_parity_heuristic(empty_board, Color.EMPTY) == Color.EMPTY
+    assert coin_parity_heuristic(board_start_pos, Color.EMPTY) == Color.EMPTY
 
 # endregion Coin Parity
+
+# region Minimax/Alphabeta
+
+
+def test_minimax_basic_evaluation(board_start_pos):
+    board_copy_minimax = deepcopy(board_start_pos)
+    print(board_copy_minimax)
+    assert minimax(board_copy_minimax, 1, Color.BLACK,
+                   True, corners_captured_heuristic) == 0
+    board_copy_alphabeta = deepcopy(board_start_pos)
+    print(board_copy_alphabeta)
+    assert alphabeta(board_copy_alphabeta, 1, Color.BLACK,
+                     True, corners_captured_heuristic) == 0
+
+# endregion Minimax/Alphabeta
 
 # region Find Best Move
 
@@ -172,7 +205,6 @@ def test_1_move_possible(board_6_one_move_possible):
 
 
 def test_best_moves_corners_and_parity(board_6_test_best_moves):
-    print(board_6_test_best_moves.export_board())
     assert find_best_move(board_6_test_best_moves, 1,
                           Color.WHITE, True, "minimax", "corners_captured") == (0, 0)
     assert find_best_move(board_6_test_best_moves, 1,
@@ -181,4 +213,10 @@ def test_best_moves_corners_and_parity(board_6_test_best_moves):
                           Color.WHITE, True, "minimax", "coin_parity") == (0, 3)
     assert find_best_move(board_6_test_best_moves, 1,
                           Color.WHITE, True, "alphabeta", "coin_parity") == (0, 3)
+
+
+def test_game_over_best_move(board_6_game_over):
+    assert find_best_move(board_6_game_over, 1,
+                          Color.BLACK, True, "minimax", "corners_captured") == (-1, -1)
+
 # endregion Find Best Move
