@@ -1,13 +1,17 @@
 from othello.blitz_timer import BlitzTimer
 from othello.othello_board import Color, GameOverException, OthelloBoard
+import othello.logger as log
 from gi.repository import Gtk, GLib, Adw
 import time
 import threading
 import cairo
 import gi
 import math
+import logging
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
+
+logger = logging.getLogger("Othello")
 
 
 class ListBoxWithLength(Gtk.ListBox):
@@ -35,18 +39,24 @@ class OthelloGUI(Gtk.Application):
     PLAYS_IN_HISTORY = 15
 
     def __init__(self, board: OthelloBoard, time_limit: int | None = None):
+        logger.debug(
+            "Graphic User Interface is in use. Entering GUI initialization function from gui.py.")
         super().__init__(application_id="othello")
         GLib.set_application_name("othello")
         self.board = board
         self.time_limit = time_limit
+        logger.debug(f"   Game initialized with board: {self.board}.")
 
     def do_activate(self):
+        logger.debug("Entering do_activate function from gui.py.")
         window = OthelloWindow(self, self.board, self.time_limit)
         window.present()
 
 
 class OthelloWindow(Gtk.ApplicationWindow):
     def __init__(self, application, board: OthelloBoard, time_limit: int | None = None):
+        logger.debug(
+            "Entering initialization function for game window from gui.py.")
         super().__init__(application=application, title="Othello")
         self.set_default_size(800, 600)
         self.over = False
@@ -54,6 +64,8 @@ class OthelloWindow(Gtk.ApplicationWindow):
         self.__init(board, time_limit)
 
     def __init(self, board, time_limit):
+        logger.debug(
+            "Entering initialization function for game window from gui.py.")
         self.board = board
         self.blitz_timer: None | BlitzTimer = None
         self.is_blitz = time_limit is not None
