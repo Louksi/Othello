@@ -45,41 +45,38 @@ def main():
     match mode:
         case parser.GameMode.NORMAL.value:
             print("Starting Normal Mode...")
-            Modes.NormalGame(config["filename"], config["size"]).play()
-    if config["gui"]:
-        size = BoardSize.from_value(config["size"])
-        board = OthelloBoard(size)
-        match mode:
-            case parser.GameMode.NORMAL.value:
+            if config["gui"]:
+                size = BoardSize.from_value(config["size"])
+                board = OthelloBoard(size)
                 gui = OthelloGUI(board)
-            case parser.GameMode.BLITZ.value:
-                gui = OthelloGUI(board, config["blitz_time"])
-            case _:
-                raise Exception("unsupported gui operation")
-        gui.run()
-    else:
-        match mode:
-            case parser.GameMode.NORMAL.value:
-                print("Starting Normal Mode...")
-                Modes.NormalGame(config["size"]).play()
+                gui.run()
+            else:
+                Modes.NormalGame(config["filename"], config["size"]).play()
 
-            case parser.GameMode.BLITZ.value:
-                print("Starting Blitz Mode...")
+        case parser.GameMode.BLITZ.value:
+            print("Starting Blitz Mode...")
+            print(
+                f"Blitz mode with time limit: {config['blitz_time']} minutes")
+            if config["gui"]:
+                size = BoardSize.from_value(config["size"])
+                board = OthelloBoard(size)
+                gui = OthelloGUI(board, config["blitz_time"])
+                gui.run()
+            else:
                 Modes.BlitzGame(config["filename"],
                                 config["size"], config["blitz_time"]).play()
-                print(f"Blitz mode with time limit: {config['bTime']} minutes")
 
-            case parser.GameMode.CONTEST.value:
-                print("Starting Contest Mode...")
-                print(f"Loading contest from file: {config['cFile']}")
+        case parser.GameMode.CONTEST.value:
+            print("Starting Contest Mode...")
+            print(f"Loading contest from file: {config['cFile']}")
 
-            case parser.GameMode.AI.value:
-                print("Starting AI Mode...")
-                print(f"AI plays as: {config['AIColor']}")
+        case parser.GameMode.AI.value:
+            print("Starting AI Mode...")
+            print(f"AI plays as: {config['AIColor']}")
 
-            case _:
-                print("Unknown game mode. Exiting.")
-                sys.exit(1)
+        case _:
+            print("Unknown game mode. Exiting.")
+            sys.exit(1)
 
 
 if __name__ == "__main__":
