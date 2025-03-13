@@ -3,12 +3,13 @@ Entry point for the othello executable.
 '''
 import sys
 from othello.gui import OthelloGUI
-from othello.othello_board import BoardSize, OthelloBoard
+from othello.othello_board import BoardSize, Color, OthelloBoard
 import othello.parser as parser
 import logging
 import othello.game_modes as Modes
 import othello.config as configuration
 import othello.logger as log
+from othello.player_abstraction import RandomPlayerAbstraction
 
 
 def main():
@@ -56,7 +57,7 @@ def main():
             print("Starting Normal Mode...")
             if config["gui"]:
                 size = BoardSize.from_value(config["size"])
-                board = OthelloBoard(size)
+                board = RandomPlayerAbstraction(size, Color.BLACK)
                 gui = OthelloGUI(board)
                 gui.run()
             else:

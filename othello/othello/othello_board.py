@@ -170,6 +170,9 @@ class OthelloBoard:
                 candidates = bits_o & candidates.shift(shift_dir)
         return moves
 
+    def ready(self):
+        pass
+
     def get_turn_id(self) -> int:
         """
         Returns current turn id.
@@ -186,6 +189,9 @@ class OthelloBoard:
             last_play_idx += 1
             last_play = self.__history[-last_play_idx]
         return last_play
+
+    def attach_hist_callback(self, cb):
+        self.hist_callback = cb
 
     def line_cap(self, x_coord: int, y_coord: int, current_player: Color) -> Bitboard:
         """
@@ -236,6 +242,10 @@ class OthelloBoard:
         self.black = popped[1]
         self.current_player = popped[4]
 
+    def call_hist_callback(self):
+        if self.hist_callback is not None:
+            self.hist_callback()
+
     def play(self, x_coord: int, y_coord: int):
         """
         Changes the state of the Board, pushing the move at x_coord;y_coord if it is a legal play.
@@ -260,6 +270,7 @@ class OthelloBoard:
                 self.black = bits_p if self.current_player is Color.BLACK else bits_o
                 self.white = bits_o if self.current_player is Color.BLACK else bits_p
                 self.current_player = ~self.current_player
+                self.call_hist_callback()
                 if self.line_cap_move(self.current_player).bits == 0:
                     self.__history.append(
                         (self.black, self.white, -1, -1, self.current_player))

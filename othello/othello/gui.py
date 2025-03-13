@@ -62,11 +62,13 @@ class OthelloWindow(Gtk.ApplicationWindow):
         self.over = False
         self.over_message = None
         self.__init(board, time_limit)
+        self.blitz_thread = None
 
     def __init(self, board, time_limit):
         logger.debug(
             "Entering initialization function for game window from gui.py.")
         self.board = board
+        self.board.attach_hist_callback(self.update_play_history)
         self.blitz_timer: None | BlitzTimer = None
         self.is_blitz = time_limit is not None
         if self.is_blitz:
@@ -81,6 +83,7 @@ class OthelloWindow(Gtk.ApplicationWindow):
         if self.blitz_timer is not None:
             self.blitz_timer.start_timer("black")
             self.blitz_loser = None
+        self.board.ready()
 
     def initialize_ui_components(self):
         self.drawing_area = Gtk.DrawingArea()
@@ -203,9 +206,10 @@ class OthelloWindow(Gtk.ApplicationWindow):
         self.white_timer_label.set_text(
             f"White: {self.blitz_timer.display_time_player(Color.WHITE)}")
 
-    def update_play_history(self, x: int, y: int):
+    def update_play_history(self):
+        last_play = self.board.get_last_play()
         new_move = Gtk.Label(
-            label=f"{self.board.get_last_play()[4]} placed a piece at {chr(ord('A') + x)}{y + 1}")
+            label=f"{last_play[4]} placed a piece at {chr(ord('A') + last_play[2])}{last_play[3] + 1}")
         self.plays_list.prepend(new_move)
         if len(self.plays_list) > OthelloGUI.PLAYS_IN_HISTORY:
             self.plays_list.remove(self.plays_list.get_last_child())
@@ -282,7 +286,6 @@ class OthelloWindow(Gtk.ApplicationWindow):
         if 0 <= board_x < self.grid_size and 0 <= board_y < self.grid_size:
             try:
                 self.board.play(board_x, board_y)
-                self.update_play_history(board_x, board_y)
                 if self.blitz_timer is not None:
                     self.blitz_timer.change_player(
                         "black" if self.board.current_player is Color.BLACK else "white")
@@ -306,7 +309,8 @@ class OthelloWindow(Gtk.ApplicationWindow):
     def restart_handler_callback(self, confirmation):
         if confirmation == -5:
             self.over = True
-            self.blitz_thread.join()
+            if self.blitz_thread is not None:
+                self.blitz_thread.join()
             self.board.restart()
             for _ in range(len(self.plays_list)):
                 self.plays_list.remove(self.plays_list.get_last_child())
