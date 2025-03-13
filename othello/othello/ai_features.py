@@ -145,30 +145,8 @@ def find_best_move(board: OthelloBoard, depth: int, max_player: Color,
     valid_moves = board.line_cap_move(
         board.current_player).hot_bits_coordinates()
 
-    if maximizing:
-        best_move = (-1, -1)
-        best_score = float("-inf")
-        for move_x, move_y in valid_moves:
-
-            new_board = deepcopy(board)
-
-            new_board.play(move_x, move_y)
-            if search_algo == "minimax":
-                score = minimax(new_board, depth - 1,
-                                max_player, not maximizing, heuristic_function)
-            else:
-                score = alphabeta(
-                    new_board, depth - 1, float("-inf"), float("inf"),
-                    max_player, not maximizing, heuristic_function)
-
-            if score > best_score:
-                best_score = score
-                best_move = (move_x, move_y)
-
-        return best_move
-
-    worst_move = (-1, -1)
-    worst_score = float("inf")
+    best_move = (-1, -1)
+    best_score = float("-inf") if maximizing else float("inf")
     for move_x, move_y in valid_moves:
 
         new_board = deepcopy(board)
@@ -182,11 +160,11 @@ def find_best_move(board: OthelloBoard, depth: int, max_player: Color,
                 new_board, depth - 1, float("-inf"), float("inf"),
                 max_player, not maximizing, heuristic_function)
 
-        if score < worst_score:
-            worst_score = score
-            worst_move = (move_x, move_y)
+        if score > best_score:
+            best_score = score
+            best_move = (move_x, move_y)
 
-    return worst_move
+    return best_move
 
 
 def corners_captured_heuristic(board: OthelloBoard, max_player: Color) -> int:
