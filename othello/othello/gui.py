@@ -283,8 +283,9 @@ class OthelloWindow(Gtk.ApplicationWindow):
             try:
                 self.board.play(board_x, board_y)
                 self.update_play_history(board_x, board_y)
-                self.blitz_timer.change_player(
-                    "black" if self.board.current_player is Color.BLACK else "white")
+                if self.blitz_timer is not None:
+                    self.blitz_timer.change_player(
+                        "black" if self.board.current_player is Color.BLACK else "white")
             except GameOverException as err:
                 self.over_message = err
                 self.over = True
