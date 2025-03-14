@@ -1,11 +1,9 @@
-"""
-A class to help parsing cli user input
-"""
+"""A class to help parsing cli user input."""
 from dataclasses import dataclass
 from enum import Enum, auto
 import re
 import argparse
-from typing import Tuple, Union, Literal
+from typing import Literal
 
 
 class CommandParserException(Exception):
@@ -40,17 +38,30 @@ class PlayCommand:
     y_coord: int
 
 
-CommandType = Union[  # This type is used to kind of mimic some sort of algebraic datatype
-    Tuple[Literal[CommandKind.PLAY_MOVE], PlayCommand],
-    Tuple[Union[
-        Literal[CommandKind.HELP],
-        Literal[CommandKind.RULES],
-        Literal[CommandKind.SAVE_AND_QUIT],
-        Literal[CommandKind.SAVE_HISTORY],
-        Literal[CommandKind.FORFEIT],
-        Literal[CommandKind.RESTART],
-        Literal[CommandKind.QUIT]]]
-]
+CommandType = (
+    tuple[Literal[CommandKind.PLAY_MOVE], PlayCommand]
+    | tuple[
+        Literal[
+            CommandKind.HELP,
+            CommandKind.RULES,
+            CommandKind.SAVE_AND_QUIT,
+            CommandKind.SAVE_HISTORY,
+            CommandKind.FORFEIT,
+            CommandKind.RESTART,
+            CommandKind.QUIT
+        ]
+    ]
+)
+
+COMMAND_MAP = {
+    "?": CommandKind.HELP,
+    "r": CommandKind.RULES,
+    "s": CommandKind.SAVE_AND_QUIT,
+    "sh": CommandKind.SAVE_HISTORY,
+    "ff": CommandKind.FORFEIT,
+    "restart": CommandKind.RESTART,
+    "q": CommandKind.QUIT,
+}
 
 
 class CommandParser:
@@ -123,7 +134,8 @@ class CommandParser:
         print("\nOthello/Reversi Rules")
         print("====================")
         print("Objective:")
-        print("  The goal is to have the majority of your color discs on the board when the game ends.")
+        print("  The goal is to have the majority of your color discs"
+              " on the board when the game ends.")
         print("\nSetup:")
         print("  - The game is played on an 8×8 board (though our implementation may vary)")
         print("  - The game begins with four discs placed in the center in a 2×2 pattern,")
@@ -131,8 +143,10 @@ class CommandParser:
         print("  - Black moves first")
         print("\nGameplay:")
         print("  1. A move consists of placing a disc of your color on an empty square")
-        print("  2. For a move to be valid, it must 'outflank' at least one of your opponent's discs")
-        print("  3. To outflank means to place a disc such that one or more of your opponent's discs")
+        print("  2. For a move to be valid, it must 'outflank' at least"
+              " one of your opponent's discs")
+        print("  3. To outflank means to place a disc such that one or more of your"
+              " opponent's discs")
         print("     are bordered at each end by a disc of your color (in a straight line)")
         print(
             "  4. All of the opponent's discs that are outflanked are flipped to your color")
@@ -140,47 +154,33 @@ class CommandParser:
         print("  6. The game ends when neither player can make a valid move")
         print("\nWinning:")
         print(
-            "  The player with the most discs of their color on the board at the end wins.")
+            "  The player with the most discs of their color on the"
+            " board at the end wins.")
         print("  If both players have the same number of discs, the game is a draw.")
         print("\nPress Enter to continue playing...")
         input()
 
     def parse_str(self, command_str: str) -> CommandType:
         """
-        Returns a constructed CommandType for a supplied string, if the string is valid
-        Else raises an exception
+        Parses a command string into a CommandType.
 
-        :param command_str: The string to be parsed
-        :param type: str
-        :returns: A constructed command tuple
-        :raises CommandParserException: if the string is invalid
+        :param command_str: The string to be parsed.
+        :return: A constructed command tuple.
+        :raises CommandParserException: if the string is invalid.
         """
-        matches = self.command_regex.fullmatch(command_str)
 
-        if matches is None:
+        if (matches := self.command_regex.fullmatch(command_str)) is None:
             raise CommandParserException(command_str)
-        match_result = matches.group(1)
-        if match_result == "?":
-            return (CommandKind.HELP,)
-        elif match_result == "r":
-            return (CommandKind.RULES,)
-        elif match_result == "s":
-            return (CommandKind.SAVE_AND_QUIT,)
-        elif match_result == "sh":
-            return (CommandKind.SAVE_HISTORY,)
-        elif match_result == "ff":
-            return (CommandKind.FORFEIT,)
-        elif match_result == "restart":
-            return (CommandKind.RESTART,)
-        elif match_result == "q":
-            return (CommandKind.QUIT,)
-        else:
-            play_matches = self.move_regex.match(match_result)
-            col_raw = play_matches.group(2)
-            line_raw = play_matches.group(3)
-            if col_raw is None or line_raw is None:
-                raise CommandParserException(command_str)
-            move_x_coord = ord(col_raw) - ord('a')
-            move_y_coord = int(line_raw)-1
-            play_command = PlayCommand(move_x_coord, move_y_coord)
-            return (CommandKind.PLAY_MOVE, play_command)
+
+        if (match_result := matches.group(1)) in COMMAND_MAP:
+            return (COMMAND_MAP[match_result],)
+
+        play_matches = self.move_regex.match(match_result)
+        col_raw = play_matches.group(2)
+        line_raw = play_matches.group(3)
+        if col_raw is None or line_raw is None:
+            raise CommandParserException(command_str)
+        move_x_coord = ord(col_raw) - ord('a')
+        move_y_coord = int(line_raw) - 1
+        play_command = PlayCommand(move_x_coord, move_y_coord)
+        return (CommandKind.PLAY_MOVE, play_command)

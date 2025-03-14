@@ -1,3 +1,6 @@
+"""
+Graphic interface to play the Othello game , inherits from __main__.py
+"""
 from othello.blitz_timer import BlitzTimer
 from othello.othello_board import Color, GameOverException, OthelloBoard
 import othello.logger as log
@@ -16,22 +19,62 @@ logger = logging.getLogger("Othello")
 
 class ListBoxWithLength(Gtk.ListBox):
     def __init__(self):
+        """
+        Initializes a ListBoxWithLength object.
+
+        A ListBoxWithLength is a subclass of a Gtk.ListBox that has an additional
+        `length` attribute, which is the number of children currently in the list
+        box. This attribute is updated whenever items are added or removed from the
+        list box.
+
+        :return: A new ListBoxWithLength instance.
+        :rtype: ListBoxWithLength
+        """
         super().__init__()
         self.length = 0
 
-    def prepend(self, child: Gtk.Widget) -> None:
-        super().prepend(child)
+    def prepend(self, child: Gtk.Widget, *args, **kwargs) -> None:
+        """
+        Prepends a child widget to the list box and increments the length attribute.
+
+        :param child: The widget to prepend to the list box.
+        :type child: Gtk.Widget
+        :param args: Additional positional arguments.
+        :param kwargs: Additional keyword arguments.
+        """
+
+        super().prepend(child, *args, **kwargs)
         self.length += 1
 
     def append(self, child: Gtk.Widget) -> None:
+        """
+        Appends a child widget to the list box and increments the length attribute.
+
+        :param child: The widget to append to the list box.
+        :type child: Gtk.Widget
+        """
+
         super().append(child)
         self.length += 1
 
     def remove(self, child: Gtk.Widget) -> None:
+        """
+        Removes a child widget from the list box and decrements the length attribute.
+
+        :param child: The widget to remove from the list box.
+        :type child: Gtk.Widget
+        """
         super().remove(child)
         self.length -= 1
 
     def __len__(self) -> int:
+        """
+        Returns the number of children currently in the list box.
+
+        :return: The length of the list box.
+        :rtype: int
+        """
+
         return self.length
 
 
@@ -190,7 +233,8 @@ class OthelloWindow(Gtk.ApplicationWindow):
         if self.blitz_timer is not None:
             while not self.over:
                 GLib.idle_add(self.update_timers)
-                if self.blitz_timer.is_time_up("black" if self.board.current_player is Color.BLACK else "white"):
+                if self.blitz_timer.is_time_up(
+                        "black" if self.board.current_player is Color.BLACK else "white"):
                     self.blitz_loser = self.board.current_player
                     GLib.idle_add(self.update_game_state)
                     self.over = True
@@ -293,11 +337,12 @@ class OthelloWindow(Gtk.ApplicationWindow):
 
     def forfeit_handler(self, _button: Gtk.Button):
         self.show_confirm_dialog(
-            "are you sure ? this will close the program and your progression will be lost!", self.forfeit_handler_callback)
+            "are you sure ? this will close the program and your"
+            " progression will be lost!", self.forfeit_handler_callback)
 
     def forfeit_handler_callback(self, response):
         if response == -5:
-            exit(0)  # todo: maybe be a little more subtle
+            exit(0)  # fixme
 
     def restart_handler(self, _button: Gtk.Button):
         self.show_confirm_dialog(

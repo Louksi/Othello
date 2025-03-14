@@ -105,7 +105,8 @@ class OthelloBoard:
     Implementation of an othello board that uses Bitboards
     """
 
-    def __init__(self, size: BoardSize, black=None, white=None, current_player: Color | None = None):
+    def __init__(self, size: BoardSize, black=None, white=None,
+                 current_player: Color | None = None):
         """
         :param size: The size of the Bitboard from the enum `BoardSize`
         :param type: BoardSize
@@ -150,7 +151,9 @@ class OthelloBoard:
         Checks wether or not a board is in a game over state.
         """
 
-        return self.forced_game_over or self.line_cap_move(self.current_player).popcount() == self.line_cap_move(~self.current_player).popcount() == 0
+        m1, m2 = self.line_cap_move(
+            self.current_player), self.line_cap_move(~self.current_player)
+        return self.forced_game_over or (m1.popcount() == m2.popcount() == 0)
 
     def line_cap_move(self, current_player: Color) -> Bitboard:
         """
