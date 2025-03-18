@@ -236,7 +236,7 @@ class OthelloBoard:
 
         popped = self.__history.pop()
         self.black = popped[0]
-        self.black = popped[1]
+        self.white = popped[1]
         self.current_player = popped[4]
 
     def play(self, x_coord: int, y_coord: int):
@@ -270,6 +270,7 @@ class OthelloBoard:
                 if self.line_cap_move(self.current_player).bits == 0:
                     raise GameOverException
             else:
+                print(self.export())
                 raise IllegalMoveException(
                     x_coord, y_coord, self.current_player)
 

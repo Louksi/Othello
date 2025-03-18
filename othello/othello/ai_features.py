@@ -229,3 +229,7 @@ def coin_parity_heuristic(board: OthelloBoard, max_player: Color) -> int:
         return int(100 * (white_count - black_count) /
                    (white_count + black_count))
     return Color.EMPTY
+
+# def mobility_heuristic(board: OthelloBoard, max_player: Color) -> int:
+
+#     black_move_count = board.line_cap_move(board.current_player).popcount()

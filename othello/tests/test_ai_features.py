@@ -184,7 +184,7 @@ def test_invalid_color_empty_coin_parity(board_start_pos):
 """
 def test_minimax_basic_evaluation(board_start_pos):
     board_copy_minimax = deepcopy(board_start_pos)
-    print(board_copy_minimax)
+    print(board_copy_minimax.export())
     assert minimax(board_copy_minimax, 1, Color.BLACK,
                    True, corners_captured_heuristic) == 0
     board_copy_alphabeta = deepcopy(board_start_pos)
