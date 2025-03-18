@@ -114,8 +114,8 @@ def alphabeta(board: OthelloBoard, depth: int, alpha: int,
     return eval
 
 
-def find_best_move(board: OthelloBoard, depth: int, max_player: Color,
-                   maximizing: bool, search_algo: str, heuristic: str) -> tuple[int, int]:
+def find_best_move(board: OthelloBoard, depth: int = 3, max_player: Color = Color.BLACK,
+                   maximizing: bool = True, search_algo: str = "minimax", heuristic: str = "corners_captured") -> tuple[int, int]:
     """
     Finds the best move according to the given search algorithm.
 
