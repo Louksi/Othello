@@ -188,8 +188,8 @@ def test_minimax_basic_evaluation(board_start_pos):
                    True, corners_captured_heuristic) == 0
     board_copy_alphabeta = deepcopy(board_start_pos)
     print(board_copy_alphabeta)
-    assert alphabeta(board_copy_alphabeta, 1, Color.BLACK,
-                     True, corners_captured_heuristic) == 0
+    assert alphabeta(board_copy_alphabeta, 1, float('-inf'), float('inf'),
+                     Color.BLACK, True, corners_captured_heuristic) == 0
 
 # endregion Minimax/Alphabeta
 
