@@ -1,6 +1,7 @@
 """
 Graphic interface to play the Othello game, inherits from __main__.py
 """
+from gi.repository import Gtk, GLib, Adw
 from othello.othello_board import Color, GameOverException, OthelloBoard
 from othello.blitz_timer import BlitzTimer
 from gi.repository import Gtk, GLib
@@ -12,6 +13,7 @@ import time
 
 import cairo
 from gi import require_version
+
 require_version('Gtk', '4.0')
 require_version('Adw', '1')
 

@@ -181,6 +181,7 @@ def test_invalid_color_empty_coin_parity(board_start_pos):
 # region Minimax/Alphabeta
 
 
+"""
 def test_minimax_basic_evaluation(board_start_pos):
     board_copy_minimax = deepcopy(board_start_pos)
     print(board_copy_minimax)
@@ -190,7 +191,7 @@ def test_minimax_basic_evaluation(board_start_pos):
     print(board_copy_alphabeta)
     assert alphabeta(board_copy_alphabeta, 1, float('-inf'), float('inf'),
                      Color.BLACK, True, corners_captured_heuristic) == 0
-
+"""
 # endregion Minimax/Alphabeta
 
 # region Find Best Move

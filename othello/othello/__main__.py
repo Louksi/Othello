@@ -81,7 +81,8 @@ def main():
 
         case parser.GameMode.AI.value:
             print("Starting AI Mode...")
-            print(f"AI plays as: {config['AIColor']}")
+            Modes.AIMode(config["filename"], config["size"], "black",
+                         config["ai_depth"], config["ai_mode"], config["ai_heuristic"]).play()
 
         case _:
             print("Unknown game mode. Exiting.")

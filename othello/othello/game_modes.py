@@ -8,6 +8,7 @@ from othello.othello_board import BoardSize, OthelloBoard, Color
 from othello.board_parser import BoardParser
 import othello.parser as parser
 from othello.config import save_board_state_history
+from othello.ai_features import find_best_move
 
 
 from othello.parser import DEFAULT_BLITZ_TIME
@@ -514,3 +515,156 @@ class BlitzGame(NormalGame):
                 print("Invalid command. Please try again.")
                 continue
             self.display_time()
+
+
+class AIMode(NormalGame):
+    '''
+    A class representing a game mode where a player faces an AI opponent.
+    '''
+
+    def __init__(self, filename=None, board_size=BoardSize.EIGHT_BY_EIGHT, ai_color: Color = Color.BLACK, depth=3, algorithm="minimax", heuristic="coin_parity"):
+        """
+        Initialize the AI mode with a specified AI color, depth, algorithm, and heuristic.
+
+        :param board_size: The size of the Othello board.
+        :param ai_color: The color the AI will play as (Black or White).
+        :param depth: The depth of the search tree for AI.
+        :param algorithm: The search algorithm to use ("minimax" or "alphabeta").
+        :param heuristic: The heuristic function to evaluate board states.
+        """
+        super().__init__(filename, board_size)
+
+        if isinstance(ai_color, str):
+            ai_color = ai_color.lower()
+            if ai_color == 'black':
+                self.ai_color = Color.BLACK
+            elif ai_color == 'white':
+                self.ai_color = Color.WHITE
+            else:
+                self.ai_color = ai_color
+        else:
+            raise ValueError(
+                f"Invalid ai_color type: {type(ai_color)}. Must be a string or Color enum.")
+
+        self.depth = depth
+        self.algorithm = algorithm
+        self.heuristic = heuristic
+
+    def get_ai_move(self, possible_moves):
+        """
+        Determines the AI's move using Minimax or Alpha-Beta Pruning.
+
+        :param possible_moves: A bitboard of the possible capture moves for the AI.
+        :return: A tuple (x, y) of the chosen move coordinates.
+        """
+        best_move = find_best_move(
+            self.board, self.depth, self.ai_color, True, self.algorithm, self.heuristic)
+        return best_move if best_move != (-1, -1) else None
+
+    def play(self):
+        """
+        Main game loop for AI mode.
+
+        This function implements the main game loop for AI mode, similar to that of Normal mode.
+        However, AI mode pits an AI against the player.
+
+        The loop consists of the following steps:
+
+        1. Display the current state of the board.
+        2. Calculate the possible moves for the current player.
+        3. If the game is over, proceed to the next iteration.
+        4. Display the possible moves.
+        5. Obtain a move from the current player.
+        6. If the move is invalid, proceed to the next iteration.
+        7. Process the move by playing it on the board.
+        8. Calculate the AI's move, based on a chosen algorithm.
+        """
+        logger.debug("Starting AI Mode game loop.")
+
+        parser = CommandParser(board_size=self.board.size.value)
+
+        while True:
+            self.display_board()
+            possible_moves = self.get_possible_moves()
+
+            if self.check_game_over(possible_moves):
+                continue
+
+            self.display_possible_moves(possible_moves)
+            print(
+                f"Current player: {self.current_player}, AI color: {self.ai_color}")
+            if self.current_player == self.ai_color:
+                print("AI is making a move...")
+                ai_move = self.get_ai_move(possible_moves)
+                if not self.process_move(ai_move[0], ai_move[1], possible_moves):
+                    continue
+
+                self.switch_player()
+            else:
+                command_str = input("Enter your move or command: ").strip()
+                logger.debug(f"   Player input: '{command_str}'.")
+
+                try:
+                    command_result = parser.parse_str(command_str)
+                    if command_result[0] == CommandKind.PLAY_MOVE:
+                        kind = command_result[0]
+                        play_command = command_result[1]
+                        x_coord, y_coord = play_command.x_coord, play_command.y_coord
+                        logger.debug(
+                            f"   Play move command at ({x_coord}, {y_coord}).")
+
+                        if not self.process_move(x_coord, y_coord, possible_moves):
+                            continue
+
+                        self.switch_player()
+
+                    else:
+                        kind = command_result[0]
+                        match kind:
+                            case CommandKind.HELP:
+                                logger.debug(
+                                    f"   Executing {command_result[0]} command.")
+                                parser.print_help()
+                            case CommandKind.RULES:
+                                logger.debug(
+                                    f"   Executing {command_result[0]} command.")
+                                parser.print_rules()
+                            case CommandKind.SAVE_AND_QUIT | CommandKind.SAVE_HISTORY:
+                                logger.debug(
+                                    f"   Executing {command_result[0]} command.")
+                                save_board_state_history(self.board)
+                                logger.debug("   Game saved, exiting.")
+                                sys.exit(0)
+                            case CommandKind.FORFEIT:
+                                logger.debug(
+                                    f"   {self.current_player.name} executed {command_result[0]} command.")
+                                print(f"{self.current_player.name} forfeited.")
+                                self.switch_player()
+                                logger.debug(
+                                    f"   Game Over, {self.current_player.name} wins! Exiting.")
+                                print(
+                                    f"Game Over, {self.current_player.name} wins!")
+                                sys.exit(0)
+                            case CommandKind.RESTART:
+                                logger.debug(
+                                    f"   Executing {command_result[0]} command.")
+                                self.board.restart()
+                                logger.debug(
+                                    "   Board restarted to initial state")
+                            case CommandKind.QUIT:
+                                logger.debug(
+                                    f"   Executing {command_result[0]} command. Exiting without saving.")
+                                print("Exiting without saving...")
+                                sys.exit(0)
+                            case _:
+                                logger.debug(
+                                    f"   Invalid command: {command_str}.")
+                                print("Invalid command. Try again.")
+                                parser.print_help()
+
+                except CommandParserException as e:
+                    log.log_error_message(
+                        e, context=f"Failed to parse command: {command_str}.")
+                    print(f"Error: {e}")
+                    print("Invalid command. Please try again.")
+                    continue
