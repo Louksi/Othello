@@ -1,13 +1,14 @@
 """Game Modes for Othello """
-from othello.board_parser import BoardParser
-import othello.parser as parser
 import logging
 import sys
-from othello.config import save_board_state_history
 import othello.logger as log
 from othello.command_parser import CommandParser, CommandKind, CommandParserException
 from othello.blitz_timer import BlitzTimer
 from othello.othello_board import BoardSize, OthelloBoard, Color
+from othello.board_parser import BoardParser
+import othello.parser as parser
+from othello.config import save_board_state_history
+
 
 from othello.parser import DEFAULT_BLITZ_TIME
 
@@ -155,7 +156,8 @@ class NormalGame:
         :type possible_moves: Bitboard
         """
         logger.debug(
-            "Entering display_possible_moves function from game_modes.py, with parameter possible_moves.")
+            "Entering display_possible_moves function from game_modes.py,"
+            " with parameter possible_moves.")
         logger.debug("   Available moves:\n %s", str(possible_moves))
         print("Possible moves: ")
         for y in range(self.board.size.value):
@@ -399,7 +401,8 @@ class BlitzGame(NormalGame):
         :rtype: bool
         """
         logger.debug(
-            f"Entering check_game_over function for Blitz mode, from game_modes.py, with parameter possible_moves.")
+            "Entering check_game_over function for Blitz mode,"
+            " from game_modes.py, with parameter possible_moves.")
         if self.blitz_timer.is_time_up('black'):
             logger.debug("   Black's time is up. White wins.")
             print("Black's time is up! White wins!")

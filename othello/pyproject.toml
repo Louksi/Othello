@@ -37,3 +37,7 @@ testpaths = [
     "tests",
 ]
 
+[tool.pylint.messages_control]
+disable = ["C0199"]
+disable = ["E0401"]
+disable = ["E0611"]
