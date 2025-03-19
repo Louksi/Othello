@@ -78,7 +78,7 @@ def alphabeta(board: OthelloBoard, depth: int, alpha: int,
     :return: The heuristic value of the best move found from the current board state.
     :rtype: int
     """
-
+    breakpoint()
     if depth == 0 or board.is_game_over():
         return heuristic(board, max_player)
 

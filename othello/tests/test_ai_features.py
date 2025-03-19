@@ -14,6 +14,13 @@ def board_start_pos():
 
 
 @pytest.fixture
+def board_start_pos_8():
+    """Creates an Othello board with the starting position 8x8."""
+    board = OthelloBoard(BoardSize.EIGHT_BY_EIGHT)
+    return
+
+
+@pytest.fixture
 def board_with_corners():
     """Creates an Othello board where BLACK has 2 corners and WHITE has 1."""
     board = OthelloBoard(BoardSize.EIGHT_BY_EIGHT)
@@ -181,12 +188,21 @@ def test_invalid_color_empty_coin_parity(board_start_pos):
 # region Minimax/Alphabeta
 
 
-def test_minimax_basic_evaluation(board_start_pos):
+def test_minimax_ab_basic_evaluation(board_start_pos):
     board_copy_minimax = deepcopy(board_start_pos)
     assert minimax(board_copy_minimax, 1, Color.BLACK,
                    True, corners_captured_heuristic) == 0
     board_copy_alphabeta = deepcopy(board_start_pos)
     assert alphabeta(board_copy_alphabeta, 1, float('-inf'), float('inf'),
+                     Color.BLACK, True, corners_captured_heuristic) == 0
+
+
+def test_bug_ab_5(board_start_pos_8):
+    board_start_pos_8.black.set(3, 2, True)
+    board_start_pos_8.white.set(2, 2, True)
+    board_start_pos_8.black.set(1, 2, True)
+    board_start_pos_8.white.set(1, 1, True)
+    assert alphabeta(board_start_pos_8, 5, float('-inf'), float('inf'),
                      Color.BLACK, True, corners_captured_heuristic) == 0
 
 # endregion Minimax/Alphabeta
