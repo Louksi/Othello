@@ -10,7 +10,7 @@ authors = [
     {name = "Lucas Zammit"}
 ]
 readme = "README.md"
-dependencies = ["pycairo", "PyGObject", "importlib-metadata",
+dependencies = ["pycairo", "PyGObject==3.50.0", "importlib-metadata",
                 "sphinx", "sphinx_rtd_theme",
                 "pytest", "pytest-cov", "coverage", "autopep8", "pre-commit"]
 dynamic = ["version"]
@@ -37,7 +37,3 @@ testpaths = [
     "tests",
 ]
 
-[tool.pylint.messages_control]
-disable = ["C0199"]
-disable = ["E0401"]
-disable = ["E0611"]
