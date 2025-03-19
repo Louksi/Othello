@@ -1,13 +1,15 @@
 '''
 Entry point for the othello executable.
 '''
+# pylint: disable=locally-disabled, multiple-statements, line-too-long, import-error, no-name-in-module
+
 import sys
+import logging
+
 from othello.gui import OthelloGUI
 from othello.othello_board import BoardSize, OthelloBoard
 import othello.parser as parser
-import logging
 import othello.game_modes as Modes
-import othello.config as configuration
 import othello.logger as log
 
 
@@ -39,7 +41,7 @@ def main():
 
     logger.debug("Start of a Othello game.")
     logger.debug("Debug mode is enabled.")
-    logger.debug(f"Game mode: {mode}")
+    logger.debug("Game mode: %s", mode)
 
     current_config = parser.default_config.copy()
     current_config.update(config)
@@ -81,9 +83,16 @@ def main():
 
         case parser.GameMode.AI.value:
             print("Starting AI Mode...")
-            Modes.AIMode(config["filename"], config["size"], "black",
-                         config["ai_depth"], config["ai_mode"], config["ai_heuristic"]).play()
-
+            if config["gui"]:
+                size = BoardSize.from_value(config["size"])
+                board = OthelloBoard(size)
+                # Create a GUI with AI capabilities
+                gui = OthelloGUI(board, ai_player="black", ai_depth=config["ai_depth"],
+                                 ai_mode=config["ai_mode"], ai_heuristic=config["ai_heuristic"])
+                gui.run()
+            else:
+                Modes.AIMode(config["filename"], config["size"], "black", config["ai_depth"],
+                             config["ai_mode"], config["ai_heuristic"]).play()
         case _:
             print("Unknown game mode. Exiting.")
             sys.exit(1)

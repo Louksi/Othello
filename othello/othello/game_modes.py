@@ -1,4 +1,6 @@
 """Game Modes for Othello """
+# pylint: disable=locally-disabled, multiple-statements, line-too-long, import-error, no-name-in-module
+
 import logging
 import sys
 import othello.logger as log
@@ -593,7 +595,7 @@ class AIMode(NormalGame):
             self.display_possible_moves(possible_moves)
             print(
                 f"Current player: {self.current_player}, AI color: {self.ai_color}")
-            if self.current_player == self.ai_color:
+            if self.current_player == self.ai_color and not possible_moves.empty:
                 print("AI is making a move...")
                 ai_move = self.get_ai_move(possible_moves)
                 if not self.process_move(ai_move[0], ai_move[1], possible_moves):
@@ -663,8 +665,8 @@ class AIMode(NormalGame):
                                 parser.print_help()
 
                 except CommandParserException as e:
-                    log.log_error_message(
-                        e, context=f"Failed to parse command: {command_str}.")
-                    print(f"Error: {e}")
+                    # log.log_error_message(
+                    #    e, context=f"Failed to parse command: {command_str}.")
+
                     print("Invalid command. Please try again.")
                     continue

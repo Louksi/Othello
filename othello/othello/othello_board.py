@@ -1,6 +1,7 @@
 """
 Everything related to the actual board of Othello.
 """
+# pylint: disable=locally-disabled, multiple-statements, line-too-long, import-error, no-name-in-module
 
 from __future__ import annotations
 from copy import copy

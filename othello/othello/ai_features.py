@@ -1,3 +1,5 @@
+# pylint: disable=locally-disabled, multiple-statements, line-too-long, import-error, no-name-in-module
+
 from othello.othello_board import OthelloBoard, Color
 from copy import deepcopy
 

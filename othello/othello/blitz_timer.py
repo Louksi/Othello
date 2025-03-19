@@ -2,6 +2,7 @@
 Implementation of the blitz timer that's used to give both players
 a maximum time for all their plays (individually).
 """
+# pylint: disable=locally-disabled, multiple-statements, line-too-long, import-error, no-name-in-module
 
 from time import time
 import logging

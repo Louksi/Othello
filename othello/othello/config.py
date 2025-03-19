@@ -16,6 +16,7 @@ Configuration Options:
     - ai_heuristic: default/custom
     - ai_time: 5/X (seconds)
 """
+# pylint: disable=locally-disabled, multiple-statements, line-too-long, import-error, no-name-in-module
 
 import sys
 import logging

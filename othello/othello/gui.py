@@ -1,9 +1,11 @@
 """
 Graphic interface to play the Othello game, inherits from __main__.py
 """
-from gi.repository import Gtk, GLib, Adw
+# pylint: disable=locally-disabled, multiple-statements, line-too-long, import-error, no-name-in-module
+
 from othello.othello_board import Color, GameOverException, OthelloBoard
 from othello.blitz_timer import BlitzTimer
+from othello.ai_features import find_best_move
 from gi.repository import Gtk, GLib
 import logging
 import math
@@ -13,7 +15,6 @@ import time
 
 import cairo
 from gi import require_version
-
 require_version('Gtk', '4.0')
 require_version('Adw', '1')
 
@@ -93,7 +94,8 @@ class OthelloGUI(Gtk.Application):
     """
     PLAYS_IN_HISTORY = 15
 
-    def __init__(self, board: OthelloBoard, time_limit: int | None = None):
+    def __init__(self, board: OthelloBoard, time_limit: int | None = None, ai_player=None, ai_depth=None,
+                 ai_mode=None, ai_heuristic=None):
         """
         Initialize the Othello GUI application.
 
@@ -106,6 +108,10 @@ class OthelloGUI(Gtk.Application):
         GLib.set_application_name("othello")
         self.board = board
         self.time_limit = time_limit
+        self.ai_player = ai_player
+        self.ai_depth = ai_depth
+        self.ai_mode = ai_mode
+        self.ai_heuristic = ai_heuristic
         logger.debug("Game initialized with board:\n%s", self.board)
 
     def do_activate(self):
@@ -114,7 +120,8 @@ class OthelloGUI(Gtk.Application):
         Creates and presents the main application window.
         """
         logger.debug("Entering do_activate function from gui.py.")
-        window = OthelloWindow(self, self.board, self.time_limit)
+        window = OthelloWindow(self, self.board, self.time_limit, self.ai_player, self.ai_depth,
+                               self.ai_mode, self.ai_heuristic)
         window.present()
 
 
@@ -124,7 +131,8 @@ class OthelloWindow(Gtk.ApplicationWindow):
     Contains the game board, controls, and displays game state.
     """
 
-    def __init__(self, application, board: OthelloBoard, time_limit: int | None = None):
+    def __init__(self, application, board: OthelloBoard, time_limit: int | None = None, ai_player: str | None = None, ai_depth: int | None = None,
+                 ai_mode: str | None = None, ai_heuristic: str | None = None):
         """
         Initialize the Othello game window.
 
@@ -144,6 +152,11 @@ class OthelloWindow(Gtk.ApplicationWindow):
         self.blitz_timer = None
         self.is_blitz = False
         self.time_limit = None
+        self.ai_player = ai_player
+        self.ai_depth = ai_depth
+        self.ai_mode = ai_mode
+        self.ai_heuristic = ai_heuristic
+        self.is_ai_mode = ai_player is not None
         self.grid_size = 0
         self.cell_size = 0
         self.drawing_area = None
