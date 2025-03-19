@@ -600,7 +600,7 @@ class AIMode(NormalGame):
                 ai_move = self.get_ai_move(possible_moves)
                 if not self.process_move(ai_move[0], ai_move[1], possible_moves):
                     continue
-
+                print("Move played: %s", ai_move)
                 self.switch_player()
             else:
                 command_str = input("Enter your move or command: ").strip()
