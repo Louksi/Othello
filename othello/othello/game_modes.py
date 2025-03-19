@@ -595,7 +595,7 @@ class AIMode(NormalGame):
             self.display_possible_moves(possible_moves)
             print(
                 f"Current player: {self.current_player}, AI color: {self.ai_color}")
-            if self.current_player == self.ai_color and not possible_moves.empty:
+            if self.current_player == self.ai_color:
                 print("AI is making a move...")
                 ai_move = self.get_ai_move(possible_moves)
                 if not self.process_move(ai_move[0], ai_move[1], possible_moves):
