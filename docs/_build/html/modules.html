@@ -1,0 +1,368 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>othello &mdash; othello 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=d45e8c67"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="othello package" href="othello.html" />
+    <link rel="prev" title="othello documentation" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            othello
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">othello</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="othello.html">othello package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.html">tests package</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">othello</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">othello</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/modules.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="othello">
+<h1>othello<a class="headerlink" href="#othello" title="Link to this heading"></a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="othello.html">othello package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="othello.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="othello.html#module-othello.ai_features">othello.ai_features module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.ai_features.alphabeta"><code class="docutils literal notranslate"><span class="pre">alphabeta()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.ai_features.coin_parity_heuristic"><code class="docutils literal notranslate"><span class="pre">coin_parity_heuristic()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.ai_features.corners_captured_heuristic"><code class="docutils literal notranslate"><span class="pre">corners_captured_heuristic()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.ai_features.find_best_move"><code class="docutils literal notranslate"><span class="pre">find_best_move()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.ai_features.minimax"><code class="docutils literal notranslate"><span class="pre">minimax()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="othello.html#module-othello.bitboard">othello.bitboard module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.bitboard.Bitboard"><code class="docutils literal notranslate"><span class="pre">Bitboard</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.bitboard.Bitboard.empty"><code class="docutils literal notranslate"><span class="pre">Bitboard.empty()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.bitboard.Bitboard.get"><code class="docutils literal notranslate"><span class="pre">Bitboard.get()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.bitboard.Bitboard.hot_bits_coordinates"><code class="docutils literal notranslate"><span class="pre">Bitboard.hot_bits_coordinates()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.bitboard.Bitboard.popcount"><code class="docutils literal notranslate"><span class="pre">Bitboard.popcount()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.bitboard.Bitboard.set"><code class="docutils literal notranslate"><span class="pre">Bitboard.set()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.bitboard.Bitboard.shift"><code class="docutils literal notranslate"><span class="pre">Bitboard.shift()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.bitboard.Direction"><code class="docutils literal notranslate"><span class="pre">Direction</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.bitboard.Direction.EAST"><code class="docutils literal notranslate"><span class="pre">Direction.EAST</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.bitboard.Direction.NORTH"><code class="docutils literal notranslate"><span class="pre">Direction.NORTH</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.bitboard.Direction.NORTH_EAST"><code class="docutils literal notranslate"><span class="pre">Direction.NORTH_EAST</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.bitboard.Direction.NORTH_WEST"><code class="docutils literal notranslate"><span class="pre">Direction.NORTH_WEST</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.bitboard.Direction.SOUTH"><code class="docutils literal notranslate"><span class="pre">Direction.SOUTH</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.bitboard.Direction.SOUTH_EAST"><code class="docutils literal notranslate"><span class="pre">Direction.SOUTH_EAST</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.bitboard.Direction.SOUTH_WEST"><code class="docutils literal notranslate"><span class="pre">Direction.SOUTH_WEST</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.bitboard.Direction.WEST"><code class="docutils literal notranslate"><span class="pre">Direction.WEST</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="othello.html#module-othello.blitz_timer">othello.blitz_timer module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.blitz_timer.BlitzTimer"><code class="docutils literal notranslate"><span class="pre">BlitzTimer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.blitz_timer.BlitzTimer.change_player"><code class="docutils literal notranslate"><span class="pre">BlitzTimer.change_player()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.blitz_timer.BlitzTimer.display_time"><code class="docutils literal notranslate"><span class="pre">BlitzTimer.display_time()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.blitz_timer.BlitzTimer.display_time_player"><code class="docutils literal notranslate"><span class="pre">BlitzTimer.display_time_player()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.blitz_timer.BlitzTimer.get_remaining_time"><code class="docutils literal notranslate"><span class="pre">BlitzTimer.get_remaining_time()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.blitz_timer.BlitzTimer.is_time_up"><code class="docutils literal notranslate"><span class="pre">BlitzTimer.is_time_up()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.blitz_timer.BlitzTimer.pause_timer"><code class="docutils literal notranslate"><span class="pre">BlitzTimer.pause_timer()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.blitz_timer.BlitzTimer.start_timer"><code class="docutils literal notranslate"><span class="pre">BlitzTimer.start_timer()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.blitz_timer.BlitzTimer.time_player"><code class="docutils literal notranslate"><span class="pre">BlitzTimer.time_player()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="othello.html#module-othello.board_parser">othello.board_parser module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.board_parser.BoardParser"><code class="docutils literal notranslate"><span class="pre">BoardParser</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.board_parser.BoardParser.get_current_line"><code class="docutils literal notranslate"><span class="pre">BoardParser.get_current_line()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.board_parser.BoardParser.parse"><code class="docutils literal notranslate"><span class="pre">BoardParser.parse()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.board_parser.BoardParserException"><code class="docutils literal notranslate"><span class="pre">BoardParserException</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="othello.html#module-othello.command_parser">othello.command_parser module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.command_parser.CommandKind"><code class="docutils literal notranslate"><span class="pre">CommandKind</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.command_parser.CommandKind.FORFEIT"><code class="docutils literal notranslate"><span class="pre">CommandKind.FORFEIT</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.command_parser.CommandKind.HELP"><code class="docutils literal notranslate"><span class="pre">CommandKind.HELP</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.command_parser.CommandKind.PLAY_MOVE"><code class="docutils literal notranslate"><span class="pre">CommandKind.PLAY_MOVE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.command_parser.CommandKind.QUIT"><code class="docutils literal notranslate"><span class="pre">CommandKind.QUIT</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.command_parser.CommandKind.RESTART"><code class="docutils literal notranslate"><span class="pre">CommandKind.RESTART</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.command_parser.CommandKind.RULES"><code class="docutils literal notranslate"><span class="pre">CommandKind.RULES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.command_parser.CommandKind.SAVE_AND_QUIT"><code class="docutils literal notranslate"><span class="pre">CommandKind.SAVE_AND_QUIT</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.command_parser.CommandKind.SAVE_HISTORY"><code class="docutils literal notranslate"><span class="pre">CommandKind.SAVE_HISTORY</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.command_parser.CommandParser"><code class="docutils literal notranslate"><span class="pre">CommandParser</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.command_parser.CommandParser.parse_str"><code class="docutils literal notranslate"><span class="pre">CommandParser.parse_str()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.command_parser.CommandParser.print_help"><code class="docutils literal notranslate"><span class="pre">CommandParser.print_help()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.command_parser.CommandParser.print_rules"><code class="docutils literal notranslate"><span class="pre">CommandParser.print_rules()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.command_parser.CommandParserException"><code class="docutils literal notranslate"><span class="pre">CommandParserException</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.command_parser.PlayCommand"><code class="docutils literal notranslate"><span class="pre">PlayCommand</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.command_parser.PlayCommand.x_coord"><code class="docutils literal notranslate"><span class="pre">PlayCommand.x_coord</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.command_parser.PlayCommand.y_coord"><code class="docutils literal notranslate"><span class="pre">PlayCommand.y_coord</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="othello.html#module-othello.config">othello.config module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.config.display_config"><code class="docutils literal notranslate"><span class="pre">display_config()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.config.load_config"><code class="docutils literal notranslate"><span class="pre">load_config()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.config.save_board_state_history"><code class="docutils literal notranslate"><span class="pre">save_board_state_history()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.config.save_config"><code class="docutils literal notranslate"><span class="pre">save_config()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="othello.html#module-othello.game_modes">othello.game_modes module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.game_modes.AIMode"><code class="docutils literal notranslate"><span class="pre">AIMode</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.game_modes.AIMode.get_ai_move"><code class="docutils literal notranslate"><span class="pre">AIMode.get_ai_move()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.game_modes.AIMode.play"><code class="docutils literal notranslate"><span class="pre">AIMode.play()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.game_modes.BlitzGame"><code class="docutils literal notranslate"><span class="pre">BlitzGame</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.game_modes.BlitzGame.check_game_over"><code class="docutils literal notranslate"><span class="pre">BlitzGame.check_game_over()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.game_modes.BlitzGame.display_time"><code class="docutils literal notranslate"><span class="pre">BlitzGame.display_time()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.game_modes.BlitzGame.play"><code class="docutils literal notranslate"><span class="pre">BlitzGame.play()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.game_modes.BlitzGame.switch_player"><code class="docutils literal notranslate"><span class="pre">BlitzGame.switch_player()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.game_modes.NormalGame"><code class="docutils literal notranslate"><span class="pre">NormalGame</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.game_modes.NormalGame.check_game_over"><code class="docutils literal notranslate"><span class="pre">NormalGame.check_game_over()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.game_modes.NormalGame.display_board"><code class="docutils literal notranslate"><span class="pre">NormalGame.display_board()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.game_modes.NormalGame.display_possible_moves"><code class="docutils literal notranslate"><span class="pre">NormalGame.display_possible_moves()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.game_modes.NormalGame.get_player_move"><code class="docutils literal notranslate"><span class="pre">NormalGame.get_player_move()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.game_modes.NormalGame.get_possible_moves"><code class="docutils literal notranslate"><span class="pre">NormalGame.get_possible_moves()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.game_modes.NormalGame.play"><code class="docutils literal notranslate"><span class="pre">NormalGame.play()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.game_modes.NormalGame.process_move"><code class="docutils literal notranslate"><span class="pre">NormalGame.process_move()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.game_modes.NormalGame.switch_player"><code class="docutils literal notranslate"><span class="pre">NormalGame.switch_player()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="othello.html#module-othello.gui">othello.gui module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.gui.ListBoxWithLength"><code class="docutils literal notranslate"><span class="pre">ListBoxWithLength</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.gui.ListBoxWithLength.append"><code class="docutils literal notranslate"><span class="pre">ListBoxWithLength.append()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.gui.ListBoxWithLength.prepend"><code class="docutils literal notranslate"><span class="pre">ListBoxWithLength.prepend()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.gui.ListBoxWithLength.remove"><code class="docutils literal notranslate"><span class="pre">ListBoxWithLength.remove()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.gui.OthelloGUI"><code class="docutils literal notranslate"><span class="pre">OthelloGUI</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.gui.OthelloGUI.PLAYS_IN_HISTORY"><code class="docutils literal notranslate"><span class="pre">OthelloGUI.PLAYS_IN_HISTORY</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.gui.OthelloGUI.do_activate"><code class="docutils literal notranslate"><span class="pre">OthelloGUI.do_activate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.gui.OthelloWindow"><code class="docutils literal notranslate"><span class="pre">OthelloWindow</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.gui.OthelloWindow.board_click"><code class="docutils literal notranslate"><span class="pre">OthelloWindow.board_click()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.gui.OthelloWindow.connect_signals"><code class="docutils literal notranslate"><span class="pre">OthelloWindow.connect_signals()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.gui.OthelloWindow.create_layout"><code class="docutils literal notranslate"><span class="pre">OthelloWindow.create_layout()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.gui.OthelloWindow.draw"><code class="docutils literal notranslate"><span class="pre">OthelloWindow.draw()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.gui.OthelloWindow.draw_board"><code class="docutils literal notranslate"><span class="pre">OthelloWindow.draw_board()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.gui.OthelloWindow.draw_grid"><code class="docutils literal notranslate"><span class="pre">OthelloWindow.draw_grid()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.gui.OthelloWindow.draw_legal_moves"><code class="docutils literal notranslate"><span class="pre">OthelloWindow.draw_legal_moves()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.gui.OthelloWindow.draw_pieces"><code class="docutils literal notranslate"><span class="pre">OthelloWindow.draw_pieces()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.gui.OthelloWindow.file_chooser"><code class="docutils literal notranslate"><span class="pre">OthelloWindow.file_chooser()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.gui.OthelloWindow.forfeit_handler"><code class="docutils literal notranslate"><span class="pre">OthelloWindow.forfeit_handler()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.gui.OthelloWindow.forfeit_handler_callback"><code class="docutils literal notranslate"><span class="pre">OthelloWindow.forfeit_handler_callback()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.gui.OthelloWindow.initialize_ui_components"><code class="docutils literal notranslate"><span class="pre">OthelloWindow.initialize_ui_components()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.gui.OthelloWindow.on_save_dialog_response"><code class="docutils literal notranslate"><span class="pre">OthelloWindow.on_save_dialog_response()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.gui.OthelloWindow.on_save_history_dialog_response"><code class="docutils literal notranslate"><span class="pre">OthelloWindow.on_save_history_dialog_response()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.gui.OthelloWindow.restart_handler"><code class="docutils literal notranslate"><span class="pre">OthelloWindow.restart_handler()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.gui.OthelloWindow.restart_handler_callback"><code class="docutils literal notranslate"><span class="pre">OthelloWindow.restart_handler_callback()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.gui.OthelloWindow.save_and_quit_handler"><code class="docutils literal notranslate"><span class="pre">OthelloWindow.save_and_quit_handler()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.gui.OthelloWindow.save_game_to_file"><code class="docutils literal notranslate"><span class="pre">OthelloWindow.save_game_to_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.gui.OthelloWindow.save_history_handler"><code class="docutils literal notranslate"><span class="pre">OthelloWindow.save_history_handler()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.gui.OthelloWindow.save_history_to_file"><code class="docutils literal notranslate"><span class="pre">OthelloWindow.save_history_to_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.gui.OthelloWindow.show_confirm_dialog"><code class="docutils literal notranslate"><span class="pre">OthelloWindow.show_confirm_dialog()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.gui.OthelloWindow.show_error_dialog"><code class="docutils literal notranslate"><span class="pre">OthelloWindow.show_error_dialog()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.gui.OthelloWindow.update_game_state"><code class="docutils literal notranslate"><span class="pre">OthelloWindow.update_game_state()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.gui.OthelloWindow.update_nb_pieces"><code class="docutils literal notranslate"><span class="pre">OthelloWindow.update_nb_pieces()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.gui.OthelloWindow.update_play_history"><code class="docutils literal notranslate"><span class="pre">OthelloWindow.update_play_history()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.gui.OthelloWindow.update_timers"><code class="docutils literal notranslate"><span class="pre">OthelloWindow.update_timers()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.gui.OthelloWindow.update_timers_thread"><code class="docutils literal notranslate"><span class="pre">OthelloWindow.update_timers_thread()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="othello.html#module-othello.logger">othello.logger module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.logger.log_error_message"><code class="docutils literal notranslate"><span class="pre">log_error_message()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.logger.logging_config"><code class="docutils literal notranslate"><span class="pre">logging_config()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="othello.html#module-othello.othello_board">othello.othello_board module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.othello_board.BoardSize"><code class="docutils literal notranslate"><span class="pre">BoardSize</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.othello_board.BoardSize.EIGHT_BY_EIGHT"><code class="docutils literal notranslate"><span class="pre">BoardSize.EIGHT_BY_EIGHT</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.othello_board.BoardSize.SIX_BY_SIX"><code class="docutils literal notranslate"><span class="pre">BoardSize.SIX_BY_SIX</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.othello_board.BoardSize.TEN_BY_TEN"><code class="docutils literal notranslate"><span class="pre">BoardSize.TEN_BY_TEN</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.othello_board.BoardSize.TWELVE_BY_TWELVE"><code class="docutils literal notranslate"><span class="pre">BoardSize.TWELVE_BY_TWELVE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.othello_board.BoardSize.from_value"><code class="docutils literal notranslate"><span class="pre">BoardSize.from_value()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.othello_board.CannotPopException"><code class="docutils literal notranslate"><span class="pre">CannotPopException</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.othello_board.Color"><code class="docutils literal notranslate"><span class="pre">Color</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.othello_board.Color.BLACK"><code class="docutils literal notranslate"><span class="pre">Color.BLACK</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.othello_board.Color.EMPTY"><code class="docutils literal notranslate"><span class="pre">Color.EMPTY</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.othello_board.Color.POSSIBLE"><code class="docutils literal notranslate"><span class="pre">Color.POSSIBLE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.othello_board.Color.WHITE"><code class="docutils literal notranslate"><span class="pre">Color.WHITE</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.othello_board.GameOverException"><code class="docutils literal notranslate"><span class="pre">GameOverException</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.othello_board.IllegalBoardSizeException"><code class="docutils literal notranslate"><span class="pre">IllegalBoardSizeException</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.othello_board.IllegalMoveException"><code class="docutils literal notranslate"><span class="pre">IllegalMoveException</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.othello_board.OthelloBoard"><code class="docutils literal notranslate"><span class="pre">OthelloBoard</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.othello_board.OthelloBoard.export"><code class="docutils literal notranslate"><span class="pre">OthelloBoard.export()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.othello_board.OthelloBoard.export_board"><code class="docutils literal notranslate"><span class="pre">OthelloBoard.export_board()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.othello_board.OthelloBoard.export_history"><code class="docutils literal notranslate"><span class="pre">OthelloBoard.export_history()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.othello_board.OthelloBoard.force_game_over"><code class="docutils literal notranslate"><span class="pre">OthelloBoard.force_game_over()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.othello_board.OthelloBoard.get_history"><code class="docutils literal notranslate"><span class="pre">OthelloBoard.get_history()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.othello_board.OthelloBoard.get_last_play"><code class="docutils literal notranslate"><span class="pre">OthelloBoard.get_last_play()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.othello_board.OthelloBoard.get_turn_id"><code class="docutils literal notranslate"><span class="pre">OthelloBoard.get_turn_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.othello_board.OthelloBoard.is_game_over"><code class="docutils literal notranslate"><span class="pre">OthelloBoard.is_game_over()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.othello_board.OthelloBoard.line_cap"><code class="docutils literal notranslate"><span class="pre">OthelloBoard.line_cap()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.othello_board.OthelloBoard.line_cap_move"><code class="docutils literal notranslate"><span class="pre">OthelloBoard.line_cap_move()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.othello_board.OthelloBoard.move_to_str"><code class="docutils literal notranslate"><span class="pre">OthelloBoard.move_to_str()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.othello_board.OthelloBoard.play"><code class="docutils literal notranslate"><span class="pre">OthelloBoard.play()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.othello_board.OthelloBoard.pop"><code class="docutils literal notranslate"><span class="pre">OthelloBoard.pop()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.othello_board.OthelloBoard.restart"><code class="docutils literal notranslate"><span class="pre">OthelloBoard.restart()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="othello.html#module-othello.parser">othello.parser module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.parser.AIColor"><code class="docutils literal notranslate"><span class="pre">AIColor</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.parser.AIColor.ALL"><code class="docutils literal notranslate"><span class="pre">AIColor.ALL</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.parser.AIColor.BLACK"><code class="docutils literal notranslate"><span class="pre">AIColor.BLACK</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.parser.AIColor.WHITE"><code class="docutils literal notranslate"><span class="pre">AIColor.WHITE</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.parser.AIHeuristic"><code class="docutils literal notranslate"><span class="pre">AIHeuristic</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.parser.AIHeuristic.DEFAULT"><code class="docutils literal notranslate"><span class="pre">AIHeuristic.DEFAULT</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.parser.AIHeuristic.OTHER"><code class="docutils literal notranslate"><span class="pre">AIHeuristic.OTHER</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.parser.AIMode"><code class="docutils literal notranslate"><span class="pre">AIMode</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.parser.AIMode.ALPHABETA"><code class="docutils literal notranslate"><span class="pre">AIMode.ALPHABETA</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.parser.AIMode.MINIMAX"><code class="docutils literal notranslate"><span class="pre">AIMode.MINIMAX</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.parser.GameMode"><code class="docutils literal notranslate"><span class="pre">GameMode</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.parser.GameMode.AI"><code class="docutils literal notranslate"><span class="pre">GameMode.AI</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.parser.GameMode.BLITZ"><code class="docutils literal notranslate"><span class="pre">GameMode.BLITZ</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.parser.GameMode.CONTEST"><code class="docutils literal notranslate"><span class="pre">GameMode.CONTEST</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="othello.html#othello.parser.GameMode.NORMAL"><code class="docutils literal notranslate"><span class="pre">GameMode.NORMAL</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.parser.create_parser"><code class="docutils literal notranslate"><span class="pre">create_parser()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.parser.parse_args"><code class="docutils literal notranslate"><span class="pre">parse_args()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="othello.html#othello.parser.parse_error"><code class="docutils literal notranslate"><span class="pre">parse_error()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="othello.html#module-othello">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tests.html">tests package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tests.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.html#tests-test-ai-features-module">tests.test_ai_features module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.html#tests-test-bitboard-module">tests.test_bitboard module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.html#tests-test-blitz-mode-module">tests.test_blitz_mode module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.html#tests-test-blitz-timer-module">tests.test_blitz_timer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.html#tests-test-board-parser-module">tests.test_board_parser module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.html#tests-test-command-parser-module">tests.test_command_parser module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.html#tests-test-config-module">tests.test_config module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.html#tests-test-logger-module">tests.test_logger module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.html#tests-test-normal-mode-module">tests.test_normal_mode module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.html#tests-test-othello-board-module">tests.test_othello_board module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.html#tests-test-parser-module">tests.test_parser module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.html#module-contents">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="othello documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="othello.html" class="btn btn-neutral float-right" title="othello package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Matis Duval, Rémy Heuret, Lucas Marques, Gabriel Tardiou, Lucas Zammit.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
