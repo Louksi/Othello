@@ -1,5 +1,6 @@
-from othello.command_parser import CommandKind, CommandParser, CommandParserException, PlayCommand
 import pytest
+
+from othello.command_parser import CommandKind, CommandParser, CommandParserException, PlayCommand
 
 
 def test_help():

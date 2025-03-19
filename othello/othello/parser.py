@@ -2,10 +2,13 @@
 Program arguments parsing
 """
 # pylint: disable=locally-disabled, multiple-statements, line-too-long, import-error, no-name-in-module
-import argparse
+
 import sys
 from typing import Tuple
 from enum import Enum
+from typing import Any
+import argparse
+
 import othello
 from othello.othello_board import Color
 
@@ -178,7 +181,7 @@ def create_parser() -> argparse.ArgumentParser:
 
 # PARSING
 
-def parse_args() -> Tuple[GameMode, dict]:
+def parse_args() -> tuple[str, dict[str, Any]]:
     """
     Parse the arguments and checks for errors.
 

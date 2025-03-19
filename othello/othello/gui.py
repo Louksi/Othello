@@ -3,18 +3,19 @@ Graphic interface to play the Othello game, inherits from __main__.py
 """
 # pylint: disable=locally-disabled, multiple-statements, line-too-long, import-error, no-name-in-module
 
-from othello.othello_board import Color, GameOverException, OthelloBoard
-from othello.blitz_timer import BlitzTimer
 from othello.ai_features import find_best_move
+from othello.blitz_timer import BlitzTimer
+from othello.othello_board import Color, GameOverException, OthelloBoard
 from gi.repository import Gtk, GLib
 import logging
 import math
 import sys
 import threading
 import time
-
 import cairo
+
 from gi import require_version
+
 require_version('Gtk', '4.0')
 require_version('Adw', '1')
 
@@ -104,7 +105,7 @@ class OthelloGUI(Gtk.Application):
         """
         logger.debug(
             "Graphic User Interface is in use. Entering GUI initialization function from gui.py.")
-        super().__init__(application_id="othello")
+        super().__init__(application_id="fr.ubx.othello")
         GLib.set_application_name("othello")
         self.board = board
         self.time_limit = time_limit
@@ -362,7 +363,7 @@ class OthelloWindow(Gtk.ApplicationWindow):
         :param _area: The drawing area widget
         :param cr: Cairo context for drawing
         :param width: Width of the drawing area
-        :param height: Height of the drawing area  
+        :param height: Height of the drawing area
         """
         self.draw_board(cr)
         self.draw_grid(cr)
@@ -452,7 +453,7 @@ class OthelloWindow(Gtk.ApplicationWindow):
         Handle clicks on the game board.
 
         :param _gesture: The gesture object (unused)
-        :param _n_press: Number of presses (unused) 
+        :param _n_press: Number of presses (unused)
         :param click_x: X coordinate of the click
         :param click_y: Y coordinate of the click
         """

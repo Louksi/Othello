@@ -1,11 +1,12 @@
+import pytest
+
 from othello.board_parser import BoardParser, BoardParserException
 from othello.othello_board import BoardSize, OthelloBoard, Color
-import pytest
 
 
 def test_starting_board():
     board_raw = """
-    
+
 #comment
 X
 _ _ _ _ _ _ _ _
@@ -50,7 +51,7 @@ O# ---
 _ _ _ _ _ _ # other comment
 _ _ _ _ _ _
 _ _ O X _ _
-_ _ X X O 
+_ _ X X O
 _ O _ X X _
 _ _ _ _ _ _
 """
@@ -74,7 +75,7 @@ _ O _ X X _
 
 def test_illegal_color():
     board_raw = """
-    
+
 #comment
 _ _ _ _ _ _ _ _
 _ _ _ _ _ _ _ _ # other comment
@@ -89,7 +90,7 @@ _ _ _ _ _ _ _ _"""
         b.parse()
 
     board_raw = """
-    
+
 #comment
 K
 _ _ _ _ _ _ _ _
@@ -254,7 +255,7 @@ def test_empty_board():
         b.parse()
 
     board_raw = """
-    
+
     """
     b = BoardParser(board_raw)
     with pytest.raises(BoardParserException):

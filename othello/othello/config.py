@@ -20,6 +20,7 @@ Configuration Options:
 
 import sys
 import logging
+
 from othello.othello_board import OthelloBoard
 import othello.logger as log
 

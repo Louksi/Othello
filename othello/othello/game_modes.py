@@ -3,17 +3,16 @@
 
 import logging
 import sys
+
+import othello.parser as parser
 import othello.logger as log
 from othello.command_parser import CommandParser, CommandKind, CommandParserException
-from othello.blitz_timer import BlitzTimer
-from othello.othello_board import BoardSize, OthelloBoard, Color
 from othello.board_parser import BoardParser
-import othello.parser as parser
-from othello.config import save_board_state_history
-from othello.ai_features import find_best_move
-
-
 from othello.parser import DEFAULT_BLITZ_TIME
+from othello.config import save_board_state_history
+from othello.othello_board import BoardSize, OthelloBoard, Color
+from othello.blitz_timer import BlitzTimer
+from othello.ai_features import find_best_move
 
 
 logger = logging.getLogger("Othello")

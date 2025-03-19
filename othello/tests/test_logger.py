@@ -1,7 +1,7 @@
 import logging
 import pytest
-import os
 from unittest.mock import patch, MagicMock
+
 from othello.logger import logging_config, log_error_message
 
 
