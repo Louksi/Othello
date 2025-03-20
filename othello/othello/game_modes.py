@@ -16,7 +16,6 @@ from othello.ai_features import find_best_move
 from othello.player_abstraction import PlayerAbstraction, RandomPlayerAbstraction
 
 
-
 logger = logging.getLogger("Othello")
 
 
@@ -42,14 +41,15 @@ class NormalGame:
         if filename is None:
             if isinstance(board_size, int):
                 board_size = BoardSize(board_size)
-                self.board = RandomPlayerAbstraction(OthelloBoard(board_size), Color.BLACK)
+                self.board = RandomPlayerAbstraction(
+                    OthelloBoard(board_size), Color.BLACK)
                 self.board_size = board_size
-                #self.board.get_current_player() = Color.BLACK
+                # self.board.get_current_player() = Color.BLACK
 
             else:
                 self.board = OthelloBoard(board_size)
                 self.board_size = board_size.value
-                #self.board.get_current_player() = Color.BLACK
+                # self.board.get_current_player() = Color.BLACK
         else:
             logger.debug("Loading game from file: %s.", filename)
             try:
@@ -57,7 +57,7 @@ class NormalGame:
                     file_content = file.read()
 
                 parsed_board = BoardParser(file_content).parse()
-                #self.board.get_current_player() = parsed_board.current_player
+                # self.board.get_current_player() = parsed_board.current_player
                 self.board = parsed_board
                 self.board_size = parsed_board.size
             except Exception as err:
@@ -81,7 +81,8 @@ class NormalGame:
         """
         logger.debug("Entering display_board function from game_modes.py.")
         print(str(self.board))
-        print(f"\n{self.board.get_current_player().name}'s turn ({self.board.get_current_player().value})")
+        print(
+            f"\n{self.board.get_current_player().name}'s turn ({self.board.get_current_player().value})")
 
     def get_possible_moves(self):
         """
@@ -254,6 +255,7 @@ class NormalGame:
         self.display_board()
         possible_moves = self.get_possible_moves()
         self.display_possible_moves(possible_moves)
+
         def cb():
             self.display_board()
             possible_moves = self.get_possible_moves()
@@ -281,7 +283,7 @@ class NormalGame:
                     if not self.process_move(x_coord, y_coord, self.board.get_possible_moves()):
                         continue  # Invalid move, prompt player again
 
-                    ##self.switch_player()
+                    # self.switch_player()
 
                 else:
                     match command_kind:
@@ -302,8 +304,9 @@ class NormalGame:
                         case CommandKind.FORFEIT:
                             logger.debug(
                                 "   %s executed %s command.", self.board.get_current_player().name, command_kind)
-                            print(f"{self.board.get_current_player().name} forfeited.")
-                            #self.switch_player()
+                            print(
+                                f"{self.board.get_current_player().name} forfeited.")
+                            # self.switch_player()
                             logger.debug(
                                 "   Game Over, %s wins! Exiting.", self.board.get_current_player().name)
                             print(
@@ -476,7 +479,7 @@ class BlitzGame(NormalGame):
                     if not self.process_move(x_coord, y_coord, possible_moves):
                         continue
 
-                    #self.switch_player()
+                    # self.switch_player()
 
                 else:
                     kind = command_result[0]
@@ -498,8 +501,9 @@ class BlitzGame(NormalGame):
                         case CommandKind.FORFEIT:
                             logger.debug(
                                 "   %s executed %s command.", self.board.get_current_player().name, command_result[0])
-                            print(f"{self.board.get_current_player().name} forfeited.")
-                            #self.switch_player()
+                            print(
+                                f"{self.board.get_current_player().name} forfeited.")
+                            # self.switch_player()
                             logger.debug(
                                 "   Game Over, %s wins! Exiting.", self.board.get_current_player().name)
                             print(
@@ -611,7 +615,7 @@ class AIMode(NormalGame):
                 if not self.process_move(ai_move[0], ai_move[1], possible_moves):
                     continue
 
-                #self.switch_player()
+                # self.switch_player()
             else:
                 command_str = input("Enter your move or command: ").strip()
                 logger.debug(f"   Player input: '{command_str}'.")
@@ -628,7 +632,7 @@ class AIMode(NormalGame):
                         if not self.process_move(x_coord, y_coord, possible_moves):
                             continue
 
-                        #self.switch_player()
+                        # self.switch_player()
 
                     else:
                         kind = command_result[0]
@@ -650,8 +654,9 @@ class AIMode(NormalGame):
                             case CommandKind.FORFEIT:
                                 logger.debug(
                                     f"   {self.board.get_current_player().name} executed {command_result[0]} command.")
-                                print(f"{self.board.get_current_player().name} forfeited.")
-                                #self.switch_player()
+                                print(
+                                    f"{self.board.get_current_player().name} forfeited.")
+                                # self.switch_player()
                                 logger.debug(
                                     f"   Game Over, {self.board.get_current_player().name} wins! Exiting.")
                                 print(

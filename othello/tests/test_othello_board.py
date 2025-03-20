@@ -284,7 +284,6 @@ def test_game_over_exception_when_board_full():
     assert board.is_game_over()
 
 
-
 def test_illegal_move_occupied_cell():
     board = OthelloBoard(BoardSize.EIGHT_BY_EIGHT)
     board.play(5, 4)

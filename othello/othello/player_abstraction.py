@@ -2,6 +2,7 @@ from random import choice
 
 from othello.othello_board import BoardSize, Color, OthelloBoard
 
+
 class PlayerAbstraction():
     def __init__(self, board: OthelloBoard):
         self._board = board
@@ -32,6 +33,7 @@ class PlayerAbstraction():
 
     def __str__(self):
         return str(self._board)
+
 
 class RandomPlayerAbstraction(PlayerAbstraction):
     def __init__(self, board: OthelloBoard, random_player_color: Color):
