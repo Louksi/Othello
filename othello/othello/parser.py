@@ -1,14 +1,19 @@
 """
 Program arguments parsing
 """
-import argparse
+# pylint: disable=locally-disabled, multiple-statements, line-too-long, import-error, no-name-in-module
+
 import sys
 from typing import Tuple
 from enum import Enum
-import othello
+from typing import Any
+import argparse
 
+import othello
+from othello.othello_board import Color
 
 # VARIABLES
+
 
 class GameMode(Enum):
     """
@@ -57,7 +62,7 @@ default_config = {
     "size": 8,
     "debug": False,
     "blitz_time": DEFAULT_BLITZ_TIME,
-    "ai_color": "X",
+    "ai_color": Color.BLACK,
     "ai_mode": "minimax",
     "ai_shallow": False,
     "ai_depth": 3,
@@ -176,7 +181,7 @@ def create_parser() -> argparse.ArgumentParser:
 
 # PARSING
 
-def parse_args() -> Tuple[GameMode, dict]:
+def parse_args() -> tuple[str, dict[str, Any]]:
     """
     Parse the arguments and checks for errors.
 
@@ -250,7 +255,7 @@ def parse_args() -> Tuple[GameMode, dict]:
         "size": args.size,
         "debug": args.debug,
         "blitz_time": DEFAULT_BLITZ_TIME,
-        "ai_color": VALID_AICOLORS[0],
+        "ai_color": Color.BLACK,
         "ai_mode": VALID_AIMODES[0],
         "ai_shallow": False,
         "ai_depth": DEFAULT_AI_DEPTH,

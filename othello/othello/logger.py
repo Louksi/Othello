@@ -2,6 +2,8 @@
 Logger used for debug mode.
 Uses logging to display debug messages and error messages.
 """
+# pylint: disable=locally-disabled, multiple-statements, line-too-long, import-error, no-name-in-module
+
 import logging
 
 

@@ -1,75 +1,191 @@
+"""
+Graphic interface to play the Othello game, inherits from __main__.py
+"""
+# pylint: disable=locally-disabled, multiple-statements, line-too-long, import-error, no-name-in-module
+
+from othello.ai_features import find_best_move
 from othello.blitz_timer import BlitzTimer
 from othello.othello_board import Color, GameOverException, OthelloBoard
-import othello.logger as log
-from gi.repository import Gtk, GLib, Adw
-import time
-import threading
-import cairo
-import gi
-import math
+from gi.repository import Gtk, GLib
 import logging
-gi.require_version("Gtk", "4.0")
-gi.require_version("Adw", "1")
+import math
+import sys
+import threading
+import time
+import cairo
+
+from gi import require_version
+
+require_version('Gtk', '4.0')
+require_version('Adw', '1')
+
 
 logger = logging.getLogger("Othello")
 
 
 class ListBoxWithLength(Gtk.ListBox):
+    """
+    A subclass of Gtk.ListBox that tracks its own length (number of children).
+    This makes it easier to limit the history display to a fixed number of entries.
+    """
+
     def __init__(self):
+        """
+        Initializes a ListBoxWithLength object.
+
+        A ListBoxWithLength is a subclass of a Gtk.ListBox that has an additional
+        `length` attribute, which is the number of children currently in the list
+        box. This attribute is updated whenever items are added or removed from the
+        list box.
+
+        :return: A new ListBoxWithLength instance.
+        :rtype: ListBoxWithLength
+        """
         super().__init__()
         self.length = 0
 
-    def prepend(self, child: Gtk.Widget) -> None:
-        super().prepend(child)
+    def prepend(self, child: Gtk.Widget, *args, **kwargs) -> None:
+        """
+        Prepends a child widget to the list box and increments the length attribute.
+
+        :param child: The widget to prepend to the list box.
+        :type child: Gtk.Widget
+        :param args: Additional positional arguments.
+        :param kwargs: Additional keyword arguments.
+        """
+        super().prepend(child, *args, **kwargs)
         self.length += 1
 
-    def append(self, child: Gtk.Widget) -> None:
-        super().append(child)
+    def append(self, child: Gtk.Widget, *args, **kwargs) -> None:
+        """
+        Appends a child widget to the list box and increments the length attribute.
+
+        :param child: The widget to append to the list box.
+        :type child: Gtk.Widget
+        :param args: Additional positional arguments.
+        :param kwargs: Additional keyword arguments.
+        """
+        super().append(child, *args, **kwargs)
         self.length += 1
 
     def remove(self, child: Gtk.Widget) -> None:
+        """
+        Removes a child widget from the list box and decrements the length attribute.
+
+        :param child: The widget to remove from the list box.
+        :type child: Gtk.Widget
+        """
         super().remove(child)
         self.length -= 1
 
     def __len__(self) -> int:
+        """
+        Returns the number of children currently in the list box.
+
+        :return: The length of the list box.
+        :rtype: int
+        """
         return self.length
 
 
 class OthelloGUI(Gtk.Application):
+    """
+    Main application class for the Othello GUI.
+    Handles the application lifecycle and creates the main window.
+    """
     PLAYS_IN_HISTORY = 15
 
-    def __init__(self, board: OthelloBoard, time_limit: int | None = None):
+    def __init__(self, board: OthelloBoard, time_limit: int | None = None, ai_player=None, ai_depth=None,
+                 ai_mode=None, ai_heuristic=None):
+        """
+        Initialize the Othello GUI application.
+
+        :param board: The Othello game board
+        :param time_limit: Optional time limit for blitz mode
+        """
         logger.debug(
             "Graphic User Interface is in use. Entering GUI initialization function from gui.py.")
-        super().__init__(application_id="othello")
+        super().__init__(application_id="fr.ubx.othello")
         GLib.set_application_name("othello")
         self.board = board
         self.time_limit = time_limit
-        logger.debug(f"   Game initialized with board:\n{self.board}.")
+        self.ai_player = ai_player
+        self.ai_depth = ai_depth
+        self.ai_mode = ai_mode
+        self.ai_heuristic = ai_heuristic
+        logger.debug("Game initialized with board:\n%s", self.board)
 
     def do_activate(self):
+        """
+        Called when the application is activated.
+        Creates and presents the main application window.
+        """
         logger.debug("Entering do_activate function from gui.py.")
-        window = OthelloWindow(self, self.board, self.time_limit)
+        window = OthelloWindow(self, self.board, self.time_limit, self.ai_player, self.ai_depth,
+                               self.ai_mode, self.ai_heuristic)
         window.present()
 
 
 class OthelloWindow(Gtk.ApplicationWindow):
-    def __init__(self, application, board: OthelloBoard, time_limit: int | None = None):
+    """
+    Main window for the Othello game.
+    Contains the game board, controls, and displays game state.
+    """
+
+    def __init__(self, application, board: OthelloBoard, time_limit: int | None = None, ai_player: str | None = None, ai_depth: int | None = None,
+                 ai_mode: str | None = None, ai_heuristic: str | None = None):
+        """
+        Initialize the Othello game window.
+
+        :param application: The parent application
+        :param board: The Othello game board
+        :param time_limit: Optional time limit for blitz mode
+        """
         logger.debug(
             "Entering initialization function for game window from gui.py.")
         super().__init__(application=application, title="Othello")
         self.set_default_size(800, 600)
         self.over = False
         self.over_message = None
-        self.__init(board, time_limit)
-        self.blitz_thread = None
 
-    def __init(self, board, time_limit):
-        logger.debug(
-            "Entering initialization function for game window from gui.py.")
+        # Initialize attributes to avoid "attribute defined outside __init__" warnings
+        self.board = None
+        self.blitz_timer = None
+        self.is_blitz = False
+        self.time_limit = None
+        self.ai_player = ai_player
+        self.ai_depth = ai_depth
+        self.ai_mode = ai_mode
+        self.ai_heuristic = ai_heuristic
+        self.is_ai_mode = ai_player is not None
+        self.grid_size = 0
+        self.cell_size = 0
+        self.drawing_area = None
+        self.black_timer_label = None
+        self.white_timer_label = None
+        self.blitz_thread = None
+        self.blitz_loser = None
+        self.plays_list = None
+        self.black_nb_pieces = None
+        self.white_nb_pieces = None
+        self.forfeit_button = None
+        self.save_quit_button = None
+        self.restart_button = None
+        self.save_history_button = None
+
+        # Continue with initialization
+        self.__init_game(board, time_limit)
+
+    def __init_game(self, board, time_limit):
+        """
+        Initialize the game components and UI.
+
+        :param board: The Othello game board
+        :param time_limit: Optional time limit for blitz mode
+        """
+        logger.debug("Initializing game components and UI")
         self.board = board
-        self.board.attach_hist_callback(self.update_play_history)
-        self.blitz_timer: None | BlitzTimer = None
+        self.blitz_timer = None
         self.is_blitz = time_limit is not None
         if self.is_blitz:
             self.blitz_timer = BlitzTimer(time_limit)
@@ -86,6 +202,9 @@ class OthelloWindow(Gtk.ApplicationWindow):
         self.board.ready()
 
     def initialize_ui_components(self):
+        """
+        Initialize UI components like buttons, labels, and the drawing area.
+        """
         self.drawing_area = Gtk.DrawingArea()
         self.drawing_area.set_draw_func(self.draw)
         self.drawing_area.set_content_width(self.grid_size * self.cell_size)
@@ -108,6 +227,9 @@ class OthelloWindow(Gtk.ApplicationWindow):
         self.save_history_button = Gtk.Button(label="save history")
 
     def connect_signals(self):
+        """
+        Connect UI elements to their event handlers.
+        """
         click_gesture = Gtk.GestureClick.new()
         click_gesture.connect("pressed", self.board_click)
         self.drawing_area.add_controller(click_gesture)
@@ -117,6 +239,9 @@ class OthelloWindow(Gtk.ApplicationWindow):
         self.save_history_button.connect("clicked", self.save_history_handler)
 
     def create_layout(self):
+        """
+        Create and arrange the UI layout.
+        """
         main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         main_box.set_halign(Gtk.Align.CENTER)
         main_box.set_valign(Gtk.Align.CENTER)
@@ -172,28 +297,38 @@ class OthelloWindow(Gtk.ApplicationWindow):
 
         last_moves_box = Gtk.Box(
             orientation=Gtk.Orientation.VERTICAL, spacing=5)
-        # last_moves_box.append(self.black_last_move)
-        # last_moves_box.append(self.white_last_move)
         main_grid.attach(last_moves_box, 1, 3, 1, 1)
 
     # Game state management methods
     def update_game_state(self):
+        """
+        Update the game state after a move or game state change.
+        Handles end-of-game conditions.
+        """
         if self.over:
             self.show_error_dialog(self.over_message)
         self.drawing_area.queue_draw()
         self.update_nb_pieces()
 
     def update_nb_pieces(self):
+        """
+        Update the piece count labels.
+        """
         self.black_nb_pieces.set_label(
             f"Black has {self.board.black.popcount()} pieces")
         self.white_nb_pieces.set_label(
             f"White has {self.board.white.popcount()} pieces")
 
     def update_timers_thread(self):
+        """
+        Background thread to update timer displays and check for time-outs.
+        """
         if self.blitz_timer is not None:
             while not self.over:
                 GLib.idle_add(self.update_timers)
-                if self.blitz_timer.is_time_up("black" if self.board.current_player is Color.BLACK else "white"):
+                current_player = "black" if self.board.current_player is Color.BLACK else "white"
+
+                if self.blitz_timer.is_time_up(current_player):
                     self.blitz_loser = self.board.current_player
                     GLib.idle_add(self.update_game_state)
                     self.over = True
@@ -201,13 +336,21 @@ class OthelloWindow(Gtk.ApplicationWindow):
                 time.sleep(1)
 
     def update_timers(self):
+        """
+        Update the timer display labels.
+        """
         self.black_timer_label.set_text(
             f"Black: {self.blitz_timer.display_time_player(Color.BLACK)}")
         self.white_timer_label.set_text(
             f"White: {self.blitz_timer.display_time_player(Color.WHITE)}")
 
-    def update_play_history(self):
-        last_play = self.board.get_last_play()
+    def update_play_history(self, x: int, y: int):
+        """
+        Update the play history list with the latest move.
+
+        :param x: Column coordinate of the move
+        :param y: Row coordinate of the move
+        """
         new_move = Gtk.Label(
             label=f"{last_play[4]} placed a piece at {chr(ord('A') + last_play[2])}{last_play[3] + 1}")
         self.plays_list.prepend(new_move)
@@ -215,20 +358,38 @@ class OthelloWindow(Gtk.ApplicationWindow):
             self.plays_list.remove(self.plays_list.get_last_child())
 
     def draw(self, _area: Gtk.DrawingArea, cr: cairo.Context, width: int, height: int):
+        """
+        Master drawing function called by the DrawingArea.
+
+        :param _area: The drawing area widget
+        :param cr: Cairo context for drawing
+        :param width: Width of the drawing area
+        :param height: Height of the drawing area
+        """
         self.draw_board(cr)
         self.draw_grid(cr)
         self.draw_pieces(cr)
         self.draw_legal_moves(cr)
 
     def draw_board(self, cr: cairo.Context):
-        BOARD_COLOR = (0.2, 0.6, 0.2)
-        cr.set_source_rgb(*BOARD_COLOR)
+        """
+        Draws the green board background.
+
+        :param cr: Cairo context for drawing
+        """
+        board_color = (0.2, 0.6, 0.2)
+        cr.set_source_rgb(*board_color)
         cr.paint()
 
     def draw_grid(self, cr: cairo.Context):
-        GRID_COLOR = (0.1, 0.4, 0.1)
+        """
+        Draws the grid lines on the board.
+
+        :param cr: Cairo context for drawing
+        """
+        grid_color = (0.1, 0.4, 0.1)
         cr.set_line_width(1)
-        cr.set_source_rgb(*GRID_COLOR)
+        cr.set_source_rgb(*grid_color)
 
         for x in range(self.grid_size + 1):
             cr.move_to(x * self.cell_size, 0)
@@ -241,11 +402,16 @@ class OthelloWindow(Gtk.ApplicationWindow):
         cr.stroke()
 
     def draw_legal_moves(self, cr: cairo.Context):
-        BLACK_PIECE_COLOR = (0, 0, 0, .3)
-        WHITE_PIECE_COLOR = (1, 1, 1, .3)
+        """
+        Draws semi-transparent indicators for legal moves.
+
+        :param cr: Cairo context for drawing
+        """
+        black_piece_color = (0, 0, 0, .3)
+        white_piece_color = (1, 1, 1, .3)
         legal_moves = self.board.line_cap_move(self.board.current_player)
 
-        color = BLACK_PIECE_COLOR if self.board.current_player == Color.BLACK else WHITE_PIECE_COLOR
+        color = black_piece_color if self.board.current_player == Color.BLACK else white_piece_color
         cr.set_source_rgba(*color)
 
         for x in range(self.grid_size):
@@ -258,8 +424,13 @@ class OthelloWindow(Gtk.ApplicationWindow):
                     cr.fill()
 
     def draw_pieces(self, cr: cairo.Context):
-        BLACK_PIECE_COLOR = (0, 0, 0)
-        WHITE_PIECE_COLOR = (1, 1, 1)
+        """
+        Draws all game pieces (black and white) on the board.
+
+        :param cr: Cairo context for drawing
+        """
+        black_piece_color = (0, 0, 0)
+        white_piece_color = (1, 1, 1)
 
         for x in range(self.grid_size):
             for y in range(self.grid_size):
@@ -271,14 +442,22 @@ class OthelloWindow(Gtk.ApplicationWindow):
                 radius = self.cell_size // 2 - 2
 
                 if self.board.black.get(x, y):
-                    cr.set_source_rgb(*BLACK_PIECE_COLOR)
+                    cr.set_source_rgb(*black_piece_color)
                 else:
-                    cr.set_source_rgb(*WHITE_PIECE_COLOR)
+                    cr.set_source_rgb(*white_piece_color)
 
-                cr.arc(center_x, center_y, radius, 0, 2 * 3.14159)
+                cr.arc(center_x, center_y, radius, 0, 2 * math.pi)
                 cr.fill()
 
     def board_click(self, _gesture, _n_press, click_x: float, click_y: float):
+        """
+        Handle clicks on the game board.
+
+        :param _gesture: The gesture object (unused)
+        :param _n_press: Number of presses (unused)
+        :param click_x: X coordinate of the click
+        :param click_y: Y coordinate of the click
+        """
         if self.over:
             return
         board_x = int(click_x / self.cell_size)
@@ -287,38 +466,66 @@ class OthelloWindow(Gtk.ApplicationWindow):
             try:
                 self.board.play(board_x, board_y)
                 if self.blitz_timer is not None:
-                    self.blitz_timer.change_player(
-                        "black" if self.board.current_player is Color.BLACK else "white")
+                    current_player = "black" if self.board.current_player is Color.BLACK else "white"
+                    self.blitz_timer.change_player(current_player)
             except GameOverException as err:
-                self.over_message = err
+                self.over_message = str(err)
                 self.over = True
             self.update_game_state()
 
     def forfeit_handler(self, _button: Gtk.Button):
+        """
+        Handle forfeit button click.
+
+        :param _button: The button widget (unused)
+        """
         self.show_confirm_dialog(
-            "are you sure ? this will close the program and your progression will be lost!", self.forfeit_handler_callback)
+            "Are you sure? This will close the program and your"
+            " progression will be lost!", self.forfeit_handler_callback)
 
     def forfeit_handler_callback(self, response):
-        if response == -5:
-            exit(0)  # todo: maybe be a little more subtle
+        """
+        Handle forfeit confirmation response.
+
+        :param response: Dialog response value
+        """
+        if response == -5:  # OK button
+            sys.exit(0)
 
     def restart_handler(self, _button: Gtk.Button):
+        """
+        Handle restart button click.
+
+        :param _button: The button widget (unused)
+        """
         self.show_confirm_dialog(
-            "Are you sure you want to restart the game ?", self.restart_handler_callback)
+            "Are you sure you want to restart the game?", self.restart_handler_callback)
 
     def restart_handler_callback(self, confirmation):
-        if confirmation == -5:
+        """
+        Handle restart confirmation response.
+
+        :param confirmation: Dialog response value
+        """
+        if confirmation == -5:  # OK button
             self.over = True
-            if self.blitz_thread is not None:
-                self.blitz_thread.join()
+            if hasattr(self, 'blitz_thread') and self.blitz_thread is not None:
+                self.blitz_thread.join(timeout=1.0)
             self.board.restart()
             for _ in range(len(self.plays_list)):
                 self.plays_list.remove(self.plays_list.get_last_child())
             self.update_nb_pieces()
             self.over = False
-            self.__init(self.board, self.time_limit)
+            self.__init_game(self.board, self.time_limit)
 
     def file_chooser(self, callback, default_file_name: str, file_extension: str):
+        """
+        Show a file chooser dialog.
+
+        :param callback: Function to call with the dialog result
+        :param default_file_name: Default file name suggestion
+        :param file_extension: File extension to filter by
+        """
         dialog = Gtk.FileChooserDialog(
             title="Save Game",
             parent=self,
@@ -340,9 +547,20 @@ class OthelloWindow(Gtk.ApplicationWindow):
         dialog.present()
 
     def save_and_quit_handler(self, _button: Gtk.Button):
-        self.file_chooser(self.on_save_dialog_response, "my_game", ".sav")
+        """
+        Handle save and quit button click.
+
+        :param _button: The button widget (unused)
+        """
+        self.file_chooser(self.on_save_dialog_response, "my_game", "sav")
 
     def on_save_dialog_response(self, dialog, response):
+        """
+        Handle save dialog response.
+
+        :param dialog: The dialog widget
+        :param response: Dialog response value
+        """
         if response == Gtk.ResponseType.ACCEPT:
             file_path = dialog.get_file().get_path()
             self.save_game_to_file(file_path)
@@ -350,31 +568,66 @@ class OthelloWindow(Gtk.ApplicationWindow):
         dialog.destroy()
 
     def save_game_to_file(self, file_path):
+        """
+        Save the current game state to a file.
+
+        :param file_path: Path to save the game
+        """
         try:
-            with open(file_path, "w") as file:
+            with open(file_path, "w", encoding="utf-8") as file:
                 game_data = self.board.export()
                 file.write(game_data)
-            print(f"Game saved to {file_path}")
-        except Exception as e:
+            logger.info("Game saved to %s", file_path)
+        except IOError as e:
             self.show_error_dialog(f"Failed to save game: {str(e)}")
+        except Exception as e:
+            self.show_error_dialog(f"Unexpected error: {str(e)}")
 
     def save_history_handler(self, _button: Gtk.Button):
-        self.file_chooser(self.save_history_handler_callback,
-                          "my_hist", ".hist")
+        """
+        Handle save history button click.
+        """
+        self.file_chooser(
+            self.on_save_history_dialog_response, "my_hist", "hist")
 
-    def save_history_handler_callback(self, file_path):
+    def on_save_history_dialog_response(self, dialog, response):
+        """
+        Handle save history dialog response.
+
+        :param dialog: The dialog widget
+        :param response: Dialog response value
+        """
+        if response == Gtk.ResponseType.ACCEPT:
+            file_path = dialog.get_file().get_path()
+            self.save_history_to_file(file_path)
+        dialog.destroy()
+
+    def save_history_to_file(self, file_path):
+        """
+        Save the game history to a file.
+
+        :param file_path: Path to save the game history
+        """
         try:
-            with open(file_path, "w") as file:
+            with open(file_path, "w", encoding="utf-8") as file:
                 game_data = self.board.export_history()
                 file.write(game_data)
-            print(f"Game saved to {file_path}")
-        except Exception as e:
+            logger.info("Game history saved to %s", file_path)
+        except IOError as e:
             self.show_error_dialog(f"Failed to save game history: {str(e)}")
+        except Exception as e:
+            self.show_error_dialog(f"Unexpected error: {str(e)}")
 
-    def show_confirm_dialog(self, message, cb):
-        def call_cb(d, r):
-            d.destroy()
-            cb(r)
+    def show_confirm_dialog(self, message, callback):
+        """
+        Show a confirmation dialog.
+
+        :param message: The message to display
+        :param callback: Function to call with the dialog result
+        """
+        def call_cb(dialog, response):
+            dialog.destroy()
+            callback(response)
 
         dialog = Gtk.MessageDialog(
             transient_for=self,
@@ -387,12 +640,18 @@ class OthelloWindow(Gtk.ApplicationWindow):
         dialog.present()
 
     def show_error_dialog(self, message):
+        """
+        Display an error dialog with a given message.
+
+        :param message: The error message to display in the dialog
+        """
+
         dialog = Gtk.MessageDialog(
             transient_for=self,
             modal=True,
             message_type=Gtk.MessageType.ERROR,
             buttons=Gtk.ButtonsType.OK,
-            text=message
+            text=str(message)
         )
         dialog.connect("response", lambda d, _: d.destroy())
         dialog.present()

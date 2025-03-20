@@ -2,6 +2,7 @@ import pytest
 import os
 import sys
 from io import StringIO
+
 from othello.config import save_config, load_config, display_config
 
 

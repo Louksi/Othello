@@ -3,7 +3,7 @@ Testing the agnostic bitboard implementation
 """
 import pytest
 import random
-from copy import copy
+
 from othello.bitboard import Bitboard, Direction
 
 

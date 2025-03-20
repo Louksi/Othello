@@ -1,9 +1,8 @@
 from copy import copy
-from othello import othello_board
-from othello.bitboard import Bitboard
-from othello.board_parser import BoardParser
-from othello.othello_board import BoardSize, CannotPopException, Color, OthelloBoard, GameOverException, IllegalMoveException
 import pytest
+
+from othello.bitboard import Bitboard
+from othello.othello_board import BoardSize, CannotPopException, Color, OthelloBoard, GameOverException, IllegalMoveException
 
 
 def test_init_six():
@@ -347,14 +346,14 @@ def test__str__():
     The given position is the standard starting position of the game, with the black pions at D4 and E5, and the white pions at D5 and E4.
     The expected string representation of the board is the following:
     a b c d e f g h
-    0                
-    1                
-    2                
-    3      O X       
-    4      X O       
-    5                
-    6                
-    7                
+    0
+    1
+    2
+    3      O X
+    4      X O
+    5
+    6
+    7
     """
     b = OthelloBoard(BoardSize.EIGHT_BY_EIGHT)
     starting_board = """  a b c d e f g h

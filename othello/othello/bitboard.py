@@ -2,8 +2,9 @@
 Internals of an othello bitboard, to store the presence or absence of elements on the board
     using single numbers
 """
-from __future__ import annotations  # used for self-referencing classes...
+# pylint: disable=locally-disabled, multiple-statements, line-too-long, import-error, no-name-in-module
 
+from __future__ import annotations  # used for self-referencing classes...
 
 from enum import Enum, auto
 from copy import copy
@@ -361,9 +362,35 @@ class Bitboard:
         return Bitboard(self.size, ~rez.bits)
 
     def __eq__(self, other):
+        """
+        Compare two Bitboard instances for equality.
+
+        This method checks whether the given object `other` is an instance of Bitboard
+        and compares its `size` and `bits` attributes with those of the current instance.
+        If they are the same, it returns True, indicating the bitboards are equal.
+        Otherwise, it returns False.
+
+        :param other: The object to compare with the current Bitboard.
+        :type other: Bitboard
+        :return: True if the `other` is a Bitboard and both size and bits are equal,
+                False otherwise.
+        :rtype: bool
+        """
+
         if isinstance(other, Bitboard):
             return other.size == self.size and other.bits == self.bits
         return False
+
+    def __hash__(self):
+        """
+        Returns a hash value for this bitboard. Two bitboards with the same size
+        and the same bits will have the same hash value. This is useful for
+        placing bitboards in sets or using them as keys in dictionaries.
+
+        :return: A hash value for this bitboard.
+        :rtype int
+        """
+        return hash((self.size, self.bits))
 
     def __str__(self) -> str:
         """

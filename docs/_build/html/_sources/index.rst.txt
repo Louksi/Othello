@@ -1,9 +1,9 @@
-.. Othello documentation master file, created by
-   sphinx-quickstart on Fri Feb 14 08:46:59 2025.
+.. othello documentation master file, created by
+   sphinx-quickstart on Wed Mar 19 18:10:41 2025.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Othello documentation
+othello documentation
 =====================
 
 Add your content using ``reStructuredText`` syntax. See the
@@ -12,10 +12,12 @@ documentation for details.
 
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :caption: Contents:
 
    modules
+
+
 
 Indices and tables
 ==================

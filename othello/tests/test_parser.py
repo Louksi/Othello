@@ -1,5 +1,6 @@
 import pytest
 import sys
+
 from othello.parser import GameMode, AIColor, AIMode, AIHeuristic, parse_args, default_config
 
 
