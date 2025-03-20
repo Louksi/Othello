@@ -524,7 +524,9 @@ class AIMode(NormalGame):
     A class representing a game mode where a player faces an AI opponent.
     '''
 
-    def __init__(self, filename=None, board_size=BoardSize.EIGHT_BY_EIGHT, ai_color: Color = Color.BLACK, depth=3, algorithm="minimax", heuristic="coin_parity"):
+    def __init__(self, filename=None, board_size: BoardSize = BoardSize.EIGHT_BY_EIGHT,
+                 ai_color: Color = Color.BLACK, depth: int = 3,
+                 algorithm: str = "minimax", heuristic: str = "coin_parity"):
         """
         Initialize the AI mode with a specified AI color, depth, algorithm, and heuristic.
 
