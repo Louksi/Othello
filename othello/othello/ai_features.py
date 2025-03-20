@@ -1,7 +1,9 @@
 # pylint: disable=locally-disabled, multiple-statements, line-too-long, import-error, no-name-in-module
 
-from othello.othello_board import OthelloBoard, Color
+import random
 from copy import deepcopy
+
+from othello.othello_board import OthelloBoard, Color
 
 
 def minimax(board: OthelloBoard, depth: int, max_player: Color, maximizing: bool, heuristic) -> int:
@@ -167,6 +169,22 @@ def find_best_move(board: OthelloBoard, depth: int = 3, max_player: Color = Colo
             best_move = (move_x, move_y)
 
     return best_move
+
+
+def random_move(board: OthelloBoard) -> tuple[int, int]:
+    """
+    Selects a random valid move from the current board state.
+
+    :param board: The current state of the Othello board.
+    :type board: OthelloBoard
+    :returns: The coordinates of a random valid move.
+    :rtype: tuple[int, int]
+    """
+
+    valid_moves = board.line_cap_move(
+        board.current_player).hot_bits_coordinates()
+
+    return random.choice(valid_moves)
 
 
 def corners_captured_heuristic(board: OthelloBoard, max_player: Color) -> int:
