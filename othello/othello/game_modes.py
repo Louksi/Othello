@@ -11,7 +11,7 @@ from othello.board_parser import BoardParser
 from othello.parser import AIColor
 import othello.parser as parser
 from othello.config import save_board_state_history
-from othello.ai_features import find_best_move
+from othello.ai_features import find_best_move, random_move
 
 
 from othello.parser import DEFAULT_BLITZ_TIME
@@ -709,10 +709,12 @@ class AIMode(NormalGame):
                     continue
                 self.display_ai_move(ai_move)
                 self.switch_player()
-            elif self.random_player:
+
+            else:
                 print("Random player is making a move...")
-                # ai_move = self.get_random_move(possible_moves)
-                if not self.process_move(ai_move[0], ai_move[1], possible_moves):
+                # Pass the board instead of possible_moves
+                random_mv = random_move(self.board)
+                if not self.process_move(random_mv[0], random_mv[1], possible_moves):
                     continue
-                self.display_ai_move(ai_move)
+                self.display_ai_move(random_mv)
                 self.switch_player()
