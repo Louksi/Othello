@@ -91,8 +91,8 @@ def main():
                                  ai_mode=config["ai_mode"], ai_heuristic=config["ai_heuristic"])
                 gui.run()
             else:
-                Modes.AIMode(config["filename"], config["size"], "black", config["ai_depth"],
-                             config["ai_mode"], config["ai_heuristic"]).play()
+                Modes.AIMode(config["filename"], config["size"], config["ai_color"], config["ai_depth"],
+                             config["ai_mode"], config["ai_heuristic"], random_player=True).play()
         case _:
             print("Unknown game mode. Exiting.")
             sys.exit(1)
