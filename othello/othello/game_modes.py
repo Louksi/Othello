@@ -13,6 +13,8 @@ from othello.config import save_board_state_history
 from othello.othello_board import BoardSize, OthelloBoard, Color
 from othello.blitz_timer import BlitzTimer
 from othello.ai_features import find_best_move
+from othello.player_abstraction import PlayerAbstraction, RandomPlayerAbstraction
+
 
 
 logger = logging.getLogger("Othello")
@@ -40,14 +42,14 @@ class NormalGame:
         if filename is None:
             if isinstance(board_size, int):
                 board_size = BoardSize(board_size)
-                self.board = OthelloBoard(board_size)
+                self.board = RandomPlayerAbstraction(OthelloBoard(board_size), Color.BLACK)
                 self.board_size = board_size
-                self.current_player = Color.BLACK
+                #self.board.get_current_player() = Color.BLACK
 
             else:
                 self.board = OthelloBoard(board_size)
                 self.board_size = board_size.value
-                self.current_player = Color.BLACK
+                #self.board.get_current_player() = Color.BLACK
         else:
             logger.debug("Loading game from file: %s.", filename)
             try:
@@ -55,7 +57,7 @@ class NormalGame:
                     file_content = file.read()
 
                 parsed_board = BoardParser(file_content).parse()
-                self.current_player = parsed_board.current_player
+                #self.board.get_current_player() = parsed_board.current_player
                 self.board = parsed_board
                 self.board_size = parsed_board.size
             except Exception as err:
@@ -67,7 +69,7 @@ class NormalGame:
         self.no_white_move = False
         logger.debug(
             " NormalGame initialized with board_size: %s, current_player: %s.",
-            self.board_size, self.current_player)
+            self.board_size, self.board.get_current_player())
 
     def display_board(self):
         """
@@ -79,7 +81,7 @@ class NormalGame:
         """
         logger.debug("Entering display_board function from game_modes.py.")
         print(str(self.board))
-        print(f"\n{self.current_player.name}'s turn ({self.current_player.value})")
+        print(f"\n{self.board.get_current_player().name}'s turn ({self.board.get_current_player().value})")
 
     def get_possible_moves(self):
         """
@@ -93,7 +95,7 @@ class NormalGame:
         """
         logger.debug(
             "Entering get_possible_moves function from game_modes.py.")
-        return self.board.line_cap_move(self.current_player)
+        return self.board.line_cap_move(self.board.get_current_player())
 
     def check_game_over(self, possible_moves):
         """
@@ -108,16 +110,19 @@ class NormalGame:
         :return: True if the game is over, False otherwise.
         :rtype: bool
         """
+
+        return self.board.is_game_over
+
         logger.debug("Entering check_game_over function from game_modes.py.")
         if possible_moves.bits == 0:
-            if self.current_player == Color.BLACK:
+            if self.board.get_current_player() == Color.BLACK:
                 self.no_black_move = True
                 logger.debug(
-                    "   No moves available for %s player.", self.current_player)
-            if self.current_player == Color.WHITE:
+                    "   No moves available for %s player.", self.board.get_current_player())
+            if self.board.get_current_player() == Color.WHITE:
                 self.no_white_move = True
                 logger.debug(
-                    "   No moves available for %s player.", self.current_player)
+                    "   No moves available for %s player.", self.board.get_current_player())
 
             if self.no_black_move and self.no_white_move:
                 logger.debug("   No valid moves for both players. Game over.")
@@ -125,9 +130,9 @@ class NormalGame:
                 return True
 
             logger.debug(
-                "   No valid moves for %s. Skipping turn.", self.current_player)
+                "   No valid moves for %s. Skipping turn.", self.board.get_current_player())
             print(
-                "No valid moves for %s. Skipping turn.", self.current_player.name)
+                "No valid moves for %s. Skipping turn.", self.board.get_current_player().name)
             return False
 
         total_moves = self.board.black.popcount() + self.board.white.popcount()
@@ -217,17 +222,17 @@ class NormalGame:
         self.board.play(x_coord, y_coord)
         return True
 
-    def switch_player(self):
-        """
-        Switches the current player.
+    # def switch_player(self):
+    #     """
+    #     Switches the current player.
 
-        This function toggles the current player between black and white.
-        It does not return any value.
-        """
-        logger.debug("Entering switch_player function from game_modes.py.")
-        self.current_player = (
-            Color.WHITE if self.current_player == Color.BLACK else Color.BLACK
-        )
+    #     This function toggles the current player between black and white.
+    #     It does not return any value.
+    #     """
+    #     logger.debug("Entering switch_player function from game_modes.py.")
+    #     self.board.get_current_player() = (
+    #         Color.WHITE if self.board.get_current_player() == Color.BLACK else Color.BLACK
+    #     )
 
     def play(self):
         """
@@ -246,15 +251,21 @@ class NormalGame:
         logger.debug("Entering play function from game_modes.py.")
         parser = CommandParser(board_size=self.board.size.value)
 
-        while True:
+        self.display_board()
+        possible_moves = self.get_possible_moves()
+        self.display_possible_moves(possible_moves)
+        def cb():
             self.display_board()
             possible_moves = self.get_possible_moves()
+            self.display_possible_moves(possible_moves)
+        self.board.post_play_callback = cb
+        self.board.ready()
 
-            if self.check_game_over(possible_moves):
+        while True:
+            if self.board.is_game_over():
                 # If game over, restart the loop (display final board state)
                 continue
 
-            self.display_possible_moves(possible_moves)
             command_str = input("Enter your move or command: ").strip()
             logger.debug("   Player input: '%s'.", command_str)
 
@@ -267,10 +278,10 @@ class NormalGame:
                     logger.debug(
                         "   Play move command at (%s, %s).", x_coord, y_coord)
 
-                    if not self.process_move(x_coord, y_coord, possible_moves):
+                    if not self.process_move(x_coord, y_coord, self.board.get_possible_moves()):
                         continue  # Invalid move, prompt player again
 
-                    self.switch_player()
+                    ##self.switch_player()
 
                 else:
                     match command_kind:
@@ -290,13 +301,13 @@ class NormalGame:
                             sys.exit(0)
                         case CommandKind.FORFEIT:
                             logger.debug(
-                                "   %s executed %s command.", self.current_player.name, command_kind)
-                            print(f"{self.current_player.name} forfeited.")
-                            self.switch_player()
+                                "   %s executed %s command.", self.board.get_current_player().name, command_kind)
+                            print(f"{self.board.get_current_player().name} forfeited.")
+                            #self.switch_player()
                             logger.debug(
-                                "   Game Over, %s wins! Exiting.", self.current_player.name)
+                                "   Game Over, %s wins! Exiting.", self.board.get_current_player().name)
                             print(
-                                f"Game Over, {self.current_player.name} wins!")
+                                f"Game Over, {self.board.get_current_player().name} wins!")
                             sys.exit(0)
                         case CommandKind.RESTART:
                             logger.debug(
@@ -350,7 +361,7 @@ class BlitzGame(NormalGame):
             time if time is not None else DEFAULT_BLITZ_TIME)
         self.blitz_timer.start_timer('black')
         logger.debug(
-            "   BlitzGame initialized, current player: ", self.current_player)
+            "   BlitzGame initialized, current player: ", self.board.get_current_player())
 
     def switch_player(self):
         """
@@ -372,7 +383,7 @@ class BlitzGame(NormalGame):
             sys.exit(0)
 
         super().switch_player()  # Switch player as normal
-        next_player = 'white' if self.current_player == Color.WHITE else 'black'
+        next_player = 'white' if self.board.get_current_player() == Color.WHITE else 'black'
         logger.debug("   Changing timer to player %s.", next_player)
         self.blitz_timer.change_player(next_player)
 
@@ -465,7 +476,7 @@ class BlitzGame(NormalGame):
                     if not self.process_move(x_coord, y_coord, possible_moves):
                         continue
 
-                    self.switch_player()
+                    #self.switch_player()
 
                 else:
                     kind = command_result[0]
@@ -486,13 +497,13 @@ class BlitzGame(NormalGame):
                             sys.exit(0)
                         case CommandKind.FORFEIT:
                             logger.debug(
-                                "   %s executed %s command.", self.current_player.name, command_result[0])
-                            print(f"{self.current_player.name} forfeited.")
-                            self.switch_player()
+                                "   %s executed %s command.", self.board.get_current_player().name, command_result[0])
+                            print(f"{self.board.get_current_player().name} forfeited.")
+                            #self.switch_player()
                             logger.debug(
-                                "   Game Over, %s wins! Exiting.", self.current_player.name)
+                                "   Game Over, %s wins! Exiting.", self.board.get_current_player().name)
                             print(
-                                f"Game Over, {self.current_player.name} wins!")
+                                f"Game Over, {self.board.get_current_player().name} wins!")
                             sys.exit(0)
                         case CommandKind.RESTART:
                             logger.debug(
@@ -593,14 +604,14 @@ class AIMode(NormalGame):
 
             self.display_possible_moves(possible_moves)
             print(
-                f"Current player: {self.current_player}, AI color: {self.ai_color}")
-            if self.current_player == self.ai_color:
+                f"Current player: {self.board.get_current_player()}, AI color: {self.ai_color}")
+            if self.board.get_current_player() == self.ai_color:
                 print("AI is making a move...")
                 ai_move = self.get_ai_move(possible_moves)
                 if not self.process_move(ai_move[0], ai_move[1], possible_moves):
                     continue
 
-                self.switch_player()
+                #self.switch_player()
             else:
                 command_str = input("Enter your move or command: ").strip()
                 logger.debug(f"   Player input: '{command_str}'.")
@@ -617,7 +628,7 @@ class AIMode(NormalGame):
                         if not self.process_move(x_coord, y_coord, possible_moves):
                             continue
 
-                        self.switch_player()
+                        #self.switch_player()
 
                     else:
                         kind = command_result[0]
@@ -638,13 +649,13 @@ class AIMode(NormalGame):
                                 sys.exit(0)
                             case CommandKind.FORFEIT:
                                 logger.debug(
-                                    f"   {self.current_player.name} executed {command_result[0]} command.")
-                                print(f"{self.current_player.name} forfeited.")
-                                self.switch_player()
+                                    f"   {self.board.get_current_player().name} executed {command_result[0]} command.")
+                                print(f"{self.board.get_current_player().name} forfeited.")
+                                #self.switch_player()
                                 logger.debug(
-                                    f"   Game Over, {self.current_player.name} wins! Exiting.")
+                                    f"   Game Over, {self.board.get_current_player().name} wins! Exiting.")
                                 print(
-                                    f"Game Over, {self.current_player.name} wins!")
+                                    f"Game Over, {self.board.get_current_player().name} wins!")
                                 sys.exit(0)
                             case CommandKind.RESTART:
                                 logger.debug(

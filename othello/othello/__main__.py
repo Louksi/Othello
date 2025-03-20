@@ -10,7 +10,8 @@ import othello.parser as parser
 import othello.game_modes as Modes
 import othello.logger as log
 from othello.gui import OthelloGUI
-from othello.othello_board import BoardSize, OthelloBoard
+from othello.othello_board import BoardSize, OthelloBoard, Color
+from othello.player_abstraction import PlayerAbstraction, RandomPlayerAbstraction
 
 
 def main():
@@ -48,7 +49,7 @@ def main():
 
     # filename_prefix = "config"
 
-    # configuration.save_config(current_config, config["filename"])
+    #configuration.save_config(current_config, config["filename"])
 
     # loaded_config = configuration.load_config(config["filename"])
     print("Config loaded:", config)

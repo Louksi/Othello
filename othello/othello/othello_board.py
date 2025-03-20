@@ -128,6 +128,7 @@ class OthelloBoard:
         self.mask = self.black.mask
         self.__history: list[tuple[Bitboard, Bitboard, int, int, Color]] = []
         self.forced_game_over = False
+        self.hist_callback = None
 
     def __init_board(self):
         """
