@@ -1,7 +1,5 @@
 """This module contains utilities used for loading an OthelloBoard from a save"""
 
-# pylint: disable=locally-disabled, multiple-statements, line-too-long, import-error, no-name-in-module
-
 import re
 
 from othello.bitboard import Bitboard

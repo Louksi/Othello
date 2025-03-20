@@ -2,7 +2,6 @@
 Internals of an othello bitboard, to store the presence or absence of elements on the board
     using single numbers
 """
-# pylint: disable=locally-disabled, multiple-statements, line-too-long, import-error, no-name-in-module
 
 from __future__ import annotations  # used for self-referencing classes...
 
