@@ -6,11 +6,11 @@ Entry point for the othello executable.
 import sys
 import logging
 
-from othello.gui import OthelloGUI
-from othello.othello_board import BoardSize, OthelloBoard
 import othello.parser as parser
 import othello.game_modes as Modes
 import othello.logger as log
+from othello.gui import OthelloGUI
+from othello.othello_board import BoardSize, OthelloBoard
 
 
 def main():

@@ -1,7 +1,8 @@
 # pylint: disable=locally-disabled, multiple-statements, line-too-long, import-error, no-name-in-module
 
-from othello.othello_board import OthelloBoard, Color
 from copy import deepcopy
+
+from othello.othello_board import OthelloBoard, Color
 
 
 def minimax(board: OthelloBoard, depth: int, max_player: Color, maximizing: bool, heuristic) -> int:

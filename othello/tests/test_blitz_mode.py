@@ -3,8 +3,9 @@ from unittest.mock import MagicMock, patch, call
 import pytest
 import sys
 import time
-from othello.command_parser import CommandKind, CommandParser
+
 import othello.parser as parser
+from othello.command_parser import CommandKind, CommandParser
 from unittest.mock import MagicMock, patch
 from othello.blitz_timer import BlitzTimer
 from othello.game_modes import BlitzGame, NormalGame

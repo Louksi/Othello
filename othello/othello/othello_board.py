@@ -8,7 +8,6 @@ from copy import copy
 from enum import Enum
 from string import ascii_lowercase
 
-
 from othello.bitboard import Bitboard, Direction
 
 
