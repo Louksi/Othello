@@ -250,6 +250,30 @@ def coin_parity_heuristic(board: OthelloBoard, max_player: Color) -> int:
                    (white_count + black_count))
     return Color.EMPTY
 
-# def mobility_heuristic(board: OthelloBoard, max_player: Color) -> int:
 
-#     black_move_count = board.line_cap_move(board.current_player).popcount()
+def mobility_heuristic(board: OthelloBoard, max_player: Color) -> int:
+    """
+    Computes the Mobility heuristic.
+
+    A high score means the max_player has more possible moves, while a low (negative)
+    score means the opponent has more.
+
+    :param board: The Othello board instance.
+    :type board: OthelloBoard
+    :param max_player: The player for whom we calculate the heuristic (BLACK or WHITE).
+    :type max_player: Color
+    :returns: A heuristic value between -100 and 100.
+    :rtype: int
+    """
+    black_move_count = board.line_cap_move(board.black).popcount()
+    white_move_count = board.line_cap_move(board.white).popcount()
+
+    if (black_move_count + white_move_count) != 0:
+        if max_player == Color.BLACK:
+            return int(100 * (black_move_count - white_move_count) /
+                       (black_move_count + white_move_count))
+        if max_player == Color.WHITE:
+            return int(100 * (white_move_count - black_move_count) /
+                       (white_move_count + black_move_count))
+        return Color.EMPTY
+    return 0
