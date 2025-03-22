@@ -16,6 +16,8 @@ import cairo
 
 from gi import require_version
 
+from othello.controllers import GameController
+
 require_version('Gtk', '4.0')
 require_version('Adw', '1')
 
@@ -95,8 +97,7 @@ class OthelloGUI(Gtk.Application):
     """
     PLAYS_IN_HISTORY = 15
 
-    def __init__(self, board: OthelloBoard, time_limit: int | None = None, ai_player=None, ai_depth=None,
-                 ai_mode=None, ai_heuristic=None):
+    def __init__(self, board: GameController):
         """
         Initialize the Othello GUI application.
 
@@ -108,11 +109,6 @@ class OthelloGUI(Gtk.Application):
         super().__init__(application_id="fr.ubx.othello")
         GLib.set_application_name("othello")
         self.board = board
-        self.time_limit = time_limit
-        self.ai_player = ai_player
-        self.ai_depth = ai_depth
-        self.ai_mode = ai_mode
-        self.ai_heuristic = ai_heuristic
         logger.debug("Game initialized with board:\n%s", self.board)
 
     def do_activate(self):
@@ -121,8 +117,7 @@ class OthelloGUI(Gtk.Application):
         Creates and presents the main application window.
         """
         logger.debug("Entering do_activate function from gui.py.")
-        window = OthelloWindow(self, self.board, self.time_limit, self.ai_player, self.ai_depth,
-                               self.ai_mode, self.ai_heuristic)
+        window = OthelloWindow(self, self.board)
         window.present()
 
 
@@ -132,8 +127,7 @@ class OthelloWindow(Gtk.ApplicationWindow):
     Contains the game board, controls, and displays game state.
     """
 
-    def __init__(self, application, board: OthelloBoard, time_limit: int | None = None, ai_player: str | None = None, ai_depth: int | None = None,
-                 ai_mode: str | None = None, ai_heuristic: str | None = None):
+    def __init__(self, application, board: GameController):
         """
         Initialize the Othello game window.
 
@@ -148,35 +142,27 @@ class OthelloWindow(Gtk.ApplicationWindow):
         self.over = False
         self.over_message = None
 
-        # Initialize attributes to avoid "attribute defined outside __init__" warnings
-        self.board = None
-        self.blitz_timer = None
+        self.board: GameController
+        self.blitz_timer: BlitzTimer
         self.is_blitz = False
-        self.time_limit = None
-        self.ai_player = ai_player
-        self.ai_depth = ai_depth
-        self.ai_mode = ai_mode
-        self.ai_heuristic = ai_heuristic
-        self.is_ai_mode = ai_player is not None
         self.grid_size = 0
         self.cell_size = 0
-        self.drawing_area = None
-        self.black_timer_label = None
-        self.white_timer_label = None
+        self.drawing_area: Gtk.DrawingArea
+        self.black_timer_label: Gtk.Label
+        self.white_timer_label: Gtk.Label
         self.blitz_thread = None
         self.blitz_loser = None
-        self.plays_list = None
-        self.black_nb_pieces = None
-        self.white_nb_pieces = None
-        self.forfeit_button = None
-        self.save_quit_button = None
-        self.restart_button = None
-        self.save_history_button = None
+        self.plays_list: ListBoxWithLength
+        self.black_nb_pieces: Gtk.Label
+        self.white_nb_pieces: Gtk.Label
+        self.forfeit_button: Gtk.Button
+        self.save_quit_button: Gtk.Button
+        self.restart_button: Gtk.Button
+        self.save_history_button: Gtk.Button
 
-        # Continue with initialization
-        self.__init_game(board, time_limit)
+        self.__init_game(board)
 
-    def __init_game(self, board, time_limit):
+    def __init_game(self, board):
         """
         Initialize the game components and UI.
 
@@ -185,17 +171,17 @@ class OthelloWindow(Gtk.ApplicationWindow):
         """
         logger.debug("Initializing game components and UI")
         self.board = board
-        self.blitz_timer = None
-        self.is_blitz = time_limit is not None
+        self.is_blitz = self.board.is_blitz
         if self.is_blitz:
-            self.blitz_timer = BlitzTimer(time_limit)
-            self.time_limit = time_limit
+            self.blitz_timer = BlitzTimer(self.board.time_limit)
+            self.time_limit = self.board.time_limit
         self.grid_size = board.size.value
         self.cell_size = 50
 
         self.initialize_ui_components()
         self.create_layout()
         self.connect_signals()
+        self.blitz_timer = None
         if self.blitz_timer is not None:
             self.blitz_timer.start_timer("black")
             self.blitz_loser = None
@@ -299,7 +285,6 @@ class OthelloWindow(Gtk.ApplicationWindow):
             orientation=Gtk.Orientation.VERTICAL, spacing=5)
         main_grid.attach(last_moves_box, 1, 3, 1, 1)
 
-    # Game state management methods
     def update_game_state(self):
         """
         Update the game state after a move or game state change.
@@ -315,9 +300,9 @@ class OthelloWindow(Gtk.ApplicationWindow):
         Update the piece count labels.
         """
         self.black_nb_pieces.set_label(
-            f"Black has {self.board.black.popcount()} pieces")
+            f"Black has {self.board.get_pieces_count(Color.BLACK)} pieces")
         self.white_nb_pieces.set_label(
-            f"White has {self.board.white.popcount()} pieces")
+            f"White has {self.board.get_pieces_count(Color.WHITE)} pieces")
 
     def update_timers_thread(self):
         """
@@ -326,10 +311,10 @@ class OthelloWindow(Gtk.ApplicationWindow):
         if self.blitz_timer is not None:
             while not self.over:
                 GLib.idle_add(self.update_timers)
-                current_player = "black" if self.board.current_player is Color.BLACK else "white"
+                current_player = "black" if self.board.get_current_player() is Color.BLACK else "white"
 
                 if self.blitz_timer.is_time_up(current_player):
-                    self.blitz_loser = self.board.current_player
+                    self.blitz_loser = self.board.get_current_player()
                     GLib.idle_add(self.update_game_state)
                     self.over = True
                     self.over_message = f"{self.blitz_loser} lost due to time"
@@ -409,9 +394,11 @@ class OthelloWindow(Gtk.ApplicationWindow):
         """
         black_piece_color = (0, 0, 0, .3)
         white_piece_color = (1, 1, 1, .3)
-        legal_moves = self.board.line_cap_move(self.board.current_player)
+        legal_moves = self.board.get_possible_moves(
+            self.board.get_current_player())
 
-        color = black_piece_color if self.board.current_player == Color.BLACK else white_piece_color
+        color = black_piece_color if self.board.get_current_player(
+        ) == Color.BLACK else white_piece_color
         cr.set_source_rgba(*color)
 
         for x in range(self.grid_size):
@@ -434,14 +421,14 @@ class OthelloWindow(Gtk.ApplicationWindow):
 
         for x in range(self.grid_size):
             for y in range(self.grid_size):
-                if not (self.board.black.get(x, y) or self.board.white.get(x, y)):
+                if not (self.board.get_position(Color.BLACK, x, y) or self.board.get_position(Color.WHITE, x, y)):
                     continue
 
                 center_x = x * self.cell_size + self.cell_size // 2
                 center_y = y * self.cell_size + self.cell_size // 2
                 radius = self.cell_size // 2 - 2
 
-                if self.board.black.get(x, y):
+                if self.board.get_position(Color.BLACK, x, y):
                     cr.set_source_rgb(*black_piece_color)
                 else:
                     cr.set_source_rgb(*white_piece_color)
@@ -466,7 +453,7 @@ class OthelloWindow(Gtk.ApplicationWindow):
             try:
                 self.board.play(board_x, board_y)
                 if self.blitz_timer is not None:
-                    current_player = "black" if self.board.current_player is Color.BLACK else "white"
+                    current_player = "black" if self.board.get_current_player() is Color.BLACK else "white"
                     self.blitz_timer.change_player(current_player)
             except GameOverException as err:
                 self.over_message = str(err)

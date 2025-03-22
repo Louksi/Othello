@@ -128,7 +128,6 @@ class OthelloBoard:
         self.mask = self.black.mask
         self.__history: list[tuple[Bitboard, Bitboard, int, int, Color]] = []
         self.forced_game_over = False
-        self.hist_callback = None
 
     def __init_board(self):
         """
@@ -274,7 +273,7 @@ class OthelloBoard:
                 self.black = bits_p if self.current_player is Color.BLACK else bits_o
                 self.white = bits_o if self.current_player is Color.BLACK else bits_p
                 self.current_player = ~self.current_player
-                self.call_hist_callback()
+                # self.call_hist_callback()
                 if self.line_cap_move(self.current_player).bits == 0:
                     self.__history.append(
                         (self.black, self.white, -1, -1, self.current_player))

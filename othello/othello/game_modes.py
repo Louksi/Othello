@@ -13,7 +13,7 @@ from othello.config import save_board_state_history
 from othello.othello_board import BoardSize, OthelloBoard, Color
 from othello.blitz_timer import BlitzTimer
 from othello.ai_features import find_best_move
-from othello.player_abstraction import PlayerAbstraction, RandomPlayerAbstraction
+from othello.controllers import GameController, RandomPlayerGameController
 
 
 logger = logging.getLogger("Othello")
@@ -41,13 +41,13 @@ class NormalGame:
         if filename is None:
             if isinstance(board_size, int):
                 board_size = BoardSize(board_size)
-                self.board = RandomPlayerAbstraction(
-                    OthelloBoard(board_size), Color.BLACK)
+                self.board = RandomPlayerGameController(
+                    OthelloBoard(board_size), Color.WHITE)
                 self.board_size = board_size
                 # self.board.get_current_player() = Color.BLACK
 
             else:
-                self.board = OthelloBoard(board_size)
+                self.board = GameController(OthelloBoard(board_size))
                 self.board_size = board_size.value
                 # self.board.get_current_player() = Color.BLACK
         else:
@@ -96,7 +96,7 @@ class NormalGame:
         """
         logger.debug(
             "Entering get_possible_moves function from game_modes.py.")
-        return self.board.line_cap_move(self.board.get_current_player())
+        return self.board.get_possible_moves(self.board.get_current_player())
 
     def check_game_over(self, possible_moves):
         """
@@ -280,7 +280,7 @@ class NormalGame:
                     logger.debug(
                         "   Play move command at (%s, %s).", x_coord, y_coord)
 
-                    if not self.process_move(x_coord, y_coord, self.board.get_possible_moves()):
+                    if not self.process_move(x_coord, y_coord, self.get_possible_moves()):
                         continue  # Invalid move, prompt player again
 
                     # self.switch_player()

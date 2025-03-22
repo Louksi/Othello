@@ -1,7 +1,6 @@
 '''
 Entry point for the othello executable.
 '''
-# pylint: disable=locally-disabled, multiple-statements, line-too-long, import-error, no-name-in-module
 
 import sys
 import logging
@@ -10,8 +9,8 @@ import othello.parser as parser
 import othello.game_modes as Modes
 import othello.logger as log
 from othello.gui import OthelloGUI
-from othello.othello_board import BoardSize, OthelloBoard, Color
-from othello.player_abstraction import PlayerAbstraction, RandomPlayerAbstraction
+from othello.othello_board import BoardSize, OthelloBoard
+from othello.controllers import GameController
 
 
 def main():
@@ -59,7 +58,7 @@ def main():
             print("Starting Normal Mode...")
             if config["gui"]:
                 size = BoardSize.from_value(config["size"])
-                board = RandomPlayerAbstraction(size, Color.BLACK)
+                board = GameController(OthelloBoard(size))
                 gui = OthelloGUI(board)
                 gui.run()
             else:
@@ -71,8 +70,8 @@ def main():
                 f"Blitz mode with time limit: {config['blitz_time']} minutes")
             if config["gui"]:
                 size = BoardSize.from_value(config["size"])
-                board = OthelloBoard(size)
-                gui = OthelloGUI(board, config["blitz_time"])
+                board = GameController(OthelloBoard(size))
+                gui = OthelloGUI(board)
                 gui.run()
             else:
                 Modes.BlitzGame(config["filename"],
@@ -88,8 +87,7 @@ def main():
                 size = BoardSize.from_value(config["size"])
                 board = OthelloBoard(size)
                 # Create a GUI with AI capabilities
-                gui = OthelloGUI(board, ai_player="black", ai_depth=config["ai_depth"],
-                                 ai_mode=config["ai_mode"], ai_heuristic=config["ai_heuristic"])
+                gui = OthelloGUI(board)
                 gui.run()
             else:
                 Modes.AIMode(config["filename"], config["size"], "black", config["ai_depth"],
