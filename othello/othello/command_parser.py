@@ -1,11 +1,10 @@
 """A class to help parsing cli user input."""
-# pylint: disable=locally-disabled, multiple-statements, line-too-long, import-error, no-name-in-module
 
+import re
 from dataclasses import dataclass
 from enum import Enum, auto
-import re
-import argparse
 from typing import Literal
+import argparse
 
 
 class CommandParserException(Exception):

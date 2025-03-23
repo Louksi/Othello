@@ -1,11 +1,10 @@
 import pytest
-import sys
-import othello.parser as parser
 from unittest.mock import mock_open, patch
 from unittest.mock import MagicMock
+
+from othello.othello_board import BoardSize, Color, Bitboard, OthelloBoard
 from othello.command_parser import CommandKind, CommandParserException
 from othello.game_modes import BlitzGame, NormalGame
-from othello.othello_board import BoardSize, Color, Bitboard, OthelloBoard
 
 
 @pytest.fixture

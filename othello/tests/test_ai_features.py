@@ -1,5 +1,5 @@
 import pytest
-from copy import deepcopy
+
 from othello.othello_board import OthelloBoard, BoardSize, Color, GameOverException
 from othello.ai_features import corners_captured_heuristic, coin_parity_heuristic, find_best_move, minimax, alphabeta
 
@@ -181,17 +181,14 @@ def test_invalid_color_empty_coin_parity(board_start_pos):
 # region Minimax/Alphabeta
 
 
-"""
-def test_minimax_basic_evaluation(board_start_pos):
+def test_minimax_ab_basic_evaluation(board_start_pos):
     board_copy_minimax = deepcopy(board_start_pos)
-    print(board_copy_minimax.export())
     assert minimax(board_copy_minimax, 1, Color.BLACK,
                    True, corners_captured_heuristic) == 0
     board_copy_alphabeta = deepcopy(board_start_pos)
-    print(board_copy_alphabeta)
     assert alphabeta(board_copy_alphabeta, 1, float('-inf'), float('inf'),
                      Color.BLACK, True, corners_captured_heuristic) == 0
-"""
+
 # endregion Minimax/Alphabeta
 
 # region Find Best Move

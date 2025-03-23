@@ -6,6 +6,7 @@ a maximum time for all their plays (individually).
 
 from time import time
 import logging
+
 from othello.othello_board import Color
 
 logger = logging.getLogger("Othello")

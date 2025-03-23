@@ -8,7 +8,6 @@ from copy import copy
 from enum import Enum
 from string import ascii_lowercase
 
-
 from othello.bitboard import Bitboard, Direction
 
 
@@ -230,12 +229,14 @@ class OthelloBoard:
 
     def pop(self):
         """
-        Pops the last played move
+        Pops the last played move, if last move is (-1, -1), it pops 2 times to pop a real move.
         """
         if len(self.__history) <= 0:
             raise CannotPopException()
 
         popped = self.__history.pop()
+        if popped[2] == -1 and popped[3] == -1:
+            popped = self.__history.pop()
         self.black = popped[0]
         self.white = popped[1]
         self.current_player = popped[4]

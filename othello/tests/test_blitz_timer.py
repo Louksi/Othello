@@ -1,6 +1,7 @@
 import pytest
 from time import time, sleep
 import unittest
+
 import othello
 from othello.blitz_timer import BlitzTimer
 

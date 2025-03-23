@@ -1,5 +1,4 @@
-"""
-CONFIG FILE
+"""CONFIG FILE
 
 This module manages the configuration for the Othello game.
 
@@ -16,10 +15,10 @@ Configuration Options:
     - ai_heuristic: default/custom
     - ai_time: 5/X (seconds)
 """
-# pylint: disable=locally-disabled, multiple-statements, line-too-long, import-error, no-name-in-module
 
 import sys
 import logging
+
 from othello.othello_board import OthelloBoard
 import othello.logger as log
 

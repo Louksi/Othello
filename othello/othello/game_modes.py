@@ -3,17 +3,16 @@
 
 import logging
 import sys
+
+import othello.parser as parser
 import othello.logger as log
 from othello.command_parser import CommandParser, CommandKind, CommandParserException
-from othello.blitz_timer import BlitzTimer
-from othello.othello_board import BoardSize, OthelloBoard, Color
 from othello.board_parser import BoardParser
-import othello.parser as parser
-from othello.config import save_board_state_history
-from othello.ai_features import find_best_move
-
-
 from othello.parser import DEFAULT_BLITZ_TIME
+from othello.config import save_board_state_history
+from othello.othello_board import BoardSize, OthelloBoard, Color
+from othello.blitz_timer import BlitzTimer
+from othello.ai_features import find_best_move
 
 
 logger = logging.getLogger("Othello")
@@ -563,6 +562,12 @@ class AIMode(NormalGame):
             self.board, self.depth, self.ai_color, True, self.algorithm, self.heuristic)
         return best_move if best_move != (-1, -1) else None
 
+    def display_ai_move(self, coords):
+        """Convert (row, col) coordinates to chess notation."""
+        col, row = coords
+        col_letter = chr(ord('a') + col)
+        print(f"\nMove Played: {col_letter}{row+1}\n")
+
     def play(self):
         """
         Main game loop for AI mode.
@@ -593,14 +598,12 @@ class AIMode(NormalGame):
                 continue
 
             self.display_possible_moves(possible_moves)
-            print(
-                f"Current player: {self.current_player}, AI color: {self.ai_color}")
             if self.current_player == self.ai_color:
                 print("AI is making a move...")
                 ai_move = self.get_ai_move(possible_moves)
                 if not self.process_move(ai_move[0], ai_move[1], possible_moves):
                     continue
-
+                self.display_ai_move(ai_move)
                 self.switch_player()
             else:
                 command_str = input("Enter your move or command: ").strip()
