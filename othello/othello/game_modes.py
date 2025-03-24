@@ -543,7 +543,7 @@ class AIMode(NormalGame):
                 self.ai_color = Color.WHITE
             else:
                 self.ai_color = ai_color
-        else:
+        elif not isinstance(ai_color, Color):
             raise ValueError(
                 f"Invalid ai_color type: {type(ai_color)}. Must be a string or Color enum.")
 
