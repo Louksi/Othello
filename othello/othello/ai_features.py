@@ -143,8 +143,12 @@ def find_best_move(board: OthelloBoard, depth: int = 3, max_player: Color = Colo
 
     if heuristic == "coin_parity":
         heuristic_function = coin_parity_heuristic
-    else:
+    elif heuristic == "corners_captured":
         heuristic_function = corners_captured_heuristic
+    elif heuristic == "mobility":
+        heuristic_function = mobility_heuristic
+    else:
+        heuristic_function = all_in_one_heuristic
 
     valid_moves = board.line_cap_move(
         board.current_player).hot_bits_coordinates()
@@ -277,3 +281,13 @@ def mobility_heuristic(board: OthelloBoard, max_player: Color) -> int:
                        (white_move_count + black_move_count))
         return Color.EMPTY
     return 0
+
+
+def all_in_one_heuristic(board: OthelloBoard, max_player: Color) -> int:
+    w_corners = 10
+    w_mobility = 4
+    w_coins = 1
+
+    return (w_corners * corners_captured_heuristic(board) +
+            w_mobility * mobility_heuristic(board) +
+            w_coins * coin_parity_heuristic(board))
