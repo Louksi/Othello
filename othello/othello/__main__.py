@@ -53,6 +53,8 @@ def main():
     # loaded_config = configuration.load_config(config["filename"])
     print("Config loaded:", config)
 
+    controller = None
+
     match mode:
         case parser.GameMode.NORMAL.value:
             print("Starting Normal Mode...")
