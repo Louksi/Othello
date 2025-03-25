@@ -1,17 +1,18 @@
 from othello.gui import OthelloGUI
 from othello.othello_board import OthelloBoard, Color, BoardSize
+
 from gi.repository import Gtk, GLib, Gdk
+from gi import require_version
 import unittest
 import time
-import gi
-gi.require_version('Gtk', '4.0')
-gi.require_version('Adw', '1')
+require_version('Gtk', '4.0')
+require_version('Adw', '1')
 
 
 # VARIABLES
 
 size = BoardSize.from_value(8)
-loop = GLib.MainLoop()
+loop = None
 timeout_id = None
 
 test_state = {
@@ -24,6 +25,7 @@ test_state = {
 
 
 def setup_test(with_blitz=False, time_limit=None):
+    global loop
     test_state["board"] = OthelloBoard(size)
 
     if with_blitz and time_limit:
@@ -33,6 +35,7 @@ def setup_test(with_blitz=False, time_limit=None):
         test_state["app"] = OthelloGUI(test_state["board"])
 
     test_state["window"] = None
+    loop = GLib.MainLoop()
 
 
 def activating(app):
@@ -44,6 +47,8 @@ def activating(app):
 
 def add_timeout():
     global timeout_id
+    if timeout_id:
+        GLib.source_remove(timeout_id)
     timeout_id = GLib.timeout_add(500, check_window)
 
 
@@ -52,17 +57,30 @@ def check_window():
         try:
             test_state["current_test_function"]()
         finally:
-            test_state["app"].quit()
-            loop.quit()
-            GLib.timeout_add(100, force_window_close)
+            cleanup()
         return GLib.SOURCE_REMOVE
     return GLib.SOURCE_CONTINUE
 
 
-def force_window_close():
-    if test_state["window"] is not None:
+def cleanup():
+    global loop, timeout_id
+
+    if timeout_id:
+        GLib.source_remove(timeout_id)
+        timeout_id = None
+
+    if test_state["window"]:
         test_state["window"].close()
-    return GLib.SOURCE_REMOVE
+        test_state["window"].destroy()
+        test_state["window"] = None
+
+    if test_state["app"]:
+        test_state["app"].quit()
+        test_state["app"] = None
+
+    if loop and loop.is_running():
+        loop.quit()
+    loop = None
 
 
 def launch_app():
@@ -72,7 +90,8 @@ def launch_app():
 
 def simulate_board_click(x, y):
     window = test_state["window"]
-
+    if window is None:
+        return
     board_x = x * window.cell_size + (window.cell_size // 2)
     board_y = y * window.cell_size + (window.cell_size // 2)
     window.board_click(None, None, board_x, board_y)
@@ -84,6 +103,7 @@ def test_window_layout():
     setup_test()
     test_state["current_test_function"] = run_window_layout_test
     launch_app()
+    cleanup()
 
 
 def run_window_layout_test():

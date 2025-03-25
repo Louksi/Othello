@@ -1,13 +1,12 @@
-import unittest
-import pytest
-from othello.gui import *
+from othello.gui import OthelloGUI
+from othello.othello_board import OthelloBoard, Color, BoardSize
 
-import cairo
-
+from gi.repository import Gtk, GLib, Gdk
 from gi import require_version
-gi.require_version('Gtk', '4.0')
-gi.require_version('Adw', '1')
-
+import unittest
+import time
+require_version('Gtk', '4.0')
+require_version('Adw', '1')
 
 # TEST WIDGET PROPERTIES
 
