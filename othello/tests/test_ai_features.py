@@ -1,3 +1,4 @@
+from copy import deepcopy
 import pytest
 
 from othello.othello_board import OthelloBoard, BoardSize, Color, GameOverException
