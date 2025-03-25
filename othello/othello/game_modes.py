@@ -42,7 +42,7 @@ class NormalGame:
             if isinstance(board_size, int):
                 board_size = BoardSize(board_size)
                 self.board = RandomPlayerGameController(
-                    OthelloBoard(board_size), Color.WHITE)
+                    OthelloBoard(board_size))
                 self.board_size = board_size
                 # self.board.get_current_player() = Color.BLACK
 
@@ -100,54 +100,46 @@ class NormalGame:
 
     def check_game_over(self, possible_moves):
         """
-        Checks if the game is over by seeing if there are any valid moves
-        remaining for the current player. If there are no valid moves for
-        the current player, the game is over and the other player wins. If
-        there are no valid moves for both players, the game is over and
-        the game state is printed.
+        Checks if the game is over by delegating to the board's is_game_over method.
+        If the game is over, prints the appropriate game over message and final score.
 
         :param possible_moves: A bitboard of the possible capture moves for the current player.
         :type possible_moves: Bitboard
         :return: True if the game is over, False otherwise.
         :rtype: bool
         """
-
-        return self.board.is_game_over
-
         logger.debug("Entering check_game_over function from game_modes.py.")
-        if possible_moves.bits == 0:
-            if self.board.get_current_player() == Color.BLACK:
-                self.no_black_move = True
-                logger.debug(
-                    "   No moves available for %s player.", self.board.get_current_player())
-            if self.board.get_current_player() == Color.WHITE:
-                self.no_white_move = True
-                logger.debug(
-                    "   No moves available for %s player.", self.board.get_current_player())
 
-            if self.no_black_move and self.no_white_move:
-                logger.debug("   No valid moves for both players. Game over.")
-                print("No valid moves for both players. Game over.")
-                return True
+        if self.board.is_game_over():
+            logger.debug("Game over condition detected.")
 
-            logger.debug(
-                "   No valid moves for %s. Skipping turn.", self.board.get_current_player())
-            print(
-                "No valid moves for %s. Skipping turn.", self.board.get_current_player().name)
-            return False
+            # Print final score
+            black_score = self.board.black.popcount()
+            white_score = self.board.white.popcount()
+            logger.debug("Final score - Black: %s, White: %s",
+                         black_score, white_score)
+            print(f"Final score - Black: {black_score}, White: {white_score}")
 
-        total_moves = self.board.black.popcount() + self.board.white.popcount()
-        if total_moves == self.board.size.value * self.board.size.value:
-            logger.debug(
-                "   Final score - Black: %s, White: %s", self.board.black.popcount(), self.board.white.popcount())
-            if self.board.black.popcount() > self.board.white.popcount():
-                logger.debug("   Black wins.")
+            # Determine winner
+            if black_score > white_score:
+                logger.debug("Black wins.")
                 print("Black wins!")
-                return True
-            if self.board.black.popcount() < self.board.white.popcount():
-                logger.debug("   White wins.")
+            elif white_score > black_score:
+                logger.debug("White wins.")
                 print("White wins!")
-                return True
+            else:
+                logger.debug("The game is a tie.")
+                print("The game is a tie!")
+
+            return True
+
+        # If no moves for current player but game isn't over (other player can still move)
+        if possible_moves.bits == 0:
+            logger.debug("No moves available for %s player. Skipping turn.",
+                         self.board.get_current_player())
+            print(
+                f"No valid moves for {self.board.get_current_player().name}. Skipping turn.")
+
         return False
 
     def display_possible_moves(self, possible_moves):
@@ -235,6 +227,63 @@ class NormalGame:
     #         Color.WHITE if self.board.get_current_player() == Color.BLACK else Color.BLACK
     #     )
 
+    def check_parser_input(self, command_str, command_kind, *args):
+
+        if command_kind == CommandKind.PLAY_MOVE:
+            play_command = args[0]
+            x_coord, y_coord = play_command.x_coord, play_command.y_coord
+            logger.debug(
+                "   Play move command at (%s, %s).", x_coord, y_coord)
+
+            if not self.process_move(x_coord, y_coord, self.get_possible_moves()):
+                print("Invalid move. Try again.")
+                return True  # Invalid move, prompt player again
+
+            # self.switch_player()
+
+        else:
+            match command_kind:
+                case CommandKind.HELP:
+                    logger.debug(
+                        "   Executing %s command.", command_kind)
+                    parser.print_help()
+                case CommandKind.RULES:
+                    logger.debug(
+                        "   Executing %s command.", command_kind)
+                    parser.print_rules()
+                case CommandKind.SAVE_AND_QUIT | CommandKind.SAVE_HISTORY:
+                    logger.debug(
+                        "   Executing %s command.", command_kind)
+                    save_board_state_history(self.board)
+                    logger.debug("   Game saved, exiting.")
+                    sys.exit(0)
+                case CommandKind.FORFEIT:
+                    logger.debug(
+                        "   %s executed %s command.", self.board.get_current_player().name, command_kind)
+                    print(
+                        f"{self.board.get_current_player().name} forfeited.")
+                    # self.switch_player()
+                    logger.debug(
+                        "   Game Over, %s wins! Exiting.", self.board.get_current_player().name)
+                    print(
+                        f"Game Over, {self.board.get_current_player().name} wins!")
+                    sys.exit(0)
+                case CommandKind.RESTART:
+                    logger.debug(
+                        "   Executing %s command.", command_kind)
+                    self.board.restart()
+                    logger.debug("   Board restarted to initial state")
+                case CommandKind.QUIT:
+                    logger.debug(
+                        "   Executing %s command.", command_kind)
+                    print("Exiting without saving...")
+                    sys.exit(0)
+                case _:
+                    logger.debug(
+                        "   Invalid command: %s.", command_kind)
+                    print("Invalid command. Try again.")
+                    parser.print_help()
+
     def play(self):
         """
         Starts the game loop for Normal mode.
@@ -264,69 +313,15 @@ class NormalGame:
         self.board.ready()
 
         while True:
-            if self.board.is_game_over():
+            if self.check_game_over(possible_moves):
                 # If game over, restart the loop (display final board state)
                 continue
 
             command_str = input("Enter your move or command: ").strip()
             logger.debug("   Player input: '%s'.", command_str)
-
             try:
                 command_kind, *args = parser.parse_str(command_str)
-
-                if command_kind == CommandKind.PLAY_MOVE:
-                    play_command = args[0]
-                    x_coord, y_coord = play_command.x_coord, play_command.y_coord
-                    logger.debug(
-                        "   Play move command at (%s, %s).", x_coord, y_coord)
-
-                    if not self.process_move(x_coord, y_coord, self.get_possible_moves()):
-                        continue  # Invalid move, prompt player again
-
-                    # self.switch_player()
-
-                else:
-                    match command_kind:
-                        case CommandKind.HELP:
-                            logger.debug(
-                                "   Executing %s command.", command_kind)
-                            parser.print_help()
-                        case CommandKind.RULES:
-                            logger.debug(
-                                "   Executing %s command.", command_kind)
-                            parser.print_rules()
-                        case CommandKind.SAVE_AND_QUIT | CommandKind.SAVE_HISTORY:
-                            logger.debug(
-                                "   Executing %s command.", command_kind)
-                            save_board_state_history(self.board)
-                            logger.debug("   Game saved, exiting.")
-                            sys.exit(0)
-                        case CommandKind.FORFEIT:
-                            logger.debug(
-                                "   %s executed %s command.", self.board.get_current_player().name, command_kind)
-                            print(
-                                f"{self.board.get_current_player().name} forfeited.")
-                            # self.switch_player()
-                            logger.debug(
-                                "   Game Over, %s wins! Exiting.", self.board.get_current_player().name)
-                            print(
-                                f"Game Over, {self.board.get_current_player().name} wins!")
-                            sys.exit(0)
-                        case CommandKind.RESTART:
-                            logger.debug(
-                                "   Executing %s command.", command_kind)
-                            self.board.restart()
-                            logger.debug("   Board restarted to initial state")
-                        case CommandKind.QUIT:
-                            logger.debug(
-                                "   Executing %s command.", command_kind)
-                            print("Exiting without saving...")
-                            sys.exit(0)
-                        case _:
-                            logger.debug(
-                                "   Invalid command: %s.", command_kind)
-                            print("Invalid command. Try again.")
-                            parser.print_help()
+                self.check_parser_input(command_str, command_kind, *args)
 
             except CommandParserException as e:
                 log.log_error_message(
@@ -337,58 +332,46 @@ class NormalGame:
 
 
 class BlitzGame(NormalGame):
-    '''
-    A class representing a Blitz game of Othello. A time limit has been
-    added to the normal game rules.
-    '''
-
     def __init__(self, filename: str, board_size: BoardSize = BoardSize.EIGHT_BY_EIGHT, time: int = None):
-        """
-        Initialize the BlitzGame with the given board size and time limit.
-
-        This sets up a new Othello game in Blitz mode, initializing the board,
-        timer, and setting the starting player to black. The Blitz timer is
-        started for the black player.
-
-        :param board_size: The size of the Othello board.
-        :type board_size: BoardSize
-        :param time: The time limit for each player in minutes. Defaults to the
-                    parser's DEFAULT_BLITZ_TIME if not specified.
-        :type time: int, optional
-        """
-        logger.debug(
-            "Entering initialization function for Blitz mode, from game_modes.py.")
         super().__init__(filename, BoardSize(board_size)
                          if isinstance(board_size, int) else board_size)
         self.blitz_timer = BlitzTimer(
             time if time is not None else DEFAULT_BLITZ_TIME)
         self.blitz_timer.start_timer('black')
-        logger.debug(
-            "   BlitzGame initialized, current player: ", self.board.get_current_player())
 
     def switch_player(self):
-        """
-        Switches the current player, updating the Blitz timer for the next player.
-
-        If a player's time has expired, the game is over and the winner is printed.
-        Otherwise, the Blitz timer is updated by switching the current player and
-        starting the timer for the new player.
-        """
-        logger.debug(
-            "Entering switch_player function for Blitz mode, from game_modes.py.")
+        """Switches the current player and updates the Blitz timer."""
         if self.blitz_timer.is_time_up('black'):
-            logger.debug("   Black's time is up. White wins.")
             print("Black's time is up! White wins!")
             sys.exit(0)
         elif self.blitz_timer.is_time_up('white'):
-            logger.debug("   White's time is up. Black wins.")
             print("White's time is up! Black wins!")
             sys.exit(0)
 
-        super().switch_player()  # Switch player as normal
-        next_player = 'white' if self.board.get_current_player() == Color.WHITE else 'black'
-        logger.debug("   Changing timer to player %s.", next_player)
+        # Get current player before switching
+        current_player = self.board.get_current_player()
+
+        # Switch player through the controller
+        self.board.play(-1, -1)  # Dummy move to trigger player switch
+
+        # Update timer for new player
+        next_player = 'white' if current_player == Color.BLACK else 'black'
         self.blitz_timer.change_player(next_player)
+
+    def check_game_over(self, possible_moves):
+        """Checks if the game is over due to time or normal conditions."""
+        if self.blitz_timer.is_time_up('black'):
+            print("Black's time is up! White wins!")
+            sys.exit(0)
+        elif self.blitz_timer.is_time_up('white'):
+            print("White's time is up! Black wins!")
+            sys.exit(0)
+
+        # Delegate to parent class for normal game over conditions
+        return super().check_game_over(possible_moves)
+
+        # Delegate to parent class for normal game over conditions
+        return super().check_game_over(possible_moves)
 
     def display_time(self):
         """
@@ -401,34 +384,6 @@ class BlitzGame(NormalGame):
         logger.debug(
             "Entering display_time function for Blitz mode, from game_modes.py.")
         print(self.blitz_timer.display_time())
-
-    def check_game_over(self, possible_moves):
-        """
-        Checks if the game is over by verifying if a player's time has expired or
-        if there are no valid moves left for the current player.
-
-        This function first checks if the blitz timer has run out for either player,
-        declaring the other player as the winner if so. If both players still have
-        time remaining, it checks for valid moves using the parent class's method.
-
-        :param possible_moves: A bitboard of the possible capture moves for the current player.
-        :type possible_moves: Bitboard
-        :return: True if the game is over, False otherwise.
-        :rtype: bool
-        """
-        logger.debug(
-            "Entering check_game_over function for Blitz mode,"
-            " from game_modes.py, with parameter possible_moves.")
-        if self.blitz_timer.is_time_up('black'):
-            logger.debug("   Black's time is up. White wins.")
-            print("Black's time is up! White wins!")
-            sys.exit(0)
-        elif self.blitz_timer.is_time_up('white'):
-            logger.debug("   White's time is up. Black wins.")
-            print("White's time is up! Black wins!")
-            sys.exit(0)
-
-        return super().check_game_over(possible_moves)
 
     def play(self):
         """
@@ -467,69 +422,16 @@ class BlitzGame(NormalGame):
             logger.debug("   Player input: '%s'.", command_str)
 
             try:
-                command_result = parser.parse_str(command_str)
+                command_kind, *args = parser.parse_str(command_str)
 
-                if command_result[0] == CommandKind.PLAY_MOVE:
-                    kind = command_result[0]
-                    play_command = command_result[1]
-                    x_coord, y_coord = play_command.x_coord, play_command.y_coord
-                    logger.debug(
-                        "   Play move command at (%s, %s).", x_coord, y_coord)
-
-                    if not self.process_move(x_coord, y_coord, possible_moves):
-                        continue
-
-                    # self.switch_player()
-
-                else:
-                    kind = command_result[0]
-                    match kind:
-                        case CommandKind.HELP:
-                            logger.debug(
-                                "   Executing %s command.", command_result[0])
-                            parser.print_help()
-                        case CommandKind.RULES:
-                            logger.debug(
-                                "   Executing %s command.", command_result[0])
-                            parser.print_rules()
-                        case CommandKind.SAVE_AND_QUIT | CommandKind.SAVE_HISTORY:
-                            logger.debug(
-                                "   Executing %s command.", command_result[0])
-                            save_board_state_history(self.board)
-                            logger.debug("   Game saved, exiting.")
-                            sys.exit(0)
-                        case CommandKind.FORFEIT:
-                            logger.debug(
-                                "   %s executed %s command.", self.board.get_current_player().name, command_result[0])
-                            print(
-                                f"{self.board.get_current_player().name} forfeited.")
-                            # self.switch_player()
-                            logger.debug(
-                                "   Game Over, %s wins! Exiting.", self.board.get_current_player().name)
-                            print(
-                                f"Game Over, {self.board.get_current_player().name} wins!")
-                            sys.exit(0)
-                        case CommandKind.RESTART:
-                            logger.debug(
-                                "   Executing %s command.", command_result[0])
-                            self.board.restart()
-                            logger.debug("   Board restarted to initial state")
-                        case CommandKind.QUIT:
-                            logger.debug(
-                                "   Executing %s command. Exiting without saving.", command_result[0])
-                            print("Exiting without saving...")
-                            sys.exit(0)
-                        case _:
-                            logger.debug("   Invalid command: %s", command_str)
-                            print("Invalid command. Try again.")
-                            parser.print_help()
+                self.check_parser_input(command_str, command_kind, *args)
 
             except CommandParserException as e:
                 log.log_error_message(
-                    e, context=("Failed to parse command: %s.", command_str))
-                print(f"Error: {e}")
-                print("Invalid command. Please try again.")
-                continue
+                    e, context=f"Failed to parse command: {command_str}")
+
+                print(f"Error: {e}\nInvalid command. Please try again.")
+                parser.print_help()
             self.display_time()
 
 
@@ -621,67 +523,13 @@ class AIMode(NormalGame):
                 logger.debug(f"   Player input: '{command_str}'.")
 
                 try:
-                    command_result = parser.parse_str(command_str)
-                    if command_result[0] == CommandKind.PLAY_MOVE:
-                        kind = command_result[0]
-                        play_command = command_result[1]
-                        x_coord, y_coord = play_command.x_coord, play_command.y_coord
-                        logger.debug(
-                            f"   Play move command at ({x_coord}, {y_coord}).")
+                    command_result, *args = parser.parse_str(command_str)
 
-                        if not self.process_move(x_coord, y_coord, possible_moves):
-                            continue
-
-                        # self.switch_player()
-
-                    else:
-                        kind = command_result[0]
-                        match kind:
-                            case CommandKind.HELP:
-                                logger.debug(
-                                    f"   Executing {command_result[0]} command.")
-                                parser.print_help()
-                            case CommandKind.RULES:
-                                logger.debug(
-                                    f"   Executing {command_result[0]} command.")
-                                parser.print_rules()
-                            case CommandKind.SAVE_AND_QUIT | CommandKind.SAVE_HISTORY:
-                                logger.debug(
-                                    f"   Executing {command_result[0]} command.")
-                                save_board_state_history(self.board)
-                                logger.debug("   Game saved, exiting.")
-                                sys.exit(0)
-                            case CommandKind.FORFEIT:
-                                logger.debug(
-                                    f"   {self.board.get_current_player().name} executed {command_result[0]} command.")
-                                print(
-                                    f"{self.board.get_current_player().name} forfeited.")
-                                # self.switch_player()
-                                logger.debug(
-                                    f"   Game Over, {self.board.get_current_player().name} wins! Exiting.")
-                                print(
-                                    f"Game Over, {self.board.get_current_player().name} wins!")
-                                sys.exit(0)
-                            case CommandKind.RESTART:
-                                logger.debug(
-                                    f"   Executing {command_result[0]} command.")
-                                self.board.restart()
-                                logger.debug(
-                                    "   Board restarted to initial state")
-                            case CommandKind.QUIT:
-                                logger.debug(
-                                    f"   Executing {command_result[0]} command. Exiting without saving.")
-                                print("Exiting without saving...")
-                                sys.exit(0)
-                            case _:
-                                logger.debug(
-                                    f"   Invalid command: {command_str}.")
-                                print("Invalid command. Try again.")
-                                parser.print_help()
+                    self.check_parser_input(command_str, command_result, *args)
 
                 except CommandParserException as e:
-                    # log.log_error_message(
-                    #    e, context=f"Failed to parse command: {command_str}.")
+                    log.log_error_message(
+                        e, context=f"Failed to parse command: {command_str}.")
 
                     print("Invalid command. Please try again.")
                     continue
