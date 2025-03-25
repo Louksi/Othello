@@ -1,3 +1,5 @@
+from othello.command_parser import CommandKind, PlayCommand
+from unittest.mock import MagicMock, patch, call
 import pytest
 from unittest.mock import MagicMock, patch
 from othello.game_modes import BlitzGame

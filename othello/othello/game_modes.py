@@ -42,7 +42,7 @@ class NormalGame:
             if isinstance(board_size, int):
                 board_size = BoardSize(board_size)
                 self.board = RandomPlayerGameController(
-                    OthelloBoard(board_size))
+                    OthelloBoard(board_size), Color.WHITE)
                 self.board_size = board_size
                 # self.board.get_current_player() = Color.BLACK
 
@@ -440,7 +440,9 @@ class AIMode(NormalGame):
     A class representing a game mode where a player faces an AI opponent.
     '''
 
-    def __init__(self, filename=None, board_size=BoardSize.EIGHT_BY_EIGHT, ai_color: Color = Color.BLACK, depth=3, algorithm="minimax", heuristic="coin_parity"):
+    def __init__(self, filename=None, board_size: BoardSize = BoardSize.EIGHT_BY_EIGHT,
+                 ai_color: Color = Color.BLACK, depth: int = 3,
+                 algorithm: str = "minimax", heuristic: str = "coin_parity", random_player: bool = False):
         """
         Initialize the AI mode with a specified AI color, depth, algorithm, and heuristic.
 
@@ -453,13 +455,13 @@ class AIMode(NormalGame):
         super().__init__(filename, board_size)
 
         if isinstance(ai_color, str):
-            ai_color = ai_color.lower()
-            if ai_color == 'black':
-                self.ai_color = Color.BLACK
-            elif ai_color == 'white':
-                self.ai_color = Color.WHITE
+            ai_color = ai_color.upper()
+            if ai_color == AIColor.BLACK.value:
+                self.ai_player = Color.BLACK
+            elif ai_color == AIColor.WHITE.value:
+                self.ai_player = Color.WHITE
             else:
-                self.ai_color = ai_color
+                self.ai_player = ai_color
         else:
             raise ValueError(
                 f"Invalid ai_color type: {type(ai_color)}. Must be a string or Color enum.")
@@ -467,6 +469,7 @@ class AIMode(NormalGame):
         self.depth = depth
         self.algorithm = algorithm
         self.heuristic = heuristic
+        self.random_player = random_player
 
     def get_ai_move(self, possible_moves):
         """
@@ -476,8 +479,14 @@ class AIMode(NormalGame):
         :return: A tuple (x, y) of the chosen move coordinates.
         """
         best_move = find_best_move(
-            self.board, self.depth, self.ai_color, True, self.algorithm, self.heuristic)
+            self.board, self.depth, self.ai_player, True, self.algorithm, self.heuristic)
         return best_move if best_move != (-1, -1) else None
+
+    def display_ai_move(self, coords):
+        """Convert (row, col) coordinates to chess notation."""
+        col, row = coords
+        col_letter = chr(ord('a') + col)
+        print(f"\nMove Played: {col_letter}{row+1}\n")
 
     def play(self):
         """
@@ -507,7 +516,6 @@ class AIMode(NormalGame):
 
             if self.check_game_over(possible_moves):
                 continue
-
             self.display_possible_moves(possible_moves)
             print(
                 f"Current player: {self.board.get_current_player()}, AI color: {self.ai_color}")
@@ -533,3 +541,43 @@ class AIMode(NormalGame):
 
                     print("Invalid command. Please try again.")
                     continue
+
+    def play_random(self):
+        """
+        Main game loop for a random player against the AI.
+
+        This function implements the main game loop for a game between a random player
+        and the AI. The loop consists of the following steps:
+
+        1. Display the current state of the board.
+        2. Compute the possible moves for the current player.
+        3. If the game is over, continue to the next iteration.
+        4. Display the possible moves.
+        5. If the current player is the AI, get a move from the AI.
+        6. Process the AI's move by playing it on the board.
+        7. Switch the current player.
+        8. Print the remaining time for both players.
+        """
+        while True:
+            self.display_board()
+            possible_moves = self.get_possible_moves()
+
+            if self.check_game_over(possible_moves):
+                continue
+            self.display_possible_moves(possible_moves)
+            if self.current_player == self.ai_player:
+                print("AI is making a move...")
+                ai_move = self.get_ai_move(possible_moves)
+                if not self.process_move(ai_move[0], ai_move[1], possible_moves):
+                    continue
+                self.display_ai_move(ai_move)
+                self.switch_player()
+
+            else:
+                print("Random player is making a move...")
+                # Pass the board instead of possible_moves
+                random_mv = random_move(self.board)
+                if not self.process_move(random_mv[0], random_mv[1], possible_moves):
+                    continue
+                self.display_ai_move(random_mv)
+                self.switch_player()

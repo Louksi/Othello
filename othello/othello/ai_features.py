@@ -1,5 +1,6 @@
 # pylint: disable=locally-disabled, multiple-statements, line-too-long, import-error, no-name-in-module
 
+import random
 from copy import deepcopy
 
 from othello.othello_board import OthelloBoard, Color
@@ -142,8 +143,12 @@ def find_best_move(board: OthelloBoard, depth: int = 3, max_player: Color = Colo
 
     if heuristic == "coin_parity":
         heuristic_function = coin_parity_heuristic
-    else:
+    elif heuristic == "corners_captured":
         heuristic_function = corners_captured_heuristic
+    elif heuristic == "mobility":
+        heuristic_function = mobility_heuristic
+    else:
+        heuristic_function = all_in_one_heuristic
 
     valid_moves = board.line_cap_move(
         board.current_player).hot_bits_coordinates()
@@ -168,6 +173,22 @@ def find_best_move(board: OthelloBoard, depth: int = 3, max_player: Color = Colo
             best_move = (move_x, move_y)
 
     return best_move
+
+
+def random_move(board: OthelloBoard) -> tuple[int, int]:
+    """
+    Selects a random valid move from the current board state.
+
+    :param board: The current state of the Othello board.
+    :type board: OthelloBoard
+    :returns: The coordinates of a random valid move.
+    :rtype: tuple[int, int]
+    """
+
+    valid_moves = board.line_cap_move(
+        board.current_player).hot_bits_coordinates()
+
+    return random.choice(valid_moves)
 
 
 def corners_captured_heuristic(board: OthelloBoard, max_player: Color) -> int:
@@ -233,6 +254,40 @@ def coin_parity_heuristic(board: OthelloBoard, max_player: Color) -> int:
                    (white_count + black_count))
     return Color.EMPTY
 
-# def mobility_heuristic(board: OthelloBoard, max_player: Color) -> int:
 
-#     black_move_count = board.line_cap_move(board.current_player).popcount()
+def mobility_heuristic(board: OthelloBoard, max_player: Color) -> int:
+    """
+    Computes the Mobility heuristic.
+
+    A high score means the max_player has more possible moves, while a low (negative)
+    score means the opponent has more.
+
+    :param board: The Othello board instance.
+    :type board: OthelloBoard
+    :param max_player: The player for whom we calculate the heuristic (BLACK or WHITE).
+    :type max_player: Color
+    :returns: A heuristic value between -100 and 100.
+    :rtype: int
+    """
+    black_move_count = board.line_cap_move(board.black).popcount()
+    white_move_count = board.line_cap_move(board.white).popcount()
+
+    if (black_move_count + white_move_count) != 0:
+        if max_player == Color.BLACK:
+            return int(100 * (black_move_count - white_move_count) /
+                       (black_move_count + white_move_count))
+        if max_player == Color.WHITE:
+            return int(100 * (white_move_count - black_move_count) /
+                       (white_move_count + black_move_count))
+        return Color.EMPTY
+    return 0
+
+
+def all_in_one_heuristic(board: OthelloBoard, max_player: Color) -> int:
+    w_corners = 10
+    w_mobility = 4
+    w_coins = 1
+
+    return (w_corners * corners_captured_heuristic(board) +
+            w_mobility * mobility_heuristic(board) +
+            w_coins * coin_parity_heuristic(board))
