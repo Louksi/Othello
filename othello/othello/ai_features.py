@@ -19,8 +19,7 @@ def minimax(board: OthelloBoard, depth: int, max_player: Color, maximizing: bool
     :type depth: int
     :param max_player: The player for whom the best move is being calculated (BLACK or WHITE).
     :type max_player: Color
-    :param maximizing: A Boolean indicating whether the current step is maximizing or minimizing
-    the score.
+    :param maximizing: A Boolean indicating whether the current step is maximizing or minimizing the score.
     :type maximizing: bool
     :return: The heuristic value of the best move found from the current board state.
     :rtype: int
@@ -75,8 +74,7 @@ def alphabeta(board: OthelloBoard, depth: int, alpha: int,
     :type beta: int
     :param max_player: The player for whom the best move is being calculated (BLACK or WHITE).
     :type max_player: Color
-    :param maximizing: A Boolean indicating whether the current step is maximizing or minimizing
-    the score.
+    :param maximizing: A Boolean indicating whether the current step is maximizing or minimizing the score.
     :type maximizing: bool
     :return: The heuristic value of the best move found from the current board state.
     :rtype: int
@@ -128,8 +126,7 @@ def find_best_move(board: OthelloBoard, depth: int = 3, max_player: Color = Colo
     :type depth: int
     :param max_player: The player for whom the best move is being calculated (BLACK or WHITE).
     :type max_player: Color
-    :param maximizing: A Boolean indicating whether the current step is maximizing or minimizing
-    the score.
+    :param maximizing: A Boolean indicating whether the current step is maximizing or minimizing the score.
     :type maximizing: bool
     :param search_algo: The search algorithm to use, either "minimax" or "alphabeta".
     :type search_algo: str

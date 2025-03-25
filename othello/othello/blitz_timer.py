@@ -144,7 +144,7 @@ class BlitzTimer:
         Displays the remaining time for both players.
 
         Returns:
-            str: Time formatted as "Black Time: MM:SS\nWhite Time: MM:SS".
+            str: Time formatted as "Black Time: MM:SS\\nWhite Time: MM:SS".
         """
         logger.debug("Displaying time for both players.")
         black_time = self.display_time_player(Color.BLACK)
