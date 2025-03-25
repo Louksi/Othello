@@ -2,6 +2,7 @@ from random import choice
 
 from othello.ai_features import find_best_move
 from othello.othello_board import BoardSize, Color, OthelloBoard
+from othello.parser import AIColor
 
 
 class GameController():
@@ -76,7 +77,21 @@ class RandomPlayerGameController(GameController):
 class AIPlayerGameController(GameController):
     def __init__(self, board: OthelloBoard, ai_color: Color = Color.BLACK, depth: int = 3,
                  algorithm: str = "minimax", heuristic: str = "coin_parity", random_player: bool = False):
+
         super().__init__(board)
+
+        if isinstance(ai_color, str):
+            ai_color = ai_color.lower()
+            if ai_color == 'black':
+                self.ai_color = Color.BLACK
+            elif ai_color == 'white':
+                self.ai_color = Color.WHITE
+            else:
+                self.ai_color = ai_color
+        elif not isinstance(ai_color, Color):
+            raise ValueError(
+                f"Invalid ai_color type: {type(ai_color)}. Must be a string or Color enum.")
+
         self.ai_color = ai_color
         self.depth = depth
         self.algorithm = algorithm

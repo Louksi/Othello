@@ -24,46 +24,24 @@ class NormalGame:
     A class representing a Normal Othello game.
     '''
 
-    def __init__(self, filename=str, board_size: BoardSize = BoardSize.EIGHT_BY_EIGHT,
+    def __init__(self, filename=None, board_size: BoardSize = BoardSize.EIGHT_BY_EIGHT,
                  ai_mode=False, ai_color: Color = Color.BLACK, depth: int = 3,
                  algorithm: str = "minimax", heuristic: str = "coin_parity", random_player: bool = False):
-        """
-        Initialize a NormalGame.
-
-        :param filename: The name of the file to load a saved game from, or None to start a new game.
-        :type filename: str
-        :param board_size: The size of the board to use, defaults to BoardSize.EIGHT_BY_EIGHT.
-        :type board_size: BoardSize | int
-        :param ai_mode: Whether to play against an AI, defaults to False.
-        :type ai_mode: bool
-        :param ai_color: The color of the AI, defaults to Color.BLACK.
-        :type ai_color: Color
-        :param depth: The depth of the AI search, defaults to 3.
-        :type depth: int
-        :param algorithm: The AI algorithm to use, defaults to "minimax".
-        :type algorithm: str
-        :param heuristic: The AI heuristic to use, defaults to "coin_parity".
-        :type heuristic: str
-        :param random_player: Whether the AI should play randomly, defaults to False.
-        :type random_player: bool
-        """
-
+        # Initialize the base board first
         if filename is None:
-            # Initialize a new game
+            # New game
             if isinstance(board_size, int):
                 board_size = BoardSize(board_size)
-            self.board = GameController(OthelloBoard(board_size))
-            self.board_size = board_size.value if hasattr(
-                board_size, 'value') else board_size
+            board = OthelloBoard(board_size)
+            self.board_size = board_size.value
         else:
             # Load from file
             try:
-                logger.debug("Loading game from file: %s.", filename)
-                with open(filename, "r") as file:  # No f-string here!
+                with open(filename, "r") as file:
                     file_content = file.read()
-                parsed_board = BoardParser(file_content).parse()
-                self.board = parsed_board
-                self.board_size = parsed_board.size
+                # This should return OthelloBoard
+                board = BoardParser(file_content).parse()
+                self.board_size = board.size
             except FileNotFoundError as err:
                 logger.error("File not found: %s", filename)
                 raise
@@ -71,15 +49,16 @@ class NormalGame:
                 logger.error("Failed to load game: %s", err)
                 raise
 
+        # Then create the appropriate controller
         if ai_mode:
             self.board = AIPlayerGameController(
-                self.board._board, ai_color, depth, algorithm, heuristic, random_player)
+                board,  # Pass the OthelloBoard directly
+                ai_color, depth, algorithm, heuristic, random_player)
+        else:
+            self.board = GameController(board)
 
-        self.board_size = board_size
-
-        logger.debug(
-            " NormalGame initialized with board_size: %s, current_player: %s.",
-            self.board_size, self.board.get_current_player())
+        logger.debug("NormalGame initialized with board_size: %s, current_player: %s.",
+                     self.board_size, self.board.get_current_player())
 
     def display_board(self):
         """
@@ -226,7 +205,22 @@ class NormalGame:
         return True
 
     def check_parser_input(self, command_str, command_kind, *args):
+        """
+        Checks if the given command from the parser is valid and executes it.
 
+        If the command is invalid, it prints an error message and prompts the
+        player again. If the command is valid, it processes the move and switches
+        the player. If the player has won, it prints a message and exits.
+
+        :param command_str: The command string from the parser.
+        :param command_kind: The type of command.
+        :param args: Additional arguments from the parser.
+        :type command_str: str
+        :type command_kind: CommandKind
+        :type args: tuple
+        :return: True if the command is valid, False if the command is invalid.
+        :rtype: bool
+        """
         if command_kind == CommandKind.PLAY_MOVE:
             play_command = args[0]
             x_coord, y_coord = play_command.x_coord, play_command.y_coord
@@ -235,9 +229,7 @@ class NormalGame:
 
             if not self.process_move(x_coord, y_coord, self.get_possible_moves()):
                 print("Invalid move. Try again.")
-                return True  # Invalid move, prompt player again
-
-            # self.switch_player()
+                return
 
         else:
             match command_kind:
