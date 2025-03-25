@@ -13,7 +13,7 @@ from othello.config import save_board_state_history
 from othello.othello_board import BoardSize, OthelloBoard, Color
 from othello.blitz_timer import BlitzTimer
 from othello.ai_features import find_best_move
-from othello.controllers import GameController, RandomPlayerGameController
+from othello.controllers import GameController, RandomPlayerGameController, AIPlayerGameController
 
 
 logger = logging.getLogger("Othello")
@@ -24,49 +24,59 @@ class NormalGame:
     A class representing a Normal Othello game.
     '''
 
-    def __init__(self, filename=str, board_size: BoardSize = BoardSize.EIGHT_BY_EIGHT):
+    def __init__(self, filename=str, board_size: BoardSize = BoardSize.EIGHT_BY_EIGHT,
+                 ai_mode=False, ai_color: Color = Color.BLACK, depth: int = 3,
+                 algorithm: str = "minimax", heuristic: str = "coin_parity", random_player: bool = False):
         """
-        Initialize the NormalGame with the given board size.
+        Initialize a NormalGame.
 
-        This sets up a new Othello game in Normal mode, initializing the board
-        and setting the starting player to black.
-
-        :param board_size: The size of the Othello board.
-        :type board_size: BoardSize
+        :param filename: The name of the file to load a saved game from, or None to start a new game.
+        :type filename: str
+        :param board_size: The size of the board to use, defaults to BoardSize.EIGHT_BY_EIGHT.
+        :type board_size: BoardSize | int
+        :param ai_mode: Whether to play against an AI, defaults to False.
+        :type ai_mode: bool
+        :param ai_color: The color of the AI, defaults to Color.BLACK.
+        :type ai_color: Color
+        :param depth: The depth of the AI search, defaults to 3.
+        :type depth: int
+        :param algorithm: The AI algorithm to use, defaults to "minimax".
+        :type algorithm: str
+        :param heuristic: The AI heuristic to use, defaults to "coin_parity".
+        :type heuristic: str
+        :param random_player: Whether the AI should play randomly, defaults to False.
+        :type random_player: bool
         """
-        logger.debug(
-            "Entering game initialization function from game_modes.py, "
-            "with parameter board size: %s", board_size)
 
         if filename is None:
+            # Initialize a new game
             if isinstance(board_size, int):
                 board_size = BoardSize(board_size)
-                self.board = GameController(
-                    OthelloBoard(board_size))
-                self.board_size = board_size
-                # self.board.get_current_player() = Color.BLACK
-
-            else:
-                self.board = GameController(OthelloBoard(board_size))
-                self.board_size = board_size.value
-                # self.board.get_current_player() = Color.BLACK
+            self.board = GameController(OthelloBoard(board_size))
+            self.board_size = board_size.value if hasattr(
+                board_size, 'value') else board_size
         else:
-            logger.debug("Loading game from file: %s.", filename)
+            # Load from file
             try:
-                with open(f"{filename}", "r") as file:
+                logger.debug("Loading game from file: %s.", filename)
+                with open(filename, "r") as file:  # No f-string here!
                     file_content = file.read()
-
                 parsed_board = BoardParser(file_content).parse()
-                # self.board.get_current_player() = parsed_board.current_player
                 self.board = parsed_board
                 self.board_size = parsed_board.size
+            except FileNotFoundError as err:
+                logger.error("File not found: %s", filename)
+                raise
             except Exception as err:
-                log.log_error_message(
-                    err, context=("Failed to load game from file: %s.", filename))
+                logger.error("Failed to load game: %s", err)
                 raise
 
-        self.no_black_move = False
-        self.no_white_move = False
+        if ai_mode:
+            self.board = AIPlayerGameController(
+                self.board._board, ai_color, depth, algorithm, heuristic, random_player)
+
+        self.board_size = board_size
+
         logger.debug(
             " NormalGame initialized with board_size: %s, current_player: %s.",
             self.board_size, self.board.get_current_player())
@@ -214,18 +224,6 @@ class NormalGame:
         logger.debug("   Move (%s, %s) is legal, playing.", x_coord, y_coord)
         self.board.play(x_coord, y_coord)
         return True
-
-    # def switch_player(self):
-    #     """
-    #     Switches the current player.
-
-    #     This function toggles the current player between black and white.
-    #     It does not return any value.
-    #     """
-    #     logger.debug("Entering switch_player function from game_modes.py.")
-    #     self.board.get_current_player() = (
-    #         Color.WHITE if self.board.get_current_player() == Color.BLACK else Color.BLACK
-    #     )
 
     def check_parser_input(self, command_str, command_kind, *args):
 

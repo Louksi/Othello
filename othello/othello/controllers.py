@@ -1,6 +1,6 @@
 from random import choice
 
-from othello import ai_features
+from othello.ai_features import find_best_move
 from othello.othello_board import BoardSize, Color, OthelloBoard
 
 
@@ -70,4 +70,31 @@ class RandomPlayerGameController(GameController):
         if self.post_play_callback is not None:
             self.post_play_callback()
         if self._board.current_player is self._random_player_color:
+            self._play()
+
+
+class AIPlayerGameController(GameController):
+    def __init__(self, board: OthelloBoard, ai_color: Color = Color.BLACK, depth: int = 3,
+                 algorithm: str = "minimax", heuristic: str = "coin_parity", random_player: bool = False):
+        super().__init__(board)
+        self.ai_color = ai_color
+        self.depth = depth
+        self.algorithm = algorithm
+        self.heuristic = heuristic
+        self.random_player = random_player
+
+    def ready(self):
+        if self.ai_color is self._board.current_player:
+            self._play()
+
+    def _play(self):
+        move = find_best_move(
+            self._board, self.depth, self.ai_color, True, self.algorithm, self.heuristic)
+        self.play(move[0], move[1])
+
+    def play(self, x_coord: int, y_coord: int):
+        self._board.play(x_coord, y_coord)
+        if self.post_play_callback is not None:
+            self.post_play_callback()
+        if self._board.current_player is self.ai_color:
             self._play()
