@@ -6,6 +6,15 @@ from copy import deepcopy
 from othello.othello_board import OthelloBoard, Color
 
 
+def get_player_at(board: OthelloBoard, x: int, y: int) -> Color:
+    """Helper function to determine which player occupies a given board position."""
+    if board.black.get(x, y):
+        return Color.BLACK
+    if board.white.get(x, y):
+        return Color.WHITE
+    return Color.EMPTY
+
+
 def minimax(board: OthelloBoard, depth: int, max_player: Color, heuristic) -> int:
     """
     Implements the minimax algorithm to evaluate the best possible move for a given board state.
@@ -112,16 +121,17 @@ def alphabeta(board: OthelloBoard, depth: int, alpha: int,
     return eval
 
 
-# def create_hash():
-#     ZOBRIST_TABLE = [[[random.getrandbits(64) for _ in range(2)] for _ in range(8)] for _ in range(8)]
-#     hash_value = 0
-#     for r in range(8):
-#         for c in range(8):
-#             if board[r][c] == 'B':
-#                 hash_value ^= ZOBRIST_TABLE[r][c][0]
-#             elif board[r][c] == 'W':
-#                 hash_value ^= ZOBRIST_TABLE[r][c][1]
-#     return hash_value
+def create_hash():
+    ZOBRIST_TABLE = [[[random.getrandbits(64) for _ in range(
+        2)] for _ in range(8)] for _ in range(8)]
+    hash_value = 0
+    for r in range(8):
+        for c in range(8):
+            if board[r][c] == 'B':
+                hash_value ^= ZOBRIST_TABLE[r][c][0]
+            elif board[r][c] == 'W':
+                hash_value ^= ZOBRIST_TABLE[r][c][1]
+    return hash_value
 
 
 def find_best_move(board: OthelloBoard, depth: int = 3, max_player: Color = Color.BLACK, search_algo: str = "minimax", heuristic: str = "corners_captured") -> tuple[int, int]:
@@ -213,18 +223,10 @@ def corners_captured_heuristic(board: OthelloBoard, max_player: Color) -> int:
         (0, board.size.value - 1), (board.size.value - 1, board.size.value - 1)
     ]
 
-    def get_player_at(x: int, y: int) -> Color:
-        """Helper function to determine which player occupies a given board position."""
-        if board.black.get(x, y):
-            return Color.BLACK
-        if board.white.get(x, y):
-            return Color.WHITE
-        return Color.EMPTY
-
     max_corners = sum(
-        1 for x, y in corners if get_player_at(x, y) == max_player)
+        1 for x, y in corners if get_player_at(board, x, y) == max_player)
     min_corners = sum(
-        1 for x, y in corners if get_player_at(x, y) == ~max_player)
+        1 for x, y in corners if get_player_at(board, x, y) == ~max_player)
 
     if max_corners + min_corners != 0:
         return int(100 * (max_corners - min_corners) / (max_corners + min_corners))
