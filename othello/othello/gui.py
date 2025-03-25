@@ -3,25 +3,20 @@ Graphic interface to play the Othello game, inherits from __main__.py
 """
 # pylint: disable=locally-disabled, multiple-statements, line-too-long, import-error, no-name-in-module
 
-from othello.controllers import GameController
-import cairo
-import time
-import threading
-import sys
-import math
-import logging
-from othello.othello_board import Color, GameOverException, OthelloBoard
-from othello.blitz_timer import BlitzTimer
 from othello.ai_features import find_best_move
+from othello.blitz_timer import BlitzTimer
+from othello.othello_board import Color, GameOverException, OthelloBoard
+import logging
+import math
+import sys
+import threading
+import time
+import cairo
+from othello.controllers import GameController
 from gi.repository import Gtk, GLib, Adw
 from gi import require_version
-# Must be at the very top, before any GTK imports
 require_version('Gtk', '4.0')
 require_version('Adw', '1')
-
-# Now safe to import GTK
-
-# Rest of your imports
 
 
 logger = logging.getLogger("Othello")
