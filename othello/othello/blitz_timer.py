@@ -88,6 +88,7 @@ class BlitzTimer:
         """
         if self.start_time and player == self.current_player:
             elapsed = time() - self.start_time
+            self.start_time = time()
             base_time = self.remaining_time[player]
             self.remaining_time[player] = max(0, base_time - elapsed)
             logger.debug(
