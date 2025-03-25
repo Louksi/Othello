@@ -6,7 +6,7 @@ from copy import deepcopy
 from othello.othello_board import OthelloBoard, Color
 
 
-def minimax(board: OthelloBoard, depth: int, max_player: Color, maximizing: bool, heuristic) -> int:
+def minimax(board: OthelloBoard, depth: int, max_player: Color, heuristic) -> int:
     """
     Implements the minimax algorithm to evaluate the best possible move for a given board state.
 
@@ -20,9 +20,6 @@ def minimax(board: OthelloBoard, depth: int, max_player: Color, maximizing: bool
     :type depth: int
     :param max_player: The player for whom the best move is being calculated (BLACK or WHITE).
     :type max_player: Color
-    :param maximizing: A Boolean indicating whether the current step is maximizing or minimizing
-    the score.
-    :type maximizing: bool
     :return: The heuristic value of the best move found from the current board state.
     :rtype: int
     """
@@ -34,14 +31,14 @@ def minimax(board: OthelloBoard, depth: int, max_player: Color, maximizing: bool
         board.current_player).hot_bits_coordinates()
 
     if valid_moves == []:
-        return minimax(board, depth - 1, max_player, not maximizing, heuristic)
+        return minimax(board, depth - 1, max_player, heuristic)
 
-    if maximizing:
+    if max_player == board.current_player:
         eval = float("-inf")
         for move_x, move_y in valid_moves:
             board.play(move_x, move_y)
             eval_score = minimax(
-                board, depth - 1, max_player, not maximizing, heuristic)
+                board, depth - 1, max_player, heuristic)
             eval = max(eval, eval_score)
             board.pop()
     else:
@@ -49,7 +46,7 @@ def minimax(board: OthelloBoard, depth: int, max_player: Color, maximizing: bool
         for move_x, move_y in valid_moves:
             board.play(move_x, move_y)
             eval_score = minimax(
-                board, depth - 1, max_player, not maximizing, heuristic)
+                board, depth - 1, max_player, heuristic)
             eval = min(eval, eval_score)
             board.pop()
 
@@ -57,7 +54,7 @@ def minimax(board: OthelloBoard, depth: int, max_player: Color, maximizing: bool
 
 
 def alphabeta(board: OthelloBoard, depth: int, alpha: int,
-              beta: int, max_player: Color, maximizing: bool, heuristic) -> int:
+              beta: int, max_player: Color, heuristic) -> int:
     """
     Implements the Alpha-Beta Pruning algorithm to evaluate the best possible move for a given
     board state.
@@ -76,9 +73,6 @@ def alphabeta(board: OthelloBoard, depth: int, alpha: int,
     :type beta: int
     :param max_player: The player for whom the best move is being calculated (BLACK or WHITE).
     :type max_player: Color
-    :param maximizing: A Boolean indicating whether the current step is maximizing or minimizing
-    the score.
-    :type maximizing: bool
     :return: The heuristic value of the best move found from the current board state.
     :rtype: int
     """
@@ -90,14 +84,14 @@ def alphabeta(board: OthelloBoard, depth: int, alpha: int,
         board.current_player).hot_bits_coordinates()
 
     if valid_moves == []:
-        return minimax(board, depth - 1, max_player, not maximizing, heuristic)
+        return minimax(board, depth - 1, max_player, heuristic)
 
-    if maximizing:
+    if max_player == board.current_player:
         eval = float("-inf")
         for move_x, move_y in valid_moves:
             board.play(move_x, move_y)
             eval_score = alphabeta(
-                board, depth - 1, alpha, beta, max_player, not maximizing, heuristic)
+                board, depth - 1, alpha, beta, max_player, heuristic)
             eval = max(eval, eval_score)
             board.pop()
             alpha = max(alpha, eval)
@@ -108,7 +102,7 @@ def alphabeta(board: OthelloBoard, depth: int, alpha: int,
         for move_x, move_y in valid_moves:
             board.play(move_x, move_y)
             eval_score = alphabeta(
-                board, depth - 1, alpha, beta, max_player, not maximizing, heuristic)
+                board, depth - 1, alpha, beta, max_player, heuristic)
             eval = min(eval, eval_score)
             board.pop()
             beta = min(beta, eval)
@@ -118,8 +112,19 @@ def alphabeta(board: OthelloBoard, depth: int, alpha: int,
     return eval
 
 
-def find_best_move(board: OthelloBoard, depth: int = 3, max_player: Color = Color.BLACK,
-                   maximizing: bool = True, search_algo: str = "minimax", heuristic: str = "corners_captured") -> tuple[int, int]:
+# def create_hash():
+#     ZOBRIST_TABLE = [[[random.getrandbits(64) for _ in range(2)] for _ in range(8)] for _ in range(8)]
+#     hash_value = 0
+#     for r in range(8):
+#         for c in range(8):
+#             if board[r][c] == 'B':
+#                 hash_value ^= ZOBRIST_TABLE[r][c][0]
+#             elif board[r][c] == 'W':
+#                 hash_value ^= ZOBRIST_TABLE[r][c][1]
+#     return hash_value
+
+
+def find_best_move(board: OthelloBoard, depth: int = 3, max_player: Color = Color.BLACK, search_algo: str = "minimax", heuristic: str = "corners_captured") -> tuple[int, int]:
     """
     Finds the best move according to the given search algorithm.
 
@@ -129,9 +134,6 @@ def find_best_move(board: OthelloBoard, depth: int = 3, max_player: Color = Colo
     :type depth: int
     :param max_player: The player for whom the best move is being calculated (BLACK or WHITE).
     :type max_player: Color
-    :param maximizing: A Boolean indicating whether the current step is maximizing or minimizing
-    the score.
-    :type maximizing: bool
     :param search_algo: The search algorithm to use, either "minimax" or "alphabeta".
     :type search_algo: str
     :return: The coordinates of the best move found from the current board state.
@@ -154,7 +156,8 @@ def find_best_move(board: OthelloBoard, depth: int = 3, max_player: Color = Colo
         board.current_player).hot_bits_coordinates()
 
     best_move = (-1, -1)
-    best_score = float("-inf") if maximizing else float("inf")
+    best_score = float(
+        "-inf") if max_player == board.current_player else float("inf")
     for move_x, move_y in valid_moves:
 
         new_board = deepcopy(board)
@@ -162,11 +165,11 @@ def find_best_move(board: OthelloBoard, depth: int = 3, max_player: Color = Colo
         new_board.play(move_x, move_y)
         if search_algo == "minimax":
             score = minimax(new_board, depth - 1,
-                            max_player, not maximizing, heuristic_function)
+                            max_player, heuristic_function)
         else:
             score = alphabeta(
                 new_board, depth - 1, float("-inf"), float("inf"),
-                max_player, not maximizing, heuristic_function)
+                max_player, heuristic_function)
 
         if score > best_score:
             best_score = score
