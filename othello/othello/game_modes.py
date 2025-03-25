@@ -41,8 +41,8 @@ class NormalGame:
         if filename is None:
             if isinstance(board_size, int):
                 board_size = BoardSize(board_size)
-                self.board = RandomPlayerGameController(
-                    OthelloBoard(board_size), Color.WHITE)
+                self.board = GameController(
+                    OthelloBoard(board_size))
                 self.board_size = board_size
                 # self.board.get_current_player() = Color.BLACK
 

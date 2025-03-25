@@ -17,6 +17,8 @@ class GameController():
 
     def play(self, x_coord: int, y_coord: int):
         self._board.play(x_coord, y_coord)
+        if self.post_play_callback is not None:
+            self.post_play_callback()
 
     def get_possible_moves(self, player: Color):
         return self._board.line_cap_move(player)
