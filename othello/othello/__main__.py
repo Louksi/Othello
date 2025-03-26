@@ -72,12 +72,12 @@ def main():
                 f"Blitz mode with time limit: {config['blitz_time']} minutes")
             if config["gui"]:
                 size = BoardSize.from_value(config["size"])
-                board = GameController(OthelloBoard(size))
+                board = GameController(OthelloBoard(size), blitz_mode=True)
                 gui = OthelloGUI(board)
                 gui.run()
             else:
-                OthelloCLI(config["filename"],
-                           config["size"], config["blitz_time"]).play()
+                OthelloCLI(filename=config["filename"], board_size=config["size"],
+                           blitz_mode=True, blitz_time=config["blitz_time"]).play()
 
         case parser.GameMode.CONTEST.value:
             print("Starting Contest Mode...")
@@ -92,8 +92,8 @@ def main():
                 gui = OthelloGUI(board)
                 gui.run()
             else:
-                OthelloCLI(config["filename"], config["size"], True, config["ai_color"],
-                           config["ai_depth"], config["ai_mode"], config["ai_heuristic"]).play()
+                OthelloCLI(filename=config["filename"], board_size=config["size"], ai_mode=True, ai_color=config["ai_color"],
+                           depth=config["ai_depth"], algorithm=config["ai_mode"], heuristic=config["ai_heuristic"]).play()
         case _:
             print("Unknown game mode. Exiting.")
             sys.exit(1)

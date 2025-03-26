@@ -2,16 +2,17 @@ from random import choice
 
 from othello.ai_features import find_best_move
 from othello.othello_board import BoardSize, Color, OthelloBoard
-from othello.parser import AIColor
+from othello.parser import DEFAULT_BLITZ_TIME
 
 
 class GameController():
-    def __init__(self, board: OthelloBoard):
+    def __init__(self, board: OthelloBoard, blitz_mode=False, time_limit=None):
         self._board = board
         self.size = board.size
         self.first_player_human = True
         self.post_play_callback = None
-        self.is_blitz = False
+        self.is_blitz = blitz_mode
+        self.time_limit = time_limit if time_limit is not None else DEFAULT_BLITZ_TIME
 
     def ready(self):
         pass

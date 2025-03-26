@@ -23,7 +23,7 @@ class OthelloCLI:
     A class representing a Normal Othello game.
     '''
 
-    def __init__(self, filename=None, board_size: BoardSize = BoardSize.EIGHT_BY_EIGHT,
+    def __init__(self, filename=None, board_size: BoardSize = BoardSize.EIGHT_BY_EIGHT, blitz_mode: bool = False, blitz_time: int = None,
                  ai_mode=False, ai_color: Color = Color.BLACK, depth: int = 3,
                  algorithm: str = "minimax", heuristic: str = "coin_parity", random_player: bool = False):
         # Initialize the base board first
@@ -34,7 +34,6 @@ class OthelloCLI:
             board = OthelloBoard(board_size)
             self.board_size = board_size.value
         else:
-            # Load from file
             try:
                 with open(filename, "r") as file:
                     file_content = file.read()
@@ -47,6 +46,11 @@ class OthelloCLI:
             except Exception as err:
                 logger.error("Failed to load game: %s", err)
                 raise
+        self.blitz_mode = blitz_mode
+        if blitz_mode:
+            self.blitz_timer = BlitzTimer(
+                blitz_time if blitz_time is not None else DEFAULT_BLITZ_TIME)
+            self.blitz_timer.start_timer('black')
 
         if ai_mode:
             self.board = AIPlayerGameController(board, ai_color,
@@ -81,6 +85,14 @@ class OthelloCLI:
         :rtype: bool
         """
         logger.debug("Entering check_game_over function from game_modes.py.")
+
+        if self.blitz_mode:
+            if self.blitz_timer.is_time_up('black'):
+                print("Black's time is up! White wins!")
+                return True
+            elif self.blitz_timer.is_time_up('white'):
+                print("White's time is up! Black wins!")
+                return True
 
         if self.board.is_game_over():
             logger.debug("Game over condition detected.")
@@ -184,6 +196,11 @@ class OthelloCLI:
             print("Invalid move. Not a legal play. Try again.")
             return False
         logger.debug("   Move (%s, %s) is legal, playing.", x_coord, y_coord)
+        if self.blitz_mode:
+            current = 'black' if self.board.get_current_player() == Color.BLACK else 'white'
+            self.blitz_timer.change_player(
+                'white' if current == 'black' else 'black')
+
         self.board.play(x_coord, y_coord)
         return True
 
@@ -291,6 +308,8 @@ class OthelloCLI:
             if self.check_game_over(possible_moves):
                 continue
 
+            if self.blitz_mode:
+                print(self.blitz_timer.display_time())
             command_str = input("Enter your move or command: ").strip()
             logger.debug("   Player input: '%s'.", command_str)
             try:
@@ -303,103 +322,3 @@ class OthelloCLI:
 
                 print(f"Error: {e}\nInvalid command. Please try again.")
                 parser.print_help()
-
-
-class BlitzGame(OthelloCLI):
-    def __init__(self, filename: str, board_size: BoardSize = BoardSize.EIGHT_BY_EIGHT, time: int = None):
-        super().__init__(filename, BoardSize(board_size)
-                         if isinstance(board_size, int) else board_size)
-        self.blitz_timer = BlitzTimer(
-            time if time is not None else DEFAULT_BLITZ_TIME)
-        self.blitz_timer.start_timer('black')
-
-    def switch_player(self):
-        """Switches the current player and updates the Blitz timer."""
-        if self.blitz_timer.is_time_up('black'):
-            print("Black's time is up! White wins!")
-            sys.exit(0)
-        elif self.blitz_timer.is_time_up('white'):
-            print("White's time is up! Black wins!")
-            sys.exit(0)
-
-        # Get current player before switching
-        current_player = self.board.get_current_player()
-
-        # Switch player through the controller
-        self.board.play(-1, -1)  # Dummy move to trigger player switch
-
-        # Update timer for new player
-        next_player = 'white' if current_player == Color.BLACK else 'black'
-        self.blitz_timer.change_player(next_player)
-
-    def check_game_over(self, possible_moves):
-        """Checks if the game is over due to time or normal conditions."""
-        if self.blitz_timer.is_time_up('black'):
-            print("Black's time is up! White wins!")
-            sys.exit(0)
-        elif self.blitz_timer.is_time_up('white'):
-            print("White's time is up! Black wins!")
-            sys.exit(0)
-
-        return super().check_game_over(possible_moves)
-
-    def display_time(self):
-        """
-        Prints the remaining time for both players.
-
-        This method prints the formatted string returned by BlitzTimer.display_time,
-        which shows the remaining time for both black and white players in minutes and
-        seconds.
-        """
-        logger.debug(
-            "Entering display_time function for Blitz mode, from game_modes.py.")
-        print(self.blitz_timer.display_time())
-
-    def play(self):
-        """
-        Main game loop for Blitz mode.
-
-        This function implements the main game loop for Blitz mode, which is
-        similar to the main game loop for Normal mode. However, Blitz mode
-        includes a time limit for each player, and the game ends when either
-        player's time runs out or when there are no valid moves left for the
-        current player.
-
-        The loop consists of the following steps:
-
-        1. Display the current state of the board.
-        2. Compute the possible moves for the current player.
-        3. If the game is over, continue to the next iteration.
-        4. Display the possible moves.
-        5. Get a move from the current player.
-        6. If the move is invalid, continue to the next iteration.
-        7. Process the move by playing it on the board.
-        8. Switch the current player.
-        9. Print the remaining time for both players.
-        """
-        logger.debug(
-            "Entering play function for Blitz mode, from game_modes.py.")
-        parser = CommandParser(board_size=self.board.size.value)
-
-        while True:
-            self.display_board()
-            possible_moves = self.get_possible_moves()
-            if self.check_game_over(possible_moves):
-                continue
-
-            self.display_possible_moves(possible_moves)
-            command_str = input("Enter your move or command: ").strip()
-            logger.debug("   Player input: '%s'.", command_str)
-
-            try:
-                command_kind, *args = parser.parse_str(command_str)
-
-                self.check_parser_input(command_str, command_kind, *args)
-
-            except CommandParserException as e:
-                log.log_error_message(
-                    e, context=f"Failed to parse command: {command_str}")
-
-                print(f"Error: {e}\nInvalid command. Please try again.")
-                parser.print_help()
-            self.display_time()
