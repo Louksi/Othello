@@ -14,6 +14,7 @@ class GameController():
         self.is_blitz = False
 
     def ready(self):
+        print("here")
         pass
 
     def play(self, x_coord: int, y_coord: int):
@@ -81,10 +82,9 @@ class AIPlayerGameController(GameController):
         super().__init__(board)
 
         if isinstance(ai_color, str):
-            ai_color = ai_color.lower()
-            if ai_color == 'black':
+            if ai_color == 'X':
                 self.ai_color = Color.BLACK
-            elif ai_color == 'white':
+            elif ai_color == 'O':
                 self.ai_color = Color.WHITE
             else:
                 self.ai_color = ai_color
@@ -92,7 +92,6 @@ class AIPlayerGameController(GameController):
             raise ValueError(
                 f"Invalid ai_color type: {type(ai_color)}. Must be a string or Color enum.")
 
-        self.ai_color = ai_color
         self.depth = depth
         self.algorithm = algorithm
         self.heuristic = heuristic
@@ -104,7 +103,7 @@ class AIPlayerGameController(GameController):
 
     def _play(self):
         move = find_best_move(
-            self._board, self.depth, self.ai_color, True, self.algorithm, self.heuristic)
+            self._board, self.depth, self.ai_color, self.algorithm, self.heuristic)
         self.play(move[0], move[1])
 
     def play(self, x_coord: int, y_coord: int):

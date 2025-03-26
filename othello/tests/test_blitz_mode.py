@@ -2,7 +2,7 @@ from othello.command_parser import CommandKind, PlayCommand
 from unittest.mock import MagicMock, patch, call
 import pytest
 from unittest.mock import MagicMock, patch
-from othello.game_modes import BlitzGame
+from othello.othello.cli import BlitzGame
 from othello.othello_board import BoardSize, Color
 from othello.command_parser import CommandKind
 from othello.controllers import GameController

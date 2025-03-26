@@ -6,11 +6,11 @@ import sys
 import logging
 
 import othello.parser as parser
-import othello.game_modes as Modes
 import othello.logger as log
 from othello.gui import OthelloGUI
+from othello.cli import OthelloCLI
 from othello.othello_board import BoardSize, OthelloBoard
-from othello.controllers import GameController
+from othello.controllers import GameController, AIPlayerGameController
 
 
 def main():
@@ -64,7 +64,7 @@ def main():
                 gui = OthelloGUI(board)
                 gui.run()
             else:
-                Modes.NormalGame(config["filename"], config["size"]).play()
+                OthelloCLI(config["filename"], config["size"]).play()
 
         case parser.GameMode.BLITZ.value:
             print("Starting Blitz Mode...")
@@ -76,8 +76,8 @@ def main():
                 gui = OthelloGUI(board)
                 gui.run()
             else:
-                Modes.BlitzGame(config["filename"],
-                                config["size"], config["blitz_time"]).play()
+                OthelloCLI(config["filename"],
+                           config["size"], config["blitz_time"]).play()
 
         case parser.GameMode.CONTEST.value:
             print("Starting Contest Mode...")
@@ -87,13 +87,13 @@ def main():
             print("Starting AI Mode...")
             if config["gui"]:
                 size = BoardSize.from_value(config["size"])
-                board = OthelloBoard(size)
-                # Create a GUI with AI capabilities
+                board = AIPlayerGameController(OthelloBoard(size), config["ai_color"],
+                                               config["ai_depth"], config["ai_mode"], config["ai_heuristic"])
                 gui = OthelloGUI(board)
                 gui.run()
             else:
-                Modes.NormalGame(config["filename"], config["size"], True, config["ai_color"],
-                                 config["ai_depth"], config["ai_mode"], config["ai_heuristic"]).play()
+                OthelloCLI(config["filename"], config["size"], True, config["ai_color"],
+                           config["ai_depth"], config["ai_mode"], config["ai_heuristic"]).play()
         case _:
             print("Unknown game mode. Exiting.")
             sys.exit(1)

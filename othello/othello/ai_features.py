@@ -293,6 +293,6 @@ def all_in_one_heuristic(board: OthelloBoard, max_player: Color) -> int:
     w_mobility = 4
     w_coins = 1
 
-    return (w_corners * corners_captured_heuristic(board) +
-            w_mobility * mobility_heuristic(board) +
-            w_coins * coin_parity_heuristic(board))
+    return (w_corners * corners_captured_heuristic(board, max_player) +
+            w_mobility * mobility_heuristic(board, max_player) +
+            w_coins * coin_parity_heuristic(board, max_player))

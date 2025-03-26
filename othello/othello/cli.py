@@ -12,14 +12,13 @@ from othello.parser import DEFAULT_BLITZ_TIME
 from othello.config import save_board_state_history
 from othello.othello_board import BoardSize, OthelloBoard, Color
 from othello.blitz_timer import BlitzTimer
-from othello.ai_features import find_best_move
 from othello.controllers import GameController, RandomPlayerGameController, AIPlayerGameController
 
 
 logger = logging.getLogger("Othello")
 
 
-class NormalGame:
+class OthelloCLI:
     '''
     A class representing a Normal Othello game.
     '''
@@ -49,11 +48,9 @@ class NormalGame:
                 logger.error("Failed to load game: %s", err)
                 raise
 
-        # Then create the appropriate controller
         if ai_mode:
-            self.board = AIPlayerGameController(
-                board,  # Pass the OthelloBoard directly
-                ai_color, depth, algorithm, heuristic, random_player)
+            self.board = AIPlayerGameController(board, ai_color,
+                                                depth, algorithm, heuristic)
         else:
             self.board = GameController(board)
 
@@ -72,20 +69,6 @@ class NormalGame:
         print(str(self.board))
         print(
             f"\n{self.board.get_current_player().name}'s turn ({self.board.get_current_player().value})")
-
-    def get_possible_moves(self):
-        """
-        Returns a bitboard of the possible capture moves for the current player.
-
-        This function queries the board for the possible capture moves for the
-        current player and returns them as a bitboard.
-
-        :return: A Bitboard of the possible capture moves for the current player.
-        :rtype: Bitboard
-        """
-        logger.debug(
-            "Entering get_possible_moves function from game_modes.py.")
-        return self.board.get_possible_moves(self.board.get_current_player())
 
     def check_game_over(self, possible_moves):
         """
@@ -227,7 +210,7 @@ class NormalGame:
             logger.debug(
                 "   Play move command at (%s, %s).", x_coord, y_coord)
 
-            if not self.process_move(x_coord, y_coord, self.get_possible_moves()):
+            if not self.process_move(x_coord, y_coord, self.board.get_possible_moves(self.board.get_current_player())):
                 print("Invalid move. Try again.")
                 return
 
@@ -292,19 +275,20 @@ class NormalGame:
         parser = CommandParser(board_size=self.board.size.value)
 
         self.display_board()
-        possible_moves = self.get_possible_moves()
+        possible_moves = self.board.get_possible_moves(
+            self.board.get_current_player())
         self.display_possible_moves(possible_moves)
 
         def cb():
             self.display_board()
-            possible_moves = self.get_possible_moves()
+            possible_moves = self.board.get_possible_moves(
+                self.board.get_current_player())
             self.display_possible_moves(possible_moves)
         self.board.post_play_callback = cb
         self.board.ready()
 
         while True:
             if self.check_game_over(possible_moves):
-                # If game over, restart the loop (display final board state)
                 continue
 
             command_str = input("Enter your move or command: ").strip()
@@ -321,7 +305,7 @@ class NormalGame:
                 parser.print_help()
 
 
-class BlitzGame(NormalGame):
+class BlitzGame(OthelloCLI):
     def __init__(self, filename: str, board_size: BoardSize = BoardSize.EIGHT_BY_EIGHT, time: int = None):
         super().__init__(filename, BoardSize(board_size)
                          if isinstance(board_size, int) else board_size)
@@ -357,10 +341,6 @@ class BlitzGame(NormalGame):
             print("White's time is up! Black wins!")
             sys.exit(0)
 
-        # Delegate to parent class for normal game over conditions
-        return super().check_game_over(possible_moves)
-
-        # Delegate to parent class for normal game over conditions
         return super().check_game_over(possible_moves)
 
     def display_time(self):
@@ -423,151 +403,3 @@ class BlitzGame(NormalGame):
                 print(f"Error: {e}\nInvalid command. Please try again.")
                 parser.print_help()
             self.display_time()
-
-
-class AIMode(NormalGame):
-    '''
-    A class representing a game mode where a player faces an AI opponent.
-    '''
-
-    def __init__(self, filename=None, board_size: BoardSize = BoardSize.EIGHT_BY_EIGHT,
-                 ai_color: Color = Color.BLACK, depth: int = 3,
-                 algorithm: str = "minimax", heuristic: str = "coin_parity", random_player: bool = False):
-        """
-        Initialize the AI mode with a specified AI color, depth, algorithm, and heuristic.
-
-        :param board_size: The size of the Othello board.
-        :param ai_color: The color the AI will play as (Black or White).
-        :param depth: The depth of the search tree for AI.
-        :param algorithm: The search algorithm to use ("minimax" or "alphabeta").
-        :param heuristic: The heuristic function to evaluate board states.
-        """
-        super().__init__(filename, board_size)
-
-        if isinstance(ai_color, str):
-            ai_color = ai_color.upper()
-            if ai_color == AIColor.BLACK.value:
-                self.ai_player = Color.BLACK
-            elif ai_color == AIColor.WHITE.value:
-                self.ai_player = Color.WHITE
-            else:
-                self.ai_player = ai_color
-        else:
-            raise ValueError(
-                f"Invalid ai_color type: {type(ai_color)}. Must be a string or Color enum.")
-
-        self.depth = depth
-        self.algorithm = algorithm
-        self.heuristic = heuristic
-        self.random_player = random_player
-
-    def get_ai_move(self, possible_moves):
-        """
-        Determines the AI's move using Minimax or Alpha-Beta Pruning.
-
-        :param possible_moves: A bitboard of the possible capture moves for the AI.
-        :return: A tuple (x, y) of the chosen move coordinates.
-        """
-        best_move = find_best_move(
-            self.board, self.depth, self.ai_player, True, self.algorithm, self.heuristic)
-        return best_move if best_move != (-1, -1) else None
-
-    def display_ai_move(self, coords):
-        """Convert (row, col) coordinates to chess notation."""
-        col, row = coords
-        col_letter = chr(ord('a') + col)
-        print(f"\nMove Played: {col_letter}{row+1}\n")
-
-    def play(self):
-        """
-        Main game loop for AI mode.
-
-        This function implements the main game loop for AI mode, similar to that of Normal mode.
-        However, AI mode pits an AI against the player.
-
-        The loop consists of the following steps:
-
-        1. Display the current state of the board.
-        2. Calculate the possible moves for the current player.
-        3. If the game is over, proceed to the next iteration.
-        4. Display the possible moves.
-        5. Obtain a move from the current player.
-        6. If the move is invalid, proceed to the next iteration.
-        7. Process the move by playing it on the board.
-        8. Calculate the AI's move, based on a chosen algorithm.
-        """
-        logger.debug("Starting AI Mode game loop.")
-
-        parser = CommandParser(board_size=self.board.size.value)
-
-        while True:
-            self.display_board()
-            possible_moves = self.get_possible_moves()
-
-            if self.check_game_over(possible_moves):
-                continue
-            self.display_possible_moves(possible_moves)
-            print(
-                f"Current player: {self.board.get_current_player()}, AI color: {self.ai_color}")
-            if self.board.get_current_player() == self.ai_color:
-                print("AI is making a move...")
-                ai_move = self.get_ai_move(possible_moves)
-                if not self.process_move(ai_move[0], ai_move[1], possible_moves):
-                    continue
-
-                # self.switch_player()
-            else:
-                command_str = input("Enter your move or command: ").strip()
-                logger.debug(f"   Player input: '{command_str}'.")
-
-                try:
-                    command_result, *args = parser.parse_str(command_str)
-
-                    self.check_parser_input(command_str, command_result, *args)
-
-                except CommandParserException as e:
-                    log.log_error_message(
-                        e, context=f"Failed to parse command: {command_str}.")
-
-                    print("Invalid command. Please try again.")
-                    continue
-
-    def play_random(self):
-        """
-        Main game loop for a random player against the AI.
-
-        This function implements the main game loop for a game between a random player
-        and the AI. The loop consists of the following steps:
-
-        1. Display the current state of the board.
-        2. Compute the possible moves for the current player.
-        3. If the game is over, continue to the next iteration.
-        4. Display the possible moves.
-        5. If the current player is the AI, get a move from the AI.
-        6. Process the AI's move by playing it on the board.
-        7. Switch the current player.
-        8. Print the remaining time for both players.
-        """
-        while True:
-            self.display_board()
-            possible_moves = self.get_possible_moves()
-
-            if self.check_game_over(possible_moves):
-                continue
-            self.display_possible_moves(possible_moves)
-            if self.current_player == self.ai_player:
-                print("AI is making a move...")
-                ai_move = self.get_ai_move(possible_moves)
-                if not self.process_move(ai_move[0], ai_move[1], possible_moves):
-                    continue
-                self.display_ai_move(ai_move)
-                self.switch_player()
-
-            else:
-                print("Random player is making a move...")
-                # Pass the board instead of possible_moves
-                random_mv = random_move(self.board)
-                if not self.process_move(random_mv[0], random_mv[1], possible_moves):
-                    continue
-                self.display_ai_move(random_mv)
-                self.switch_player()

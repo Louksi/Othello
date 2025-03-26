@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import MagicMock, patch
 from othello.othello_board import BoardSize, Color, Bitboard
 from othello.command_parser import CommandKind, CommandParserException
-from othello.game_modes import NormalGame
+from othello.othello.cli import NormalGame
 
 
 @pytest.fixture
