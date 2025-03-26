@@ -32,6 +32,9 @@ class GameController():
     def restart(self):
         self._board.restart()
 
+    def get_turn_number(self):
+        return self._board.get_turn_id()
+
     def is_game_over(self):
         return self._board.is_game_over()
 
@@ -41,6 +44,9 @@ class GameController():
     def get_pieces_count(self, player_color: Color):
         return self._board.black.popcount() if player_color is Color.BLACK \
             else self._board.white.popcount()
+
+    def get_history(self):
+        return self._board.get_history()
 
     def export(self):
         return self._board.export()

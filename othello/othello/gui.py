@@ -1,19 +1,16 @@
 """
 Graphic interface to play the Othello game, inherits from __main__.py
 """
-# pylint: disable=locally-disabled, multiple-statements, line-too-long, import-error, no-name-in-module
-
-from othello.ai_features import find_best_move
-from othello.blitz_timer import BlitzTimer
-from othello.othello_board import Color, GameOverException, OthelloBoard
-import logging
-import math
-import sys
-import threading
-import time
-import cairo
-from othello.controllers import GameController
 from gi.repository import Gtk, GLib, Adw
+from othello.controllers import GameController
+import cairo
+import time
+import threading
+import sys
+import math
+import logging
+from othello.othello_board import Color, GameOverException, IllegalMoveException, OthelloBoard
+from othello.blitz_timer import BlitzTimer
 from gi import require_version
 require_version('Gtk', '4.0')
 require_version('Adw', '1')
@@ -156,6 +153,8 @@ class OthelloWindow(Gtk.ApplicationWindow):
         self.save_quit_button: Gtk.Button
         self.restart_button: Gtk.Button
         self.save_history_button: Gtk.Button
+
+        self.logger = logging.getLogger("Othello")
 
         self.__init_game(board)
 
@@ -455,6 +454,8 @@ class OthelloWindow(Gtk.ApplicationWindow):
             except GameOverException as err:
                 self.over_message = str(err)
                 self.over = True
+            except IllegalMoveException as err:
+                self.logger.debug(err)
             self.update_game_state()
 
     def forfeit_handler(self, _button: Gtk.Button):

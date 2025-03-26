@@ -1,7 +1,6 @@
 """
 Program arguments parsing
 """
-# pylint: disable=locally-disabled, multiple-statements, line-too-long, import-error, no-name-in-module
 
 import sys
 from typing import Tuple
