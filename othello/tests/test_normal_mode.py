@@ -2,13 +2,13 @@ import pytest
 from unittest.mock import MagicMock, patch
 from othello.othello_board import BoardSize, Color, Bitboard
 from othello.command_parser import CommandKind, CommandParserException
-from othello.othello.cli import NormalGame
+from othello.cli import OthelloCLI
 
 
 @pytest.fixture
 def normal_game():
     """Fixture to create a NormalGame instance with mocked board."""
-    game = NormalGame(filename=None, board_size=BoardSize.EIGHT_BY_EIGHT)
+    game = OthelloCLI(filename=None, board_size=BoardSize.EIGHT_BY_EIGHT)
     game.board = MagicMock()
     game.board.black = MagicMock()
     game.board.white = MagicMock()
@@ -123,7 +123,7 @@ def test_play_loop_with_quit_command(mock_input, normal_game):
     mock_input.return_value = 'q'
     normal_game.check_game_over = MagicMock(return_value=False)
 
-    with patch('othello.game_modes.CommandParser') as mock_parser_class:
+    with patch('othello.cli.CommandParser') as mock_parser_class:
         mock_parser = MagicMock()
         mock_parser_class.return_value = mock_parser
         mock_parser.parse_str.return_value = (CommandKind.QUIT,)
@@ -140,10 +140,10 @@ def test_play_loop_with_valid_move(mock_input, normal_game):
 
     # Create a mock for possible moves
     mock_possible_moves = MagicMock()
-    normal_game.get_possible_moves = MagicMock(
+    normal_game.board.get_possible_moves = MagicMock(
         return_value=mock_possible_moves)
 
-    with patch('othello.game_modes.CommandParser') as mock_parser_class:
+    with patch('othello.cli.CommandParser') as mock_parser_class:
         mock_parser = MagicMock()
         mock_parser_class.return_value = mock_parser
 

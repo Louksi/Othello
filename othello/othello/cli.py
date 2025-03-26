@@ -65,7 +65,7 @@ class OthelloCLI:
         indicates which player's turn it is by displaying the player's name
         and corresponding symbol.
         """
-        logger.debug("Entering display_board function from game_modes.py.")
+        logger.debug("Entering display_board function from cli.py.")
         print(str(self.board))
         print(
             f"\n{self.board.get_current_player().name}'s turn ({self.board.get_current_player().value})")

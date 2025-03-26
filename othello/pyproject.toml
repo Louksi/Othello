@@ -36,4 +36,7 @@ addopts = [
 testpaths = [
     "tests",
 ]
-
+[tool.pylint]
+disable = [
+    "C0199",
+]

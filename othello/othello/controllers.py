@@ -14,7 +14,6 @@ class GameController():
         self.is_blitz = False
 
     def ready(self):
-        print("here")
         pass
 
     def play(self, x_coord: int, y_coord: int):
