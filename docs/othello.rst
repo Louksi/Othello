@@ -36,6 +36,14 @@ othello.board\_parser module
    :show-inheritance:
    :undoc-members:
 
+othello.cli module
+------------------------------
+
+.. automodule:: othello.cli
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 othello.command\_parser module
 ------------------------------
 
@@ -52,10 +60,10 @@ othello.config module
    :show-inheritance:
    :undoc-members:
 
-othello.game\_modes module
---------------------------
+othello.controllers module
+------------------------------
 
-.. automodule:: othello.game_modes
+.. automodule:: othello.controllers
    :members:
    :show-inheritance:
    :undoc-members:
