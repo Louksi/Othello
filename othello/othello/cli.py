@@ -1,4 +1,4 @@
-"""Game Modes for Othello """
+"""Game Modes for Othello"""
 
 import logging
 import sys
@@ -11,29 +11,41 @@ from othello.parser import DEFAULT_BLITZ_TIME
 from othello.config import save_board_state_history
 from othello.othello_board import BoardSize, OthelloBoard, Color
 from othello.blitz_timer import BlitzTimer
-from othello.controllers import GameController, RandomPlayerGameController, AIPlayerGameController
+from othello.controllers import (
+    GameController,
+    RandomPlayerGameController,
+    AIPlayerGameController,
+)
 
 
 logger = logging.getLogger("Othello")
 
 
 class OthelloCLI:
-    '''
+    """
     A class representing a Normal Othello game.
-    '''
+    """
+
     NB_PLAYS_IN_HISTORY = 5
 
-    def __init__(self, controller: GameController, blitz_mode: bool = False, blitz_time: int | None = None):
+    def __init__(
+        self,
+        controller: GameController,
+        blitz_mode: bool = False,
+        blitz_time: int | None = None,
+    ):
         # Initialize the base board first
         self.board = controller
         self.blitz_mode = blitz_mode
         if blitz_mode:
             self.blitz_timer = BlitzTimer(
-                blitz_time if blitz_time is not None else DEFAULT_BLITZ_TIME)
-            self.blitz_timer.start_timer('black')
+                blitz_time if blitz_time is not None else DEFAULT_BLITZ_TIME
+            )
+            self.blitz_timer.start_timer("black")
 
-        logger.debug("cli initialized, current_player: %s.",
-                     self.board.get_current_player())
+        logger.debug(
+            "cli initialized, current_player: %s.", self.board.get_current_player()
+        )
 
     def display_board(self):
         """
@@ -46,7 +58,8 @@ class OthelloCLI:
         logger.debug("Entering display_board function from cli.py.")
         print(str(self.board))
         print(
-            f"\n{self.board.get_current_player().name}'s turn ({self.board.get_current_player().value})")
+            f"\n{self.board.get_current_player().name}'s turn ({self.board.get_current_player().value})"
+        )
 
     def check_game_over(self, possible_moves):
         """
@@ -61,10 +74,10 @@ class OthelloCLI:
         logger.debug("Entering check_game_over function from game_modes.py.")
 
         if self.blitz_mode:
-            if self.blitz_timer.is_time_up('black'):
+            if self.blitz_timer.is_time_up("black"):
                 print("Black's time is up! White wins!")
                 return True
-            elif self.blitz_timer.is_time_up('white'):
+            elif self.blitz_timer.is_time_up("white"):
                 print("White's time is up! Black wins!")
                 return True
 
@@ -74,8 +87,7 @@ class OthelloCLI:
             # Print final score
             black_score = self.board.black.popcount()
             white_score = self.board.white.popcount()
-            logger.debug("Final score - Black: %s, White: %s",
-                         black_score, white_score)
+            logger.debug("Final score - Black: %s, White: %s", black_score, white_score)
             print(f"Final score - Black: {black_score}, White: {white_score}")
 
             # Determine winner
@@ -93,10 +105,13 @@ class OthelloCLI:
 
         # If no moves for current player but game isn't over (other player can still move)
         if possible_moves.bits == 0:
-            logger.debug("No moves available for %s player. Skipping turn.",
-                         self.board.get_current_player())
+            logger.debug(
+                "No moves available for %s player. Skipping turn.",
+                self.board.get_current_player(),
+            )
             print(
-                f"No valid moves for {self.board.get_current_player().name}. Skipping turn.")
+                f"No valid moves for {self.board.get_current_player().name}. Skipping turn."
+            )
 
         return False
 
@@ -115,7 +130,8 @@ class OthelloCLI:
         """
         logger.debug(
             "Entering display_possible_moves function from game_modes.py,"
-            " with parameter possible_moves.")
+            " with parameter possible_moves."
+        )
         logger.debug("   Available moves:\n %s", str(possible_moves))
         print("Possible moves: ")
         for y in range(self.board.size.value):
@@ -140,7 +156,7 @@ class OthelloCLI:
         move = input("Enter your move: ").strip().lower()
         logger.debug("   Player entered: %s", move)
 
-        x_coord = ord(move[0]) - ord('a')
+        x_coord = ord(move[0]) - ord("a")
         y_coord = int(move[1]) - 1
         return x_coord, y_coord
 
@@ -164,16 +180,20 @@ class OthelloCLI:
         """
         logger.debug(
             "Entering process_move function from game_modes.py, with parameters x_coord:"
-            "%s, y_coord: %s, and possible_moves.", x_coord, y_coord)
+            "%s, y_coord: %s, and possible_moves.",
+            x_coord,
+            y_coord,
+        )
         if not possible_moves.get(x_coord, y_coord):
             logger.debug("   The move is not legal to play")
             print("Invalid move. Not a legal play. Try again.")
             return False
         logger.debug("   Move (%s, %s) is legal, playing.", x_coord, y_coord)
         if self.blitz_mode:
-            current = 'black' if self.board.get_current_player() == Color.BLACK else 'white'
-            self.blitz_timer.change_player(
-                'white' if current == 'black' else 'black')
+            current = (
+                "black" if self.board.get_current_player() == Color.BLACK else "white"
+            )
+            self.blitz_timer.change_player("white" if current == "black" else "black")
 
         self.board.play(x_coord, y_coord)
         return True
@@ -198,53 +218,53 @@ class OthelloCLI:
         if command_kind == CommandKind.PLAY_MOVE:
             play_command = args[0]
             x_coord, y_coord = play_command.x_coord, play_command.y_coord
-            logger.debug(
-                "   Play move command at (%s, %s).", x_coord, y_coord)
+            logger.debug("   Play move command at (%s, %s).", x_coord, y_coord)
 
-            if not self.process_move(x_coord, y_coord, self.board.get_possible_moves(self.board.get_current_player())):
+            if not self.process_move(
+                x_coord,
+                y_coord,
+                self.board.get_possible_moves(self.board.get_current_player()),
+            ):
                 print("Invalid move. Try again.")
                 return
 
         else:
             match command_kind:
                 case CommandKind.HELP:
-                    logger.debug(
-                        "   Executing %s command.", command_kind)
+                    logger.debug("   Executing %s command.", command_kind)
                     self.parser.print_help()
                 case CommandKind.RULES:
-                    logger.debug(
-                        "   Executing %s command.", command_kind)
+                    logger.debug("   Executing %s command.", command_kind)
                     self.parser.print_rules()
                 case CommandKind.SAVE_AND_QUIT | CommandKind.SAVE_HISTORY:
-                    logger.debug(
-                        "   Executing %s command.", command_kind)
+                    logger.debug("   Executing %s command.", command_kind)
                     save_board_state_history(self.board)
                     logger.debug("   Game saved, exiting.")
                     sys.exit(0)
                 case CommandKind.FORFEIT:
                     logger.debug(
-                        "   %s executed %s command.", self.board.get_current_player().name, command_kind)
-                    print(
-                        f"{self.board.get_current_player().name} forfeited.")
+                        "   %s executed %s command.",
+                        self.board.get_current_player().name,
+                        command_kind,
+                    )
+                    print(f"{self.board.get_current_player().name} forfeited.")
                     # self.switch_player()
                     logger.debug(
-                        "   Game Over, %s wins! Exiting.", self.board.get_current_player().name)
-                    print(
-                        f"Game Over, {self.board.get_current_player().name} wins!")
+                        "   Game Over, %s wins! Exiting.",
+                        self.board.get_current_player().name,
+                    )
+                    print(f"Game Over, {self.board.get_current_player().name} wins!")
                     sys.exit(0)
                 case CommandKind.RESTART:
-                    logger.debug(
-                        "   Executing %s command.", command_kind)
+                    logger.debug("   Executing %s command.", command_kind)
                     self.board.restart()
                     logger.debug("   Board restarted to initial state")
                 case CommandKind.QUIT:
-                    logger.debug(
-                        "   Executing %s command.", command_kind)
+                    logger.debug("   Executing %s command.", command_kind)
                     print("Exiting without saving...")
                     sys.exit(0)
                 case _:
-                    logger.debug(
-                        "   Invalid command: %s.", command_kind)
+                    logger.debug("   Invalid command: %s.", command_kind)
                     print("Invalid command. Try again.")
                     self.parser.print_help()
 
@@ -252,9 +272,12 @@ class OthelloCLI:
         """
         Displays the last self.NB_PLAYS_IN_HISTORY turns
         """
-        to_print = "Play history:\n" + \
-            "\n".join(
-                [f"{play[4]} placed a piece at {chr(ord('A') + play[2])}{play[3] + 1}" for play in self.board.get_history()[-self.NB_PLAYS_IN_HISTORY:]])
+        to_print = "Play history:\n" + "\n".join(
+            [
+                f"{play[4]} placed a piece at {chr(ord('A') + play[2])}{play[3] + 1}"
+                for play in self.board.get_history()[-self.NB_PLAYS_IN_HISTORY :]
+            ]
+        )
         print(to_print, "\n")
 
     def play(self):
@@ -274,16 +297,17 @@ class OthelloCLI:
         logger.debug("Entering play function from game_modes.py.")
         self.parser = CommandParser(board_size=self.board.size.value)
 
-        possible_moves = self.board.get_possible_moves(
-            self.board.get_current_player())
+        possible_moves = self.board.get_possible_moves(self.board.get_current_player())
 
         def turn_display():
             print(f"=== turn {self.board.get_turn_number()} ===")
             self.display_history()
             self.display_board()
             possible_moves = self.board.get_possible_moves(
-                self.board.get_current_player())
+                self.board.get_current_player()
+            )
             self.display_possible_moves(possible_moves)
+
         self.board.post_play_callback = turn_display
         turn_display()
         self.board.ready()
@@ -302,7 +326,8 @@ class OthelloCLI:
 
             except CommandParserException as e:
                 log.log_error_message(
-                    e, context=f"Failed to parse command: {command_str}")
+                    e, context=f"Failed to parse command: {command_str}"
+                )
 
                 print(f"Error: {e}\nInvalid command. Please try again.")
                 self.parser.print_help()

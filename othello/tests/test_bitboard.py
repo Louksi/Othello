@@ -1,6 +1,7 @@
 """
 Testing the agnostic bitboard implementation
 """
+
 import pytest
 import random
 
@@ -32,9 +33,17 @@ def test_init_8():
     """
     b_8 = Bitboard(8)
 
-    assert b_8.mask == 0b1111111111111111111111111111111111111111111111111111111111111111
-    assert b_8.west_mask == 0b1111111011111110111111101111111011111110111111101111111011111110
-    assert b_8.east_mask == 0b0111111101111111011111110111111101111111011111110111111101111111
+    assert (
+        b_8.mask == 0b1111111111111111111111111111111111111111111111111111111111111111
+    )
+    assert (
+        b_8.west_mask
+        == 0b1111111011111110111111101111111011111110111111101111111011111110
+    )
+    assert (
+        b_8.east_mask
+        == 0b0111111101111111011111110111111101111111011111110111111101111111
+    )
 
 
 def test_oob_access():
@@ -123,7 +132,8 @@ def test_shift_s():
     shifted_b = pytest.b.shift(Direction.SOUTH)
 
     assert (shifted_b.bits & shifted_b.mask) == (
-        0b0010010000000010100000000 & shifted_b.mask)
+        0b0010010000000010100000000 & shifted_b.mask
+    )
 
 
 def test_shift_w():
@@ -137,7 +147,8 @@ def test_shift_w():
 
     shifted_b = pytest.b.shift(Direction.WEST)
     assert (shifted_b.bits & shifted_b.mask) == (
-        0b0000000010010000000000100 & shifted_b.mask)
+        0b0000000010010000000000100 & shifted_b.mask
+    )
 
 
 def test_e():
@@ -151,7 +162,8 @@ def test_e():
 
     shifted_b = pytest.b.shift(Direction.EAST)
     assert (shifted_b.bits & shifted_b.mask) == (
-        0b0001001000000000001010000 & shifted_b.mask)
+        0b0001001000000000001010000 & shifted_b.mask
+    )
 
 
 def test_ne():
@@ -238,8 +250,12 @@ def test_xor():
     b = Bitboard(8)
     b.set(4, 7, True)
     b.set(2, 3, True)
-    assert (b ^ Bitboard(b.size, bits=0b0000000000000000000000000000000000100000000000000000000000000)).bits\
-        == 0b1000000000000000000000000000000000000000000000000000000000000
+    assert (
+        b
+        ^ Bitboard(
+            b.size, bits=0b0000000000000000000000000000000000100000000000000000000000000
+        )
+    ).bits == 0b1000000000000000000000000000000000000000000000000000000000000
 
 
 def test_empty():
@@ -252,6 +268,7 @@ def test_eq():
         b.set(4, 5, True)
         b.set(7, 4, True)
         b.set(8, 4, True)
+
     b = Bitboard(8)
     b2 = Bitboard(8)
     __set(b)
@@ -263,12 +280,16 @@ def test_eq():
 
 
 def test_str():
-    assert str(pytest.b) ==\
-        """| | | |·| |
+    assert (
+        str(pytest.b)
+        == """| | | |·| |
 |·| | | | |
 | | | | |·|
 | | |·| | |
 |·| | | | |"""
+    )
+
+
 # ·
 
 
@@ -280,16 +301,17 @@ def test_minux_one():
 def test_pseudo_rand_values():
     def __count_hot_bits(n: int):
         return len(list(filter(lambda x: x == "1", bin(n))))
+
     random.seed(23)
-    random_bits = random.randint(0, 8*8)
+    random_bits = random.randint(0, 8 * 8)
     b = Bitboard(8, bits=random_bits)
     assert b.popcount() == __count_hot_bits(random_bits)
 
-    random_bits = random.randint(0, 9*9)
+    random_bits = random.randint(0, 9 * 9)
     b = Bitboard(9, bits=random_bits)
     assert b.popcount() == __count_hot_bits(random_bits)
 
-    random_bits = random.randint(0, 64*64)  # bc why not?
+    random_bits = random.randint(0, 64 * 64)  # bc why not?
     b = Bitboard(64, bits=random_bits)
     assert b.popcount() == __count_hot_bits(random_bits)
 
@@ -299,6 +321,5 @@ def test_hot_bits_coordinates():
     must_be_positions = [(0, 0), (1, 1), (2, 1)]
     assert b.hot_bits_coordinates() == must_be_positions
     b = Bitboard(6, bits=0b000010100001001000000000000010100001)
-    must_be_positions = [(0, 0), (5, 0), (1, 1), (3, 3),
-                         (0, 4), (5, 4), (1, 5)]
+    must_be_positions = [(0, 0), (5, 0), (1, 1), (3, 3), (0, 4), (5, 4), (1, 5)]
     assert b.hot_bits_coordinates() == must_be_positions

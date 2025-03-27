@@ -25,7 +25,7 @@ class TestBlitzMode:
         blitz_game.process_move(3, 4, mock_moves)
 
         # Verify timer was switched to white (since current player is black)
-        blitz_game.blitz_timer.change_player.assert_called_once_with('white')
+        blitz_game.blitz_timer.change_player.assert_called_once_with("white")
 
     def test_blitz_timer_switch_white_to_black(self, blitz_game):
         """Should switch from white to black on valid move"""
@@ -40,4 +40,4 @@ class TestBlitzMode:
         blitz_game.process_move(3, 4, mock_moves)
 
         # Verify timer was switched to black
-        blitz_game.blitz_timer.change_player.assert_called_once_with('black')
+        blitz_game.blitz_timer.change_player.assert_called_once_with("black")

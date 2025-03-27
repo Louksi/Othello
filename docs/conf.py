@@ -8,9 +8,11 @@ import othello
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'othello'
-copyright = '2025, Matis Duval, Rémy Heuret, Lucas Marques, Gabriel Tardiou, Lucas Zammit'
-author = 'Matis Duval, Rémy Heuret, Lucas Marques, Gabriel Tardiou, Lucas Zammit'
+project = "othello"
+copyright = (
+    "2025, Matis Duval, Rémy Heuret, Lucas Marques, Gabriel Tardiou, Lucas Zammit"
+)
+author = "Matis Duval, Rémy Heuret, Lucas Marques, Gabriel Tardiou, Lucas Zammit"
 release = othello.__version__
 
 # -- General configuration ---------------------------------------------------
@@ -18,12 +20,12 @@ release = othello.__version__
 
 extensions = ["sphinx.ext.autodoc"]
 
-templates_path = ['_templates']
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+templates_path = ["_templates"]
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = 'sphinx_rtd_theme'
-html_static_path = ['_static']
+html_theme = "sphinx_rtd_theme"
+html_static_path = ["_static"]

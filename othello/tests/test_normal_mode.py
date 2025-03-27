@@ -117,13 +117,13 @@ def test_display_possible_moves(normal_game, capsys):
     assert "e6" in captured.out
 
 
-@patch('builtins.input')
+@patch("builtins.input")
 def test_play_loop_with_quit_command(mock_input, normal_game):
     """Test that quit command exits the game."""
-    mock_input.return_value = 'q'
+    mock_input.return_value = "q"
     normal_game.check_game_over = MagicMock(return_value=False)
 
-    with patch('othello.cli.CommandParser') as mock_parser_class:
+    with patch("othello.cli.CommandParser") as mock_parser_class:
         mock_parser = MagicMock()
         mock_parser_class.return_value = mock_parser
         mock_parser.parse_str.return_value = (CommandKind.QUIT,)
@@ -132,18 +132,17 @@ def test_play_loop_with_quit_command(mock_input, normal_game):
             normal_game.play()
 
 
-@patch('builtins.input')
+@patch("builtins.input")
 def test_play_loop_with_valid_move(mock_input, normal_game):
     """Test that valid move is processed correctly."""
-    mock_input.side_effect = ['e3', 'q']
+    mock_input.side_effect = ["e3", "q"]
     normal_game.check_game_over = MagicMock(return_value=False)
 
     # Create a mock for possible moves
     mock_possible_moves = MagicMock()
-    normal_game.board.get_possible_moves = MagicMock(
-        return_value=mock_possible_moves)
+    normal_game.board.get_possible_moves = MagicMock(return_value=mock_possible_moves)
 
-    with patch('othello.cli.CommandParser') as mock_parser_class:
+    with patch("othello.cli.CommandParser") as mock_parser_class:
         mock_parser = MagicMock()
         mock_parser_class.return_value = mock_parser
 
@@ -152,7 +151,7 @@ def test_play_loop_with_valid_move(mock_input, normal_game):
         play_command.y_coord = 2
         mock_parser.parse_str.side_effect = [
             (CommandKind.PLAY_MOVE, play_command),
-            (CommandKind.QUIT,)
+            (CommandKind.QUIT,),
         ]
 
         normal_game.process_move = MagicMock(return_value=True)
@@ -161,5 +160,4 @@ def test_play_loop_with_valid_move(mock_input, normal_game):
             normal_game.play()
 
         # Verify process_move was called with the correct arguments
-        normal_game.process_move.assert_called_once_with(
-            4, 2, mock_possible_moves)
+        normal_game.process_move.assert_called_once_with(4, 2, mock_possible_moves)

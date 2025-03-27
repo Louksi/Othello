@@ -5,7 +5,7 @@ from othello.othello_board import BoardSize, Color, OthelloBoard
 from othello.parser import DEFAULT_BLITZ_TIME
 
 
-class GameController():
+class GameController:
     def __init__(self, board: OthelloBoard, blitz_mode=False, time_limit=None):
         self._board = board
         self.size = board.size
@@ -42,8 +42,11 @@ class GameController():
         return self._board.current_player
 
     def get_pieces_count(self, player_color: Color):
-        return self._board.black.popcount() if player_color is Color.BLACK \
+        return (
+            self._board.black.popcount()
+            if player_color is Color.BLACK
             else self._board.white.popcount()
+        )
 
     def get_history(self):
         return self._board.get_history()
@@ -69,8 +72,9 @@ class RandomPlayerGameController(GameController):
             self._play()
 
     def _play(self):
-        move = choice(self.get_possible_moves(
-            self._random_player_color).hot_bits_coordinates())
+        move = choice(
+            self.get_possible_moves(self._random_player_color).hot_bits_coordinates()
+        )
         self.play(move[0], move[1])
 
     def play(self, x_coord: int, y_coord: int):
@@ -82,21 +86,29 @@ class RandomPlayerGameController(GameController):
 
 
 class AIPlayerGameController(GameController):
-    def __init__(self, board: OthelloBoard, ai_color: Color = Color.BLACK, depth: int = 3,
-                 algorithm: str = "minimax", heuristic: str = "coin_parity", random_player: bool = False):
+    def __init__(
+        self,
+        board: OthelloBoard,
+        ai_color: Color = Color.BLACK,
+        depth: int = 3,
+        algorithm: str = "minimax",
+        heuristic: str = "coin_parity",
+        random_player: bool = False,
+    ):
 
         super().__init__(board)
 
         if isinstance(ai_color, str):
-            if ai_color == 'X':
+            if ai_color == "X":
                 self.ai_color = Color.BLACK
-            elif ai_color == 'O':
+            elif ai_color == "O":
                 self.ai_color = Color.WHITE
             else:
                 self.ai_color = ai_color
         elif not isinstance(ai_color, Color):
             raise ValueError(
-                f"Invalid ai_color type: {type(ai_color)}. Must be a string or Color enum.")
+                f"Invalid ai_color type: {type(ai_color)}. Must be a string or Color enum."
+            )
 
         self.depth = depth
         self.algorithm = algorithm
@@ -109,7 +121,8 @@ class AIPlayerGameController(GameController):
 
     def _play(self):
         move = find_best_move(
-            self._board, self.depth, self.ai_color, self.algorithm, self.heuristic)
+            self._board, self.depth, self.ai_color, self.algorithm, self.heuristic
+        )
         self.play(move[0], move[1])
 
     def play(self, x_coord: int, y_coord: int):

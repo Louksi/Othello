@@ -1,6 +1,6 @@
-'''
+"""
 Entry point for the othello executable.
-'''
+"""
 
 import sys
 import logging
@@ -82,8 +82,13 @@ def main():
             print("//todo")
             sys.exit(1)
         case parser.GameMode.AI.value:
-            controller = AIPlayerGameController(OthelloBoard(size), config["ai_color"],
-                                                config["ai_depth"], config["ai_mode"], config["ai_heuristic"])
+            controller = AIPlayerGameController(
+                OthelloBoard(size),
+                config["ai_color"],
+                config["ai_depth"],
+                config["ai_mode"],
+                config["ai_heuristic"],
+            )
 
         case _:
             print("Unknown game mode. Exiting.")
@@ -92,8 +97,7 @@ def main():
         gui = OthelloGUI(controller)
         gui.run()
     else:
-        OthelloCLI(controller, controller.is_blitz,
-                   config["blitz_time"]).play()
+        OthelloCLI(controller, controller.is_blitz, config["blitz_time"]).play()
 
 
 if __name__ == "__main__":
