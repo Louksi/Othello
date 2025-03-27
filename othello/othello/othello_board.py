@@ -1,6 +1,7 @@
 """
 Everything related to the actual board of Othello.
 """
+
 # pylint: disable=locally-disabled, multiple-statements, line-too-long, import-error, no-name-in-module
 
 from __future__ import annotations
@@ -15,6 +16,7 @@ class Color(Enum):
     """
     Enum with the possibilities for a case as well as their string representation.
     """
+
     BLACK = "X"
     WHITE = "O"
     POSSIBLE = "·"
@@ -42,7 +44,8 @@ class IllegalMoveException(Exception):
 
     def __init__(self, x_coord: int, y_coord: int, current_player: Color):
         super().__init__(
-            f"Move {x_coord}:{y_coord} from player {current_player} is illegal")
+            f"Move {x_coord}:{y_coord} from player {current_player} is illegal"
+        )
 
 
 class GameOverException(Exception):
@@ -76,6 +79,7 @@ class BoardSize(Enum):
     """
     Available board sizes.
     """
+
     SIX_BY_SIX = 6
     EIGHT_BY_EIGHT = 8
     TEN_BY_TEN = 10
@@ -91,10 +95,7 @@ class BoardSize(Enum):
         :rtype: BoardSize
         :raises: IllegalBoardSizeException on illegal board size value
         """
-        reversed_dep = {
-            bs.value: bs
-            for bs in BoardSize
-        }
+        reversed_dep = {bs.value: bs for bs in BoardSize}
         if value in reversed_dep:
             return reversed_dep[value]
         raise IllegalBoardSizeException(value)
@@ -105,19 +106,26 @@ class OthelloBoard:
     Implementation of an othello board that uses Bitboards
     """
 
-    def __init__(self, size: BoardSize, black=None, white=None,
-                 current_player: Color | None = None):
+    def __init__(
+        self,
+        size: BoardSize,
+        black=None,
+        white=None,
+        current_player: Color | None = None,
+    ):
         """
         :param size: The size of the Bitboard from the enum `BoardSize`
         :param type: BoardSize
         """
         self.size = size
-        self.current_player: Color = Color.BLACK if current_player is None else current_player
+        self.current_player: Color = (
+            Color.BLACK if current_player is None else current_player
+        )
         if black is not None and white is not None:
             if self.size.value != black.size or self.size.value != white.size:
-                raise IllegalBoardSizeException(black.size.value
-                                                if self.size.value != black.size
-                                                else white.size)
+                raise IllegalBoardSizeException(
+                    black.size.value if self.size.value != black.size else white.size
+                )
             self.black = black
             self.white = white
         else:
@@ -137,11 +145,10 @@ class OthelloBoard:
         with two black pieces and two white pieces placed diagonally from each other.
         """
 
-        self.white.set(self.size.value // 2 - 1,
-                       self.size.value // 2 - 1, True)
+        self.white.set(self.size.value // 2 - 1, self.size.value // 2 - 1, True)
         self.white.set(self.size.value // 2, self.size.value // 2, True)
-        self.black.set(self.size.value//2-1, self.size.value//2, True)
-        self.black.set(self.size.value//2, self.size.value//2-1, True)
+        self.black.set(self.size.value // 2 - 1, self.size.value // 2, True)
+        self.black.set(self.size.value // 2, self.size.value // 2 - 1, True)
 
     def force_game_over(self):
         self.forced_game_over = True
@@ -151,8 +158,9 @@ class OthelloBoard:
         Checks wether or not a board is in a game over state.
         """
 
-        m1, m2 = self.line_cap_move(
-            self.current_player), self.line_cap_move(~self.current_player)
+        m1, m2 = self.line_cap_move(self.current_player), self.line_cap_move(
+            ~self.current_player
+        )
         return self.forced_game_over or (m1.popcount() == m2.popcount() == 0)
 
     def line_cap_move(self, current_player: Color) -> Bitboard:
@@ -173,6 +181,9 @@ class OthelloBoard:
                 candidates = bits_o & candidates.shift(shift_dir)
         return moves
 
+    def ready(self):
+        pass
+
     def get_turn_id(self) -> int:
         """
         Returns current turn id.
@@ -181,7 +192,7 @@ class OthelloBoard:
         :returns: The turn id starting from 1.
         :rtype: int
         """
-        return len(self.__history)//2+1
+        return len(self.__history) // 2 + 1
 
     def get_last_play(self):
         last_play, last_play_idx = self.__history[-1], 0
@@ -189,6 +200,9 @@ class OthelloBoard:
             last_play_idx += 1
             last_play = self.__history[-last_play_idx]
         return last_play
+
+    def attach_hist_callback(self, cb):
+        self.hist_callback = cb
 
     def line_cap(self, x_coord: int, y_coord: int, current_player: Color) -> Bitboard:
         """
@@ -241,40 +255,51 @@ class OthelloBoard:
         self.white = popped[1]
         self.current_player = popped[4]
 
+    def call_hist_callback(self):
+        if self.hist_callback is not None:
+            self.hist_callback()
+
     def play(self, x_coord: int, y_coord: int):
         """
         Changes the state of the Board, pushing the move at x_coord;y_coord if it is a legal play.
         """
         if x_coord == -1 and y_coord == -1:
-            self.__history.append(
-                (self.black, self.white, -1, -1, self.current_player))
+            self.__history.append((self.black, self.white, -1, -1, self.current_player))
         else:
             legal_moves = self.line_cap_move(self.current_player)
             move_mask = Bitboard(self.size.value)
             move_mask.set(x_coord, y_coord, True)
             if (legal_moves & move_mask).bits > 0:
-                capture_mask = self.line_cap(
-                    x_coord, y_coord, self.current_player)
-                state_to_save = (self.black, self.white, x_coord,
-                                 y_coord, self.current_player)
+                capture_mask = self.line_cap(x_coord, y_coord, self.current_player)
+                state_to_save = (
+                    self.black,
+                    self.white,
+                    x_coord,
+                    y_coord,
+                    self.current_player,
+                )
                 self.__history.append(state_to_save)
-                bits_p = self.black if self.current_player is Color.BLACK else self.white
-                bits_o = self.white if self.current_player is Color.BLACK else self.black
+                bits_p = (
+                    self.black if self.current_player is Color.BLACK else self.white
+                )
+                bits_o = (
+                    self.white if self.current_player is Color.BLACK else self.black
+                )
                 bits_p |= capture_mask
-                bits_o &= (~capture_mask)
+                bits_o &= ~capture_mask
                 self.black = bits_p if self.current_player is Color.BLACK else bits_o
                 self.white = bits_o if self.current_player is Color.BLACK else bits_p
                 self.current_player = ~self.current_player
+                # self.call_hist_callback()
                 if self.line_cap_move(self.current_player).bits == 0:
                     self.__history.append(
-                        (self.black, self.white, -1, -1, self.current_player))
+                        (self.black, self.white, -1, -1, self.current_player)
+                    )
                     self.current_player = ~self.current_player
                 if self.line_cap_move(self.current_player).bits == 0:
                     raise GameOverException
             else:
-                print(self.export())
-                raise IllegalMoveException(
-                    x_coord, y_coord, self.current_player)
+                raise IllegalMoveException(x_coord, y_coord, self.current_player)
 
     def get_history(self):
         """
@@ -372,13 +397,17 @@ class OthelloBoard:
         :return: A bitboard representing all the empty squares on the board.
         :rtype: Bitboard
         """
-        return Bitboard(self.size.value, (self.white.bits | self.black.bits) ^ self.mask)
+        return Bitboard(
+            self.size.value, (self.white.bits | self.black.bits) ^ self.mask
+        )
 
     def __eq__(self, other) -> bool:
         if isinstance(other, OthelloBoard):
-            return other.current_player == self.current_player\
-                and other.black == self.black\
+            return (
+                other.current_player == self.current_player
+                and other.black == self.black
                 and other.white == self.white
+            )
 
         return False
 
@@ -390,17 +419,19 @@ class OthelloBoard:
         if self.size.value >= 10:
             rez += " "
 
-        rez += " ".join([ascii_lowercase[letter_idx]
-                        for letter_idx in range(self.size.value)])
+        rez += " ".join(
+            [ascii_lowercase[letter_idx] for letter_idx in range(self.size.value)]
+        )
         for y_coord in range(self.size.value):
             rez += "\n"
             for x_coord in range(self.size.value):
                 has_black = self.black.get(x_coord, y_coord)
                 has_white = self.white.get(x_coord, y_coord)
-                has_possible = self.line_cap_move(
-                    self.current_player).get(x_coord, y_coord)
+                has_possible = self.line_cap_move(self.current_player).get(
+                    x_coord, y_coord
+                )
                 if x_coord == 0:
-                    rez += str(y_coord+1) + " "
+                    rez += str(y_coord + 1) + " "
                     if self.size.value >= 10 and y_coord < 9:
                         rez += " "
                 if has_black:
@@ -411,6 +442,6 @@ class OthelloBoard:
                     rez += Color.POSSIBLE.value
                 else:
                     rez += Color.EMPTY.value
-                if x_coord < self.size.value-1:
+                if x_coord < self.size.value - 1:
                     rez += " "
         return rez

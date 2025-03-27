@@ -34,8 +34,7 @@ _ _ X X O _
 _ O _ X X _
 _ _ _ _ _ _
 """
-    truth_board = OthelloBoard(
-        BoardSize.SIX_BY_SIX, current_player=Color.WHITE)
+    truth_board = OthelloBoard(BoardSize.SIX_BY_SIX, current_player=Color.WHITE)
     truth_board.black.bits = 0b000000011000001100001000000000000000
     truth_board.white.bits = 0b000000000010010000000100000000000000
     parser = BoardParser(board_raw)

@@ -28,8 +28,9 @@ SEPARATOR = "="
 
 def save_config(config: dict, filename_prefix: str = "current_config") -> None:
     """Save configuration into a .othellorc file."""
-    logger.debug("Saving configuration: %s with filename_prefix: %s",
-                 config, filename_prefix)
+    logger.debug(
+        "Saving configuration: %s with filename_prefix: %s", config, filename_prefix
+    )
     filename = f"{filename_prefix}.othellorc"
 
     try:
@@ -48,14 +49,12 @@ def save_config(config: dict, filename_prefix: str = "current_config") -> None:
         log.log_error_message(err, context="Error while saving configuration.")
         raise
 
-    logger.debug(
-        "Configuration saved successfully with %d entries.", len(config))
+    logger.debug("Configuration saved successfully with %d entries.", len(config))
 
 
 def load_config(filename_prefix: str = "current_config") -> dict:
     """Load a configuration from a .othellorc file."""
-    logger.debug("Loading configuration with filename_prefix: %s",
-                 filename_prefix)
+    logger.debug("Loading configuration with filename_prefix: %s", filename_prefix)
     filename = f"{filename_prefix}.othellorc"
     config = {}
 
@@ -80,16 +79,15 @@ def load_config(filename_prefix: str = "current_config") -> dict:
 
 def save_board_state_history(board: OthelloBoard, filename_prefix="default") -> None:
     """Save the board state history into a .othellorc file."""
-    logger.debug(
-        "Saving board state history to filename_prefix: %s", filename_prefix)
-    filename = f"{filename_prefix}.othellorc"
+    logger.debug("Saving board state history to filename_prefix: %s", filename_prefix)
+    filename = f"{filename_prefix}.sav"
 
     try:
         with open(filename, "w", encoding="utf-8") as file:
             file.write(board.export())
+        print(f"Game saved in {filename_prefix}.sav")
     except IOError as err:
-        log.log_error_message(
-            err, context=f"Failed to save board state to {filename}.")
+        log.log_error_message(err, context=f"Failed to save board state to {filename}.")
         raise
 
     logger.debug("Board state successfully saved to %s", filename)
