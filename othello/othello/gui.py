@@ -2,6 +2,11 @@
 Graphic interface to play the Othello game, inherits from __main__.py
 """
 
+from gi import require_version
+
+require_version("Gtk", "4.0")
+require_version("Adw", "1")
+
 from gi.repository import Gtk, GLib, Adw
 from othello.controllers import GameController
 import cairo
@@ -17,10 +22,6 @@ from othello.othello_board import (
     OthelloBoard,
 )
 from othello.blitz_timer import BlitzTimer
-from gi import require_version
-
-require_version("Gtk", "4.0")
-require_version("Adw", "1")
 
 
 logger = logging.getLogger("Othello")
