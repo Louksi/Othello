@@ -11,7 +11,7 @@ from othello.board_parser import BoardParser
 from othello.parser import AIColor
 import othello.parser as parser
 from othello.config import save_board_state_history
-from othello.ai_features import find_best_move, random_move
+from othello.ai_features import find_best_move, random_move, iterative_deepening_alphabeta
 
 
 from othello.parser import DEFAULT_BLITZ_TIME
@@ -563,8 +563,12 @@ class AIMode(NormalGame):
         :param possible_moves: A bitboard of the possible capture moves for the AI.
         :return: A tuple (x, y) of the chosen move coordinates.
         """
-        best_move = find_best_move(
-            self.board, self.depth, self.ai_player, True, self.algorithm, self.heuristic)
+        # best_move = find_best_move(
+        #     self.board, self.depth, self.ai_player, True, self.algorithm, self.heuristic)
+        # return best_move if best_move != (-1, -1) else None
+
+        best_move = iterative_deepening_alphabeta(
+            self.board, self.depth, self.ai_player, self.heuristic)
         return best_move if best_move != (-1, -1) else None
 
     def display_ai_move(self, coords):
