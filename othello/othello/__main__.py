@@ -12,6 +12,7 @@ from othello.gui import OthelloGUI
 from othello.cli import OthelloCLI
 from othello.othello_board import BoardSize, OthelloBoard
 from othello.controllers import GameController, AIPlayerGameController
+from othello.config import display_config
 
 
 def main():
@@ -52,7 +53,9 @@ def main():
     # configuration.save_config(current_config, config["filename"])
 
     # loaded_config = configuration.load_config(config["filename"])
-    print("Config loaded:", config)
+    # print("Config loaded:", config)
+
+    display_config(config)
 
     controller = None
     size = BoardSize.from_value(config["size"])
