@@ -248,12 +248,12 @@ class OthelloCLI:
                         command_kind,
                     )
                     print(f"{self.board.get_current_player().name} forfeited.")
-                    # self.switch_player()
+                    self.board.current_player = ~self.board.get_current_player()
                     logger.debug(
                         "   Game Over, %s wins! Exiting.",
-                        self.board.get_current_player().name,
+                        self.board.current_player.name,
                     )
-                    print(f"Game Over, {self.board.get_current_player().name} wins!")
+                    print(f"Game Over, {self.board.current_player.name} wins!")
                     sys.exit(0)
                 case CommandKind.RESTART:
                     logger.debug("   Executing %s command.", command_kind)
