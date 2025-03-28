@@ -1,12 +1,17 @@
 from random import choice
+import logging
 
 from othello.ai_features import find_best_move
 from othello.othello_board import BoardSize, Color, OthelloBoard
 from othello.parser import DEFAULT_BLITZ_TIME
+import othello.logger as log
+
+logger = logging.getLogger("Othello")
 
 
 class GameController:
     def __init__(self, board: OthelloBoard, blitz_mode=False, time_limit=None):
+        logger.debug("Initializing controller in GameController, from controllers.py.")
         self._board = board
         self.size = board.size
         self.first_player_human = True
@@ -64,11 +69,13 @@ class GameController:
 class RandomPlayerGameController(GameController):
     def __init__(self, board: OthelloBoard, random_player_color: Color):
         super().__init__(board)
+        logger.debug("   Controller for Random Player.")
         self._random_player_color = random_player_color
         self.first_player_human = random_player_color is not Color.BLACK
 
     def ready(self):
         if self._random_player_color is Color.BLACK:
+            logger.debug("Random player is ready to play.")
             self._play()
 
     def _play(self):
@@ -97,6 +104,7 @@ class AIPlayerGameController(GameController):
     ):
 
         super().__init__(board)
+        logger.debug("   Controller for AI Player.")
 
         if isinstance(ai_color, str):
             if ai_color == "X":
@@ -106,6 +114,9 @@ class AIPlayerGameController(GameController):
             else:
                 self.ai_color = ai_color
         elif not isinstance(ai_color, Color):
+            log.log_error_message(
+                ValueError, "Invalid ai_color type: {type(ai_color)}."
+            )
             raise ValueError(
                 f"Invalid ai_color type: {type(ai_color)}. Must be a string or Color enum."
             )
@@ -117,6 +128,7 @@ class AIPlayerGameController(GameController):
 
     def ready(self):
         if self.ai_color is self._board.current_player:
+            logger.debug("AI player is ready to play.")
             self._play()
 
     def _play(self):

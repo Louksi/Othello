@@ -220,6 +220,10 @@ class OthelloCLI:
         :return: True if the command is valid, False if the command is invalid.
         :rtype: bool
         """
+        logger.debug(
+            "Entering check_parser_input function from cli.py, with parameters"
+            " command_str: %s, command_kind, and args."
+        )
         if command_kind == CommandKind.PLAY_MOVE:
             play_command = args[0]
             x_coord, y_coord = play_command.x_coord, play_command.y_coord
@@ -333,6 +337,5 @@ class OthelloCLI:
 
             except CommandParserException as e:
                 context = "Failed to parse command %s", command_str
-                log.log_error_message(e, context=context)
                 print(f"Error: {e}\nInvalid command. Please try again.")
                 self.parser.print_help()

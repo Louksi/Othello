@@ -5,6 +5,11 @@ from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Literal
 import argparse
+import logging
+
+import othello.logger as log
+
+logger = logging.getLogger("Othello")
 
 
 class CommandParserException(Exception):
@@ -13,6 +18,8 @@ class CommandParserException(Exception):
     """
 
     def __init__(self, bad_str: str) -> None:
+        context = "unrecognized string: %s" % bad_str
+        log.log_error_message(CommandParserException, context=context)
         super().__init__(f"unrecognized string {bad_str}")
 
 
@@ -73,6 +80,9 @@ class CommandParser:
     """
 
     def __init__(self, board_size: int):
+        logger.debug(
+            "Initializing parser for user commands during a game in command_parser.py."
+        )
         # Fix to include the last column
         str_board_max_column = chr(ord("a") + board_size - 1)
         str_board_max_line = board_size
@@ -123,6 +133,7 @@ class CommandParser:
         """
         Display help information using argparse.
         """
+        logger.debug("Displaying help information from command_parser.py.")
         print("\nOthello Game Help")
         print("=================")
         self.help_parser.print_help()
@@ -141,6 +152,7 @@ class CommandParser:
         """
         Display the rules of Othello/Reversi
         """
+        logger.debug("Displaying Othello rules from command_parser.py.")
         print("\nOthello/Reversi Rules")
         print("====================")
         print("Objective:")
@@ -192,7 +204,7 @@ class CommandParser:
         :return: A constructed command tuple.
         :raises CommandParserException: if the string is invalid.
         """
-
+        logger.debug("Entering parse_str from command_parser.py.")
         if (matches := self.command_regex.fullmatch(command_str)) is None:
             raise CommandParserException(command_str)
 

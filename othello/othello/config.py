@@ -39,7 +39,7 @@ def save_config(config: dict, filename_prefix: str = "current_config") -> None:
             for key, value in config.items()
         )
     except Exception as err:
-        logger.error("Failed to format configuration: %s", err)
+        log.log_error_message(err, "Failed to format configuration.")
         raise
 
     try:
@@ -71,7 +71,7 @@ def load_config(filename_prefix: str = "current_config") -> dict:
                 key, value = line.strip().split(SEPARATOR, 1)
                 config[key] = value
     except ValueError as err:
-        logger.error("Invalid configuration format: %s", err)
+        log.log_error_message(err, "Invalid configuration format.")
         raise
 
     return config

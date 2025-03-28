@@ -70,10 +70,11 @@ def main():
                 file_content = file.read()
             board = BoardParser(file_content).parse()
         except FileNotFoundError:
-            logger.error("File not found: %s", filename)
+            context = "File not found: %s" % filename
+            log.log_error_message(FileNotFoundError, context=context)
             raise
         except Exception as err:
-            logger.error("Failed to load game: %s", err)
+            log.log_error_message(err, context="Failed to load game.")
             raise
 
     match mode:
