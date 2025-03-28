@@ -82,6 +82,7 @@ def main():
         case parser.GameMode.BLITZ.value:
             controller = GameController(board, True, config["blitz_time"])
         case parser.GameMode.CONTEST.value:
+            logger.error("Contest mode is not implemented yet.")
             print("//todo")
             sys.exit(1)
         case parser.GameMode.AI.value:
@@ -94,12 +95,15 @@ def main():
             )
 
         case _:
+            logger.error("Invalid game mode: %s", mode)
             print("Unknown game mode. Exiting.")
             sys.exit(1)
     if config["gui"]:
+        logger.debug("Starting graphical user interface.")
         gui = OthelloGUI(controller)
         gui.run()
     else:
+        logger.debug("Starting command-line interface.")
         OthelloCLI(controller, controller.is_blitz, config["blitz_time"]).play()
 
 
