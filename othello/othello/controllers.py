@@ -1,12 +1,82 @@
+from __future__ import annotations
 from random import choice
 
+
 from othello.ai_features import find_best_move
-from othello.othello_board import BoardSize, Color, OthelloBoard
+from othello.othello_board import BoardSize, Color, GameOverException, OthelloBoard
 from othello.parser import DEFAULT_BLITZ_TIME
 
 
+class Player:
+    def __init__(self):
+        self.controller = None
+        self.color = None
+
+    def attach(self, controller: GameController):
+        self.controller = controller
+
+    def set_color(self, color: Color):
+        self.color = color
+
+    def next_move(self):
+        pass
+
+
+class HumanPlayer(Player):
+    def next_move(self):
+        if self.controller is None:
+            raise Exception("controller not defined")
+        if self.controller.human_play_callback is not None:
+            self.controller.human_play_callback()
+
+
+class RandomPlayer(Player):
+
+    def next_move(self):
+        if self.controller is None:
+            raise Exception("controller not defined")
+        if self.color is None:
+            raise Exception("color is not defined")
+        move = choice(
+            self.controller.get_possible_moves(self.color).hot_bits_coordinates()
+        )
+        try:
+            self.controller.play(move[0], move[1])
+        except GameOverException:
+            raise
+
+
+class AIPlayer(Player):
+    def __init__(
+        self,
+        board: OthelloBoard,
+        depth: int = 3,
+        algorithm: str = "minimax",
+        heuristic: str = "coin_parity",
+    ):
+        self.board = board
+        self.depth = depth
+        self.algorithm = algorithm
+        self.heuristic = heuristic
+
+    def next_move(self):
+        if self.controller is None:
+            raise Exception("controller not defined")
+        move = find_best_move(
+            self.board, self.depth, self.color, self.algorithm, self.heuristic
+        )
+        self.controller.play(move[0], move[1])
+
+
 class GameController:
-    def __init__(self, board: OthelloBoard, blitz_mode=False, time_limit=None):
+    def __init__(
+        self,
+        board: OthelloBoard,
+        black_player,
+        white_player,
+        blitz_mode=False,
+        time_limit=None,
+    ):
         """
         Initialize the game controller.
 
@@ -20,15 +90,16 @@ class GameController:
         self.post_play_callback = None
         self.is_blitz = blitz_mode
         self.time_limit = time_limit if time_limit is not None else DEFAULT_BLITZ_TIME
+        black_player.attach(self)
+        self.human_play_callback = None
+        self.post_play_callback = None
+        black_player.set_color(Color.BLACK)
+        white_player.attach(self)
+        white_player.set_color(Color.WHITE)
+        self.players = {Color.BLACK: black_player, Color.WHITE: white_player}
 
-    def ready(self):
-        """
-        Prepare the game controller for the start of the game.
-
-        This method is called once before the game starts and must be called
-        before any other method of this class is called.
-        """
-        pass
+    def next_move(self):
+        self.players[self._board.current_player].next_move()
 
     def play(self, x_coord: int, y_coord: int):
         """
@@ -53,6 +124,16 @@ class GameController:
         :return: A Bitboard of the possible moves for the given player
         """
         return self._board.line_cap_move(player)
+
+    def get_last_play(self):
+        return self._board.get_last_play()
+
+    def popcount(self, color: Color):
+        return (
+            self._board.black.popcount()
+            if color is Color.BLACK
+            else self._board.white.popcount()
+        )
 
     def get_position(self, player: Color, x_coord: int, y_coord: int):
         """
@@ -121,6 +202,9 @@ class GameController:
         :rtype: Color
         """
         return self._board.current_player
+
+    def current_player_is_human(self):
+        return isinstance(self.players[self._board.current_player], HumanPlayer)
 
     def get_pieces_count(self, player_color: Color):
         """
@@ -194,169 +278,3 @@ class GameController:
         :rtype: str
         """
         return str(self._board)
-
-
-class RandomPlayerGameController(GameController):
-    def __init__(self, board: OthelloBoard, random_player_color: Color):
-        """
-        Initialize the RandomPlayerGameController.
-
-        This method initializes a new instance of the RandomPlayerGameController class.
-
-        :param board: The OthelloBoard to play on
-        :param random_player_color: The color of the player that will make random moves
-        :type random_player_color: Color
-        """
-
-        super().__init__(board)
-        self._random_player_color = random_player_color
-        self.first_player_human = random_player_color is not Color.BLACK
-
-    def ready(self):
-        """
-        Prepare the RandomPlayerGameController for the start of the game.
-
-        If the random player is set to play as black, this method will
-        automatically initiate a move for the black player.
-        """
-
-        if self._random_player_color is Color.BLACK:
-            self._play()
-
-    def _play(self):
-        """
-        Make a random move on the board as the random player.
-
-        This method randomly selects a valid move for the random player and makes
-        the move on the board. This method is called automatically when the game
-        starts if the random player is set to play as black, and after each move
-        by the human player. The game continues until the game is in a game over
-        state.
-
-        :return: None
-        :rtype: None
-        """
-        move = choice(
-            self.get_possible_moves(self._random_player_color).hot_bits_coordinates()
-        )
-        self.play(move[0], move[1])
-
-    def play(self, x_coord: int, y_coord: int):
-        """
-        Make a move on the board.
-
-        This method is used to make a move on the board. It delegates to the play method
-        of the underlying OthelloBoard and then calls the post-play callback if it has
-        been set using the set_post_play_callback method. If the random player is set
-        to play, this method will also automatically initiate a move by the random
-        player after each move by the human player.
-
-        :param x_coord: The x coordinate of the move (0 indexed)
-        :param y_coord: The y coordinate of the move (0 indexed)
-        :return: None
-        :rtype: None
-        """
-        self._board.play(x_coord, y_coord)
-        if self.post_play_callback is not None:
-            self.post_play_callback()
-        if self._board.current_player is self._random_player_color:
-            self._play()
-
-
-class AIPlayerGameController(GameController):
-    def __init__(
-        self,
-        board: OthelloBoard,
-        ai_color: Color = Color.BLACK,
-        depth: int = 3,
-        algorithm: str = "minimax",
-        heuristic: str = "coin_parity",
-        random_player: bool = False,
-    ):
-        """
-        Initialize an AIPlayerGameController.
-
-        :param board: The OthelloBoard to play on.
-        :type board: OthelloBoard
-        :param ai_color: The color that the AI will play as. Defaults to Color.BLACK.
-        :type ai_color: Color or str
-        :param depth: The maximum depth to explore the game tree. Defaults to 3.
-        :type depth: int
-        :param algorithm: The search algorithm to use. Defaults to "minimax".
-        :type algorithm: str
-        :param heuristic: The heuristic function to use. Defaults to "coin_parity".
-        :type heuristic: str
-        :param random_player: Whether the AI should play randomly. Defaults to False.
-        :type random_player: bool
-        :raises ValueError: If the ai_color is invalid.
-        """
-        super().__init__(board)
-
-        if isinstance(ai_color, str):
-            if ai_color == "X":
-                self.ai_color = Color.BLACK
-            elif ai_color == "O":
-                self.ai_color = Color.WHITE
-            else:
-                self.ai_color = ai_color
-        elif not isinstance(ai_color, Color):
-            raise ValueError(
-                f"Invalid ai_color type: {type(ai_color)}. Must be a string or Color enum."
-            )
-
-        self.depth = depth
-        self.algorithm = algorithm
-        self.heuristic = heuristic
-        self.random_player = random_player
-
-    def ready(self):
-        """
-        Prepare the AIPlayerGameController for the start of the game.
-
-        If the AI player's color matches the current player on the board, this
-        method will automatically initiate a move for the AI player.
-
-        :return: None
-        :rtype: None
-        """
-
-        if self.ai_color is self._board.current_player:
-            self._play()
-
-    def _play(self):
-        """
-        Find the best move according to the AI's settings and play it.
-
-        This method is called by the ready method if the AI player's color matches
-        the current player on the board. It uses the find_best_move function to
-        determine the best move according to the AI's settings, and then plays the
-        move on the board.
-
-        :return: None
-        :rtype: None
-        """
-        move = find_best_move(
-            self._board, self.depth, self.ai_color, self.algorithm, self.heuristic
-        )
-        self.play(move[0], move[1])
-
-    def play(self, x_coord: int, y_coord: int):
-        """
-        Make a move on the board.
-
-        This method changes the state of the board to reflect the move given by
-        x_coord and y_coord. If a callback was registered using the
-        set_post_play_callback method, it is called after the move is made.
-        Additionally, if the AI player's color matches the current player on the
-        board, this method will automatically initiate a move for the AI player.
-
-        :param x_coord: The x coordinate of the move (0 indexed)
-        :param y_coord: The y coordinate of the move (0 indexed)
-        :return: None
-        :rtype: None
-        """
-        self._board.play(x_coord, y_coord)
-        if self.post_play_callback is not None:
-            self.post_play_callback()
-        if self._board.current_player is self.ai_color:
-            self._play()

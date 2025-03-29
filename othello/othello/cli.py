@@ -9,12 +9,10 @@ from othello.command_parser import CommandParser, CommandKind, CommandParserExce
 from othello.board_parser import BoardParser
 from othello.parser import DEFAULT_BLITZ_TIME
 from othello.config import save_board_state_history
-from othello.othello_board import BoardSize, OthelloBoard, Color
+from othello.othello_board import BoardSize, GameOverException, OthelloBoard, Color
 from othello.blitz_timer import BlitzTimer
 from othello.controllers import (
     GameController,
-    RandomPlayerGameController,
-    AIPlayerGameController,
 )
 
 
@@ -85,8 +83,8 @@ class OthelloCLI:
             logger.debug("Game over condition detected.")
 
             # Print final score
-            black_score = self.board.black.popcount()
-            white_score = self.board.white.popcount()
+            black_score = self.board.popcount(Color.BLACK)
+            white_score = self.board.popcount(Color.WHITE)
             logger.debug("Final score - Black: %s, White: %s", black_score, white_score)
             print(f"Final score - Black: {black_score}, White: {white_score}")
 
@@ -195,7 +193,10 @@ class OthelloCLI:
             )
             self.blitz_timer.change_player("white" if current == "black" else "black")
 
-        self.board.play(x_coord, y_coord)
+        try:
+            self.board.play(x_coord, y_coord)
+        except GameOverException:
+            print("game over")
         return True
 
     def check_parser_input(self, command_str, command_kind, *args):
@@ -299,23 +300,7 @@ class OthelloCLI:
 
         possible_moves = self.board.get_possible_moves(self.board.get_current_player())
 
-        def turn_display():
-            print(f"=== turn {self.board.get_turn_number()} ===")
-            self.display_history()
-            self.display_board()
-            possible_moves = self.board.get_possible_moves(
-                self.board.get_current_player()
-            )
-            self.display_possible_moves(possible_moves)
-
-        self.board.post_play_callback = turn_display
-        turn_display()
-        self.board.ready()
-
-        while True:
-            if self.check_game_over(possible_moves):
-                continue
-
+        def human_play_callback():
             if self.blitz_mode:
                 print(self.blitz_timer.display_time())
             command_str = input("Enter your move or command: ").strip()
@@ -331,3 +316,22 @@ class OthelloCLI:
 
                 print(f"Error: {e}\nInvalid command. Please try again.")
                 self.parser.print_help()
+
+        def turn_display():
+            print(f"=== turn {self.board.get_turn_number()} ===")
+            self.display_history()
+            self.display_board()
+            possible_moves = self.board.get_possible_moves(
+                self.board.get_current_player()
+            )
+            self.display_possible_moves(possible_moves)
+
+        self.board.human_play_callback = human_play_callback
+        self.board.post_play_callback = turn_display
+        turn_display()
+
+        while True:
+            if self.check_game_over(possible_moves):
+                break
+
+            self.board.next_move()
