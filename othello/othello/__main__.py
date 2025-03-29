@@ -85,7 +85,7 @@ def main():
     white_player = (
         AIPlayer(board, config["ai_depth"], config["ai_mode"], config["ai_heuristic"])
         if mode == parser.GameMode.AI.value and config["ai_color"] == "O"
-        else RandomPlayer()
+        else HumanPlayer()
     )
 
     # then we setup the game controller depenging of the gamemode given

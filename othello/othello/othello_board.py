@@ -195,6 +195,8 @@ class OthelloBoard:
         return len(self.__history) // 2 + 1
 
     def get_last_play(self):
+        if len(self.__history) == 0:
+            return None
         last_play, last_play_idx = self.__history[-1], 0
         while last_play[2] == -1 and last_play[3] == -1:
             last_play_idx += 1
@@ -288,8 +290,6 @@ class OthelloBoard:
                         (self.black, self.white, -1, -1, self.current_player)
                     )
                     self.current_player = ~self.current_player
-                if self.line_cap_move(self.current_player).bits == 0:
-                    raise GameOverException
             else:
                 raise IllegalMoveException(x_coord, y_coord, self.current_player)
 

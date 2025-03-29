@@ -185,13 +185,13 @@ class OthelloWindow(Gtk.ApplicationWindow):
         self.grid_size = board.size.value
         self.cell_size = 50
 
-        self.initialize_ui_components()
-        self.create_layout()
-        self.connect_signals()
-        self.blitz_timer = None
         if self.blitz_timer is not None:
             self.blitz_timer.start_timer("black")
             self.blitz_loser = None
+
+        self.initialize_ui_components()
+        self.create_layout()
+        self.connect_signals()
         self.board.next_move()
 
     def initialize_ui_components(self):
@@ -294,8 +294,33 @@ class OthelloWindow(Gtk.ApplicationWindow):
         Update the game state after a move or game state change.
         Handles end-of-game conditions.
         """
-        if self.over:
-            self.show_error_dialog(self.over_message)
+
+        if self.is_blitz:
+            if self.blitz_timer.is_time_up("black"):
+                self.show_error_dialog("Black's time is up! White wins!")
+            elif self.blitz_timer.is_time_up("white"):
+                self.show_error_dialog("White's time is up! Black wins!")
+        if self.board.is_game_over():
+            logger.debug("Game over condition detected.")
+
+            black_score = self.board.popcount(Color.BLACK)
+            white_score = self.board.popcount(Color.WHITE)
+            logger.debug("Final score - Black: %s, White: %s", black_score, white_score)
+            self.show_error_dialog(
+                f"Final score - Black: {black_score}, White: {white_score}"
+            )
+
+            if black_score > white_score:
+                logger.debug("Black wins.")
+                self.show_error_dialog("Black wins!")
+            elif white_score > black_score:
+                logger.debug("White wins.")
+                self.show_error_dialog("White wins!")
+            else:
+                logger.debug("The game is a tie.")
+                self.show_error_dialog("The game is a tie!")
+        else:
+            print("aie")
         self.drawing_area.queue_draw()
         self.update_nb_pieces()
         self.update_play_history()
@@ -351,6 +376,8 @@ class OthelloWindow(Gtk.ApplicationWindow):
         :param y: Row coordinate of the move
         """
         last_play = self.board.get_last_play()
+        if last_play is None:
+            return
         new_move = Gtk.Label(
             label=f"{last_play[4]} placed a piece at {chr(ord('A') + last_play[2])}{last_play[3] + 1}"
         )
@@ -532,7 +559,7 @@ class OthelloWindow(Gtk.ApplicationWindow):
                 self.plays_list.remove(self.plays_list.get_last_child())
             self.update_nb_pieces()
             self.over = False
-            self.__init_game(self.board, self.time_limit)
+            self.__init_game(self.board)
 
     def file_chooser(self, callback, default_file_name: str, file_extension: str):
         """

@@ -3,7 +3,7 @@ from random import choice
 
 
 from othello.ai_features import find_best_move
-from othello.othello_board import BoardSize, Color, OthelloBoard
+from othello.othello_board import BoardSize, Color, GameOverException, OthelloBoard
 from othello.parser import DEFAULT_BLITZ_TIME
 
 
@@ -40,7 +40,10 @@ class RandomPlayer(Player):
         move = choice(
             self.controller.get_possible_moves(self.color).hot_bits_coordinates()
         )
-        self.controller.play(move[0], move[1])
+        try:
+            self.controller.play(move[0], move[1])
+        except GameOverException:
+            raise
 
 
 class AIPlayer(Player):
@@ -124,6 +127,13 @@ class GameController:
 
     def get_last_play(self):
         return self._board.get_last_play()
+
+    def popcount(self, color: Color):
+        return (
+            self._board.black.popcount()
+            if color is Color.BLACK
+            else self._board.white.popcount()
+        )
 
     def get_position(self, player: Color, x_coord: int, y_coord: int):
         """
