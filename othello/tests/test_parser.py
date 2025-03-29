@@ -202,7 +202,7 @@ def test_ai_mode(monkeypatch):
     assert parse_config["ai_mode"] == AIMode.MINIMAX.value
     assert parse_config["ai_shallow"] is False
     assert parse_config["ai_depth"] == 3
-    assert parse_config["ai_heuristic"] == AIHeuristic.DEFAULT.value
+    assert parse_config["ai_heuristic"] == AIHeuristic.CORNERS_CAPTURED.value
     assert parse_config["ai_time"] == 5
 
     # ai color
@@ -259,12 +259,12 @@ def test_ai_mode(monkeypatch):
     assert parse_config["ai_depth"] == 5
 
     # ai heuristic
-    monkeypatch.setattr(sys, "argv", ["othello", "-a", "--ai-heuristic", "other"])
+    monkeypatch.setattr(sys, "argv", ["othello", "-a", "--ai-heuristic", "coin_parity"])
     mode, parse_config = parse_args()
 
     assert mode == GameMode.AI.value
     assert parse_config["mode"] == GameMode.AI.value
-    assert parse_config["ai_heuristic"] == AIHeuristic.OTHER.value
+    assert parse_config["ai_heuristic"] == AIHeuristic.COIN_PARITY.value
 
     # ai time
     monkeypatch.setattr(sys, "argv", ["othello", "-a", "--ai-time", "25"])
