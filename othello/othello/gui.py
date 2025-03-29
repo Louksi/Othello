@@ -165,6 +165,8 @@ class OthelloWindow(Gtk.ApplicationWindow):
 
         self.logger = logging.getLogger("Othello")
 
+        board.post_play_callback = self.update_game_state
+
         self.__init_game(board)
 
     def __init_game(self, board):
@@ -190,7 +192,7 @@ class OthelloWindow(Gtk.ApplicationWindow):
         if self.blitz_timer is not None:
             self.blitz_timer.start_timer("black")
             self.blitz_loser = None
-        self.board.ready()
+        self.board.next_move()
 
     def initialize_ui_components(self):
         """
@@ -296,6 +298,8 @@ class OthelloWindow(Gtk.ApplicationWindow):
             self.show_error_dialog(self.over_message)
         self.drawing_area.queue_draw()
         self.update_nb_pieces()
+        self.update_play_history()
+        GLib.idle_add(self.board.next_move)
 
     def update_nb_pieces(self):
         """
@@ -339,13 +343,14 @@ class OthelloWindow(Gtk.ApplicationWindow):
             f"White: {self.blitz_timer.display_time_player(Color.WHITE)}"
         )
 
-    def update_play_history(self, x: int, y: int):
+    def update_play_history(self):
         """
         Update the play history list with the latest move.
 
         :param x: Column coordinate of the move
         :param y: Row coordinate of the move
         """
+        last_play = self.board.get_last_play()
         new_move = Gtk.Label(
             label=f"{last_play[4]} placed a piece at {chr(ord('A') + last_play[2])}{last_play[3] + 1}"
         )
@@ -461,7 +466,7 @@ class OthelloWindow(Gtk.ApplicationWindow):
         :param click_x: X coordinate of the click
         :param click_y: Y coordinate of the click
         """
-        if self.over:
+        if self.over or not self.board.current_player_is_human():
             return
         board_x = int(click_x / self.cell_size)
         board_y = int(click_y / self.cell_size)
@@ -480,7 +485,6 @@ class OthelloWindow(Gtk.ApplicationWindow):
                 self.over = True
             except IllegalMoveException as err:
                 self.logger.debug(err)
-            self.update_game_state()
 
     def forfeit_handler(self, _button: Gtk.Button):
         """

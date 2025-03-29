@@ -9,7 +9,8 @@ class TestBlitzMode:
 
     @pytest.fixture
     def blitz_game(self):
-        game = OthelloCLI(blitz_mode=True)
+        mock_board = MagicMock()
+        game = OthelloCLI(mock_board, blitz_mode=True)
         game.board = MagicMock()
         game.board.get_current_player.return_value = Color.BLACK
         game.blitz_timer = MagicMock()
