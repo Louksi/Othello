@@ -15,6 +15,7 @@ from othello.controllers import (
     AIPlayer,
     GameController,
     HumanPlayer,
+    RandomPlayer,
 )
 from othello.config import display_config
 
@@ -78,13 +79,13 @@ def main():
     # then we setup black and white, specifying if they are AI players or not
     black_player = (
         AIPlayer(board, config["ai_depth"], config["ai_mode"], config["ai_heuristic"])
-        if mode == parser.GameMode.AI and config["ai_color"] == "X"
+        if mode == parser.GameMode.AI.value and config["ai_color"] == "X"
         else HumanPlayer()
     )
     white_player = (
         AIPlayer(board, config["ai_depth"], config["ai_mode"], config["ai_heuristic"])
-        if mode == parser.GameMode.AI and config["ai_color"] == "O"
-        else HumanPlayer()
+        if mode == parser.GameMode.AI.value and config["ai_color"] == "O"
+        else RandomPlayer()
     )
 
     # then we setup the game controller depenging of the gamemode given
