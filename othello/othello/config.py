@@ -80,11 +80,12 @@ def load_config(filename_prefix: str = "current_config") -> dict:
 def save_board_state_history(board: OthelloBoard, filename_prefix="default") -> None:
     """Save the board state history into a .othellorc file."""
     logger.debug("Saving board state history to filename_prefix: %s", filename_prefix)
-    filename = f"{filename_prefix}.othellorc"
+    filename = f"{filename_prefix}.sav"
 
     try:
         with open(filename, "w", encoding="utf-8") as file:
             file.write(board.export())
+        print(f"Game saved in {filename_prefix}.sav")
     except IOError as err:
         log.log_error_message(err, context=f"Failed to save board state to {filename}.")
         raise

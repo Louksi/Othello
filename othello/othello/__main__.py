@@ -2,16 +2,22 @@
 Entry point for the othello executable.
 """
 
-# pylint: disable=locally-disabled, multiple-statements, line-too-long, import-error, no-name-in-module
-
 import sys
 import logging
 
+from othello.board_parser import BoardParser
 import othello.parser as parser
-import othello.game_modes as Modes
 import othello.logger as log
 from othello.gui import OthelloGUI
-from othello.othello_board import BoardSize, OthelloBoard
+from othello.cli import OthelloCLI
+from othello.othello_board import BoardSize, Color, OthelloBoard
+from othello.controllers import (
+    AIPlayer,
+    GameController,
+    HumanPlayer,
+    RandomPlayer,
+)
+from othello.config import display_config
 
 
 def main():
@@ -47,67 +53,58 @@ def main():
     current_config = parser.default_config.copy()
     current_config.update(config)
 
-    # filename_prefix = "config"
+    display_config(config)
 
-    # configuration.save_config(current_config, config["filename"])
+    controller = None
+    size = BoardSize.from_value(config["size"])
 
-    # loaded_config = configuration.load_config(config["filename"])
-    print("Config loaded:", config)
+    board = None
 
-    match mode:
-        case parser.GameMode.NORMAL.value:
-            print("Starting Normal Mode...")
-            if config["gui"]:
-                size = BoardSize.from_value(config["size"])
-                board = OthelloBoard(size)
-                gui = OthelloGUI(board)
-                gui.run()
-            else:
-                Modes.NormalGame(config["filename"], config["size"]).play()
+    # first we try to retrieve a save from given filename if it exists
+    filename = config["filename"]
+    if filename is None:
+        board = OthelloBoard(size)
+    else:
+        try:
+            with open(filename, "r") as file:
+                file_content = file.read()
+            board = BoardParser(file_content).parse()
+        except FileNotFoundError:
+            logger.error("File not found: %s", filename)
+            raise
+        except Exception as err:
+            logger.error("Failed to load game: %s", err)
+            raise
 
-        case parser.GameMode.BLITZ.value:
-            print("Starting Blitz Mode...")
-            print(f"Blitz mode with time limit: {config['blitz_time']} minutes")
-            if config["gui"]:
-                size = BoardSize.from_value(config["size"])
-                board = OthelloBoard(size)
-                gui = OthelloGUI(board, config["blitz_time"])
-                gui.run()
-            else:
-                Modes.BlitzGame(
-                    config["filename"], config["size"], config["blitz_time"]
-                ).play()
+    # then we setup black and white, specifying if they are AI players or not
+    black_player = (
+        AIPlayer(board, config["ai_depth"], config["ai_mode"], config["ai_heuristic"])
+        if mode == parser.GameMode.AI.value and config["ai_color"] == "X"
+        else HumanPlayer()
+    )
+    white_player = (
+        AIPlayer(board, config["ai_depth"], config["ai_mode"], config["ai_heuristic"])
+        if mode == parser.GameMode.AI.value and config["ai_color"] == "O"
+        else HumanPlayer()
+    )
 
-        case parser.GameMode.CONTEST.value:
-            print("Starting Contest Mode...")
-            print(f"Loading contest from file: {config['cFile']}")
+    # then we setup the game controller depenging of the gamemode given
+    if mode == parser.GameMode.BLITZ.value:
+        controller = GameController(
+            board, black_player, white_player, True, config["blitz_time"]
+        )
+    elif mode == parser.GameMode.CONTEST.value:
+        raise Exception("//todo")
+    else:
+        controller = GameController(board, black_player, white_player)
 
-        case parser.GameMode.AI.value:
-            print("Starting AI Mode...")
-            if config["gui"]:
-                size = BoardSize.from_value(config["size"])
-                board = OthelloBoard(size)
-                # Create a GUI with AI capabilities
-                gui = OthelloGUI(
-                    board,
-                    ai_player="black",
-                    ai_depth=config["ai_depth"],
-                    ai_mode=config["ai_mode"],
-                    ai_heuristic=config["ai_heuristic"],
-                )
-                gui.run()
-            else:
-                Modes.AIMode(
-                    config["filename"],
-                    config["size"],
-                    "black",
-                    config["ai_depth"],
-                    config["ai_mode"],
-                    config["ai_heuristic"],
-                ).play()
-        case _:
-            print("Unknown game mode. Exiting.")
-            sys.exit(1)
+    # finally, we run either in gui or in cli
+    if config["gui"]:
+        gui = OthelloGUI(controller)
+        gui.run()
+    else:
+        cli = OthelloCLI(controller, controller.is_blitz, config["blitz_time"])
+        cli.play()
 
 
 if __name__ == "__main__":

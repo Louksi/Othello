@@ -5,4 +5,3 @@ othello
    :maxdepth: 4
 
    othello
-   tests

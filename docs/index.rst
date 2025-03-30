@@ -3,12 +3,15 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-othello documentation
+Othello documentation
 =====================
 
-Add your content using ``reStructuredText`` syntax. See the
-`reStructuredText <https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html>`_
-documentation for details.
+Othello board game Python implementation.
+
+By Matis Duval, Rémy Heuret, Lucas Marques, Gabriel Tardiou.
+
+Student project, Spring 2025, University of Bordeaux
+
 
 
 .. toctree::
@@ -24,4 +27,3 @@ Indices and tables
 
 * :ref:`genindex`
 * :ref:`modindex`
-* :ref:`search`

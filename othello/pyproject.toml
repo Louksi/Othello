@@ -6,8 +6,7 @@ authors = [
     {name = "Matis Duval"},
     {name = "Rémy Heuret"},
     {name = "Lucas Marques"},
-    {name = "Gabriel Tardiou"},
-    {name = "Lucas Zammit"}
+    {name = "Gabriel Tardiou"}
 ]
 readme = "README.md"
 dependencies = ["pycairo", "PyGObject==3.50.0", "importlib-metadata",
