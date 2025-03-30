@@ -3,8 +3,6 @@ Implementation of the blitz timer that's used to give both players
 a maximum time for all their plays (individually).
 """
 
-# pylint: disable=locally-disabled, multiple-statements, line-too-long, import-error, no-name-in-module
-
 from time import time
 import logging
 
@@ -98,7 +96,7 @@ class BlitzTimer:
             )
         else:
             logger.debug(
-                "Returning cached remaining time " "for %s: %.2fs.",
+                "Returning cached remaining time for %s: %.2fs.",
                 player,
                 self.remaining_time[player],
             )

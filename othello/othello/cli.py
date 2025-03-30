@@ -3,13 +3,11 @@
 import logging
 import sys
 
-import othello.parser as parser
 import othello.logger as log
 from othello.command_parser import CommandParser, CommandKind, CommandParserException
-from othello.board_parser import BoardParser
 from othello.parser import DEFAULT_BLITZ_TIME
 from othello.config import save_board_state_history
-from othello.othello_board import BoardSize, GameOverException, OthelloBoard, Color
+from othello.othello_board import GameOverException, Color
 from othello.blitz_timer import BlitzTimer
 from othello.controllers import (
     GameController,
@@ -56,7 +54,8 @@ class OthelloCLI:
         logger.debug("Entering display_board function from cli.py.")
         print(str(self.board))
         print(
-            f"\n{self.board.get_current_player().name}'s turn ({self.board.get_current_player().value})"
+            f"\n{self.board.get_current_player().name}'s turn "
+            f"({self.board.get_current_player().value})"
         )
 
     def check_game_over(self, possible_moves):
@@ -75,7 +74,7 @@ class OthelloCLI:
             if self.blitz_timer.is_time_up("black"):
                 print("Black's time is up! White wins!")
                 return True
-            elif self.blitz_timer.is_time_up("white"):
+            if self.blitz_timer.is_time_up("white"):
                 print("White's time is up! Black wins!")
                 return True
 
@@ -132,10 +131,10 @@ class OthelloCLI:
         )
         logger.debug("   Available moves:\n %s", str(possible_moves))
         print("Possible moves: ")
-        for y in range(self.board.size.value):
-            for x in range(self.board.size.value):
-                if possible_moves.get(x, y):
-                    print(f"{chr(ord('a')+x)}{y+1}", end=" ")
+        for y_coord in range(self.board.size.value):
+            for x_coord in range(self.board.size.value):
+                if possible_moves.get(x_coord, y_coord):
+                    print(f"{chr(ord('a')+x_coord)}{y_coord+1}", end=" ")
         print()
 
     def get_player_move(self):
@@ -226,6 +225,7 @@ class OthelloCLI:
                 y_coord,
                 self.board.get_possible_moves(self.board.get_current_player()),
             ):
+                logger.debug("   The move is not legal.")
                 print("Invalid move. Try again.")
                 return
 
@@ -265,7 +265,7 @@ class OthelloCLI:
                     print("Exiting without saving...")
                     sys.exit(0)
                 case _:
-                    logger.debug("   Invalid command: %s.", command_kind)
+                    logger.debug("   Invalid command: %s.", command_str)
                     print("Invalid command. Try again.")
                     self.parser.print_help()
 
@@ -309,12 +309,12 @@ class OthelloCLI:
                 command_kind, *args = self.parser.parse_str(command_str)
                 self.check_parser_input(command_str, command_kind, *args)
 
-            except CommandParserException as e:
+            except CommandParserException as err:
                 log.log_error_message(
-                    e, context=f"Failed to parse command: {command_str}"
+                    err, context=f"Failed to parse command: {command_str}"
                 )
 
-                print(f"Error: {e}\nInvalid command. Please try again.")
+                print(f"Error: {err}\nInvalid command. Please try again.")
                 self.parser.print_help()
 
         def turn_display():

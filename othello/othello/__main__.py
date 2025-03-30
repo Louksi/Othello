@@ -2,7 +2,6 @@
 Entry point for the othello executable.
 """
 
-import sys
 import logging
 
 from othello.board_parser import BoardParser
@@ -10,7 +9,7 @@ import othello.parser as parser
 import othello.logger as log
 from othello.gui import OthelloGUI
 from othello.cli import OthelloCLI
-from othello.othello_board import BoardSize, Color, OthelloBoard
+from othello.othello_board import BoardSize, OthelloBoard
 from othello.controllers import (
     AIPlayer,
     GameController,

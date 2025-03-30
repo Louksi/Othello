@@ -1,5 +1,3 @@
-# pylint: disable=locally-disabled, multiple-statements, line-too-long, import-error, no-name-in-module
-
 import random
 from copy import deepcopy
 

@@ -8,13 +8,14 @@ require_version("Gtk", "4.0")
 require_version("Adw", "1")
 
 from gi.repository import Gtk, GLib, Adw
-from othello.controllers import GameController
 import cairo
 import time
 import threading
 import sys
 import math
 import logging
+
+from othello.controllers import GameController
 from othello.othello_board import (
     Color,
     GameOverException,
@@ -22,6 +23,7 @@ from othello.othello_board import (
     OthelloBoard,
 )
 from othello.blitz_timer import BlitzTimer
+import othello.logger as log
 
 
 logger = logging.getLogger("Othello")
@@ -377,61 +379,64 @@ class OthelloWindow(Gtk.ApplicationWindow):
         if last_play is None:
             return
         new_move = Gtk.Label(
-            label=f"{last_play[4]} placed a piece at {chr(ord('A') + last_play[2])}{last_play[3] + 1}"
+            label=f"{last_play[4]} placed a piece at "
+            f"{chr(ord('A') + last_play[2])}{last_play[3] + 1}"
         )
         self.plays_list.prepend(new_move)
         if len(self.plays_list) > OthelloGUI.PLAYS_IN_HISTORY:
             self.plays_list.remove(self.plays_list.get_last_child())
 
-    def draw(self, _area: Gtk.DrawingArea, cr: cairo.Context, width: int, height: int):
+    def draw(
+        self, _area: Gtk.DrawingArea, c_context: cairo.Context, width: int, height: int
+    ):
         """
         Master drawing function called by the DrawingArea.
 
         :param _area: The drawing area widget
-        :param cr: Cairo context for drawing
+        :param c_context: Cairo context for drawing
         :param width: Width of the drawing area
         :param height: Height of the drawing area
         """
-        self.draw_board(cr)
-        self.draw_grid(cr)
-        self.draw_pieces(cr)
-        self.draw_legal_moves(cr)
+        self.draw_board(c_context)
+        self.draw_grid(c_context)
+        self.draw_pieces(c_context)
+        self.draw_legal_moves(c_context)
 
-    def draw_board(self, cr: cairo.Context):
+    def draw_board(self, c_context: cairo.Context):
         """
         Draws the green board background.
 
-        :param cr: Cairo context for drawing
+        :param c_context: Cairo context for drawing
         """
         board_color = (0.2, 0.6, 0.2)
-        cr.set_source_rgb(*board_color)
-        cr.paint()
+        c_context.set_source_rgb(*board_color)
+        c_context.paint()
 
-    def draw_grid(self, cr: cairo.Context):
+    def draw_grid(self, c_context: cairo.Context):
         """
         Draws the grid lines on the board.
 
-        :param cr: Cairo context for drawing
+        :param c_context: Cairo context for drawing
         """
         grid_color = (0.1, 0.4, 0.1)
-        cr.set_line_width(1)
-        cr.set_source_rgb(*grid_color)
+        c_context.set_line_width(1)
+        c_context.set_source_rgb(*grid_color)
 
-        for x in range(self.grid_size + 1):
-            cr.move_to(x * self.cell_size, 0)
-            cr.line_to(x * self.cell_size, self.grid_size * self.cell_size)
+        for x_coord in range(self.grid_size + 1):
+            c_context.move_to(x_coord * self.cell_size, 0)
+            c_context.line_to(x_coord * self.cell_size, self.grid_size * self.cell_size)
 
-        for y in range(self.grid_size + 1):
-            cr.move_to(0, y * self.cell_size)
-            cr.line_to(self.grid_size * self.cell_size, y * self.cell_size)
+        for y_coord in range(self.grid_size + 1):
+            c_context.move_to(0, y_coord * self.cell_size)
+            c_context.line_to(self.grid_size * self.cell_size, y_coord * self.cell_size)
 
-        cr.stroke()
+        c_context.stroke()
 
-    def draw_legal_moves(self, cr: cairo.Context):
+    def draw_legal_moves(self, c_context: cairo.Context):
         """
         Draws semi-transparent indicators for legal moves.
 
-        :param cr: Cairo context for drawing
+        :param c_context: Cairo context for drawing
         """
         black_piece_color = (0, 0, 0, 0.3)
         white_piece_color = (1, 1, 1, 0.3)
@@ -442,45 +447,45 @@ class OthelloWindow(Gtk.ApplicationWindow):
             if self.board.get_current_player() == Color.BLACK
             else white_piece_color
         )
-        cr.set_source_rgba(*color)
+        c_context.set_source_rgba(*color)
 
-        for x in range(self.grid_size):
-            for y in range(self.grid_size):
-                if legal_moves.get(x, y):
-                    center_x = x * self.cell_size + self.cell_size // 2
-                    center_y = y * self.cell_size + self.cell_size // 2
+        for x_coord in range(self.grid_size):
+            for y_coord in range(self.grid_size):
+                if legal_moves.get(x_coord, y_coord):
+                    center_x = x_coord * self.cell_size + self.cell_size // 2
+                    center_y = y_coord * self.cell_size + self.cell_size // 2
                     radius = self.cell_size // 2 - 2
-                    cr.arc(center_x, center_y, radius, 0, 2 * math.pi)
-                    cr.fill()
+                    c_context.arc(center_x, center_y, radius, 0, 2 * math.pi)
+                    c_context.fill()
 
-    def draw_pieces(self, cr: cairo.Context):
+    def draw_pieces(self, c_context: cairo.Context):
         """
         Draws all game pieces (black and white) on the board.
 
-        :param cr: Cairo context for drawing
+        :param c_context: Cairo context for drawing
         """
         black_piece_color = (0, 0, 0)
         white_piece_color = (1, 1, 1)
 
-        for x in range(self.grid_size):
-            for y in range(self.grid_size):
+        for x_coord in range(self.grid_size):
+            for y_coord in range(self.grid_size):
                 if not (
-                    self.board.get_position(Color.BLACK, x, y)
-                    or self.board.get_position(Color.WHITE, x, y)
+                    self.board.get_position(Color.BLACK, x_coord, y_coord)
+                    or self.board.get_position(Color.WHITE, x_coord, y_coord)
                 ):
                     continue
 
-                center_x = x * self.cell_size + self.cell_size // 2
-                center_y = y * self.cell_size + self.cell_size // 2
+                center_x = x_coord * self.cell_size + self.cell_size // 2
+                center_y = y_coord * self.cell_size + self.cell_size // 2
                 radius = self.cell_size // 2 - 2
 
-                if self.board.get_position(Color.BLACK, x, y):
-                    cr.set_source_rgb(*black_piece_color)
+                if self.board.get_position(Color.BLACK, x_coord, y_coord):
+                    c_context.set_source_rgb(*black_piece_color)
                 else:
-                    cr.set_source_rgb(*white_piece_color)
+                    c_context.set_source_rgb(*white_piece_color)
 
-                cr.arc(center_x, center_y, radius, 0, 2 * math.pi)
-                cr.fill()
+                c_context.arc(center_x, center_y, radius, 0, 2 * math.pi)
+                c_context.fill()
 
     def board_click(self, _gesture, _n_press, click_x: float, click_y: float):
         """
@@ -618,11 +623,16 @@ class OthelloWindow(Gtk.ApplicationWindow):
             with open(file_path, "w", encoding="utf-8") as file:
                 game_data = self.board.export()
                 file.write(game_data)
-            logger.info("Game saved to %s", file_path)
-        except IOError as e:
-            self.show_error_dialog(f"Failed to save game: {str(e)}")
-        except Exception as e:
-            self.show_error_dialog(f"Unexpected error: {str(e)}")
+            logger.debug("Game saved to %s" % file_path)
+        except IOError as err:
+            context = "Failed to save game to %s." % file_path
+            log.log_error_message(err, context=context)
+            self.show_error_dialog(f"Failed to save game: {str(err)}")
+        except Exception as err:
+            log.log_error_message(
+                err, context="Unexpected error while saving game through gui."
+            )
+            self.show_error_dialog(f"Unexpected error: {str(err)}")
 
     def save_history_handler(self, _button: Gtk.Button):
         """
@@ -652,11 +662,16 @@ class OthelloWindow(Gtk.ApplicationWindow):
             with open(file_path, "w", encoding="utf-8") as file:
                 game_data = self.board.export_history()
                 file.write(game_data)
-            logger.info("Game history saved to %s", file_path)
-        except IOError as e:
-            self.show_error_dialog(f"Failed to save game history: {str(e)}")
-        except Exception as e:
-            self.show_error_dialog(f"Unexpected error: {str(e)}")
+            logger.debug("Game history saved to %s" % file_path)
+        except IOError as err:
+            context = "Failed to save history to %s." % file_path
+            log.log_error_message(err, context=context)
+            self.show_error_dialog(f"Failed to save game history: {str(err)}")
+        except Exception as err:
+            log.log_error_message(
+                err, context="Unexpected error while saving history through gui."
+            )
+            self.show_error_dialog(f"Unexpected error: {str(err)}")
 
     def show_confirm_dialog(self, message, callback):
         """

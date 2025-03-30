@@ -3,13 +3,11 @@ Program arguments parsing
 """
 
 import sys
-from typing import Tuple
 from enum import Enum
 from typing import Any
 import argparse
 
 import othello
-from othello.othello_board import Color
 
 # VARIABLES
 

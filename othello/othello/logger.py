@@ -6,6 +6,7 @@ Uses logging to display debug messages and error messages.
 # pylint: disable=locally-disabled, multiple-statements, line-too-long, import-error, no-name-in-module
 
 import logging
+from typing import Any
 
 
 def logging_config(debug: bool) -> None:
@@ -31,7 +32,7 @@ def logging_config(debug: bool) -> None:
         )
 
 
-def log_error_message(error: str, context: str | None = None) -> None:
+def log_error_message(error: str | Any, context: str | None = None) -> None:
     """
     Log an error message with a given context.
 
@@ -44,5 +45,7 @@ def log_error_message(error: str, context: str | None = None) -> None:
 
     logger = logging.getLogger("Othello")
     if context is not None:
-        logger.error(f"Context: {context}")
-    logger.error(f"Error: {error}", exc_info=True)
+        ctxt = "Context: %s" % context
+        logger.error(ctxt)
+    err = "Error: %s" % error
+    logger.error(err, exc_info=True)

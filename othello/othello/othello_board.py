@@ -32,7 +32,7 @@ class Color(Enum):
     def __str__(self) -> str:
         if self is Color.BLACK:
             return "black"
-        elif self is Color.WHITE:
+        if self is Color.WHITE:
             return "white"
         return "empty"
 
@@ -151,17 +151,20 @@ class OthelloBoard:
         self.black.set(self.size.value // 2, self.size.value // 2 - 1, True)
 
     def force_game_over(self):
+        """
+        Force the game to be over.
+        """
         self.forced_game_over = True
 
     def is_game_over(self) -> bool:
         """
-        Checks wether or not a board is in a game over state.
+        Checks whether or not a board is in a game over state.
         """
 
-        m1, m2 = self.line_cap_move(self.current_player), self.line_cap_move(
+        move_1, move_2 = self.line_cap_move(self.current_player), self.line_cap_move(
             ~self.current_player
         )
-        return self.forced_game_over or (m1.popcount() == m2.popcount() == 0)
+        return self.forced_game_over or (move_1.popcount() == move_2.popcount() == 0)
 
     def line_cap_move(self, current_player: Color) -> Bitboard:
         """
@@ -195,6 +198,12 @@ class OthelloBoard:
         return len(self.__history) // 2 + 1
 
     def get_last_play(self):
+        """
+        Returns the last played move.
+
+        Returns:
+            tuple[Bitboard, Bitboard, int, int, Color]: last played move.
+        """
         if len(self.__history) == 0:
             return None
         last_play, last_play_idx = self.__history[-1], 0
