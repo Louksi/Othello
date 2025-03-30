@@ -1,27 +1,67 @@
 from othello.gui import OthelloGUI
 from othello.othello_board import OthelloBoard, Color, BoardSize
 
+import os
+import unittest
+import time
+from unittest.mock import patch, MagicMock
+
+# Set up headless environment BEFORE importing Gtk
+os.environ["GDK_BACKEND"] = "x11"
+os.environ["DISPLAY"] = ":99"
+
+# Try to use pyvirtualdisplay if available
+try:
+    from pyvirtualdisplay import Display
+
+    virtual_display = Display(visible=0, size=(1280, 1024))
+    virtual_display.start()
+except ImportError:
+    print(
+        "Warning: pyvirtualdisplay not installed. Tests may fail in headless environments."
+    )
+
 from gi.repository import Gtk, GLib, Gdk
 from gi import require_version
 import unittest
 import time
-require_version('Gtk', '4.0')
-require_version('Adw', '1')
+
+require_version("Gtk", "4.0")
+require_version("Adw", "1")
 
 
 # VARIABLES
+
+MAX_TEST_DURATION = 5
 
 size = BoardSize.from_value(8)
 loop = None
 timeout_id = None
 
-test_state = {
-    "board": None,
-    "app": None,
-    "window": None
-}
+test_state = {"board": None, "app": None, "window": None}
 
 # SET UP
+
+
+def add_global_timeout():
+    global global_timeout_id
+
+    def global_timeout_handler():
+        print(f"Test timed out after {MAX_TEST_DURATION} seconds")
+        if loop and loop.is_running():
+            loop.quit()
+        return GLib.SOURCE_REMOVE
+
+    global_timeout_id = GLib.timeout_add_seconds(
+        MAX_TEST_DURATION, global_timeout_handler
+    )
+
+
+def remove_global_timeout():
+    global global_timeout_id
+    if global_timeout_id:
+        GLib.source_remove(global_timeout_id)
+        global_timeout_id = None
 
 
 def setup_test(with_blitz=False, time_limit=None):
@@ -29,19 +69,23 @@ def setup_test(with_blitz=False, time_limit=None):
     test_state["board"] = OthelloBoard(size)
 
     if with_blitz and time_limit:
-        test_state["app"] = OthelloGUI(
-            test_state["board"], time_limit=time_limit)
+        test_state["app"] = OthelloGUI(test_state["board"], time_limit=time_limit)
     else:
         test_state["app"] = OthelloGUI(test_state["board"])
 
     test_state["window"] = None
     loop = GLib.MainLoop()
+    add_global_timeout()
 
 
 def activating(app):
     windows = app.get_windows()
     if windows:
         test_state["window"] = windows[0]
+
+        if test_state["window"]:
+            test_state["window"].set_visible(False)
+
         add_timeout()
 
 
@@ -49,7 +93,7 @@ def add_timeout():
     global timeout_id
     if timeout_id:
         GLib.source_remove(timeout_id)
-    timeout_id = GLib.timeout_add(500, check_window)
+    timeout_id = GLib.timeout_add(100, check_window)
 
 
 def check_window():
@@ -69,6 +113,8 @@ def cleanup():
         GLib.source_remove(timeout_id)
         timeout_id = None
 
+    remove_global_timeout()
+
     if test_state["window"]:
         test_state["window"].close()
         test_state["window"].destroy()
@@ -84,7 +130,7 @@ def cleanup():
 
 
 def launch_app():
-    test_state["app"].connect('activate', activating)
+    test_state["app"].connect("activate", activating)
     test_state["app"].run([])
 
 
@@ -98,6 +144,7 @@ def simulate_board_click(x, y):
 
 
 # TESTS
+
 
 def test_window_layout():
     setup_test()
@@ -125,10 +172,12 @@ def run_window_layout_test():
 
     # drawing area
     assert window.drawing_area is not None
-    assert window.drawing_area.get_content_width() == window.grid_size * \
-        window.cell_size
-    assert window.drawing_area.get_content_height() == window.grid_size * \
-        window.cell_size
+    assert (
+        window.drawing_area.get_content_width() == window.grid_size * window.cell_size
+    )
+    assert (
+        window.drawing_area.get_content_height() == window.grid_size * window.cell_size
+    )
 
     # labels and buttons
     assert window.black_nb_pieces is not None
