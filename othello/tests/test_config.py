@@ -34,14 +34,16 @@ def test_save_and_load_config(temp_config_file):
         "ai_shallow": "true",
         "ai_depth": "3",
         "ai_heuristic": "default",
-        "ai_time": "5"
+        "ai_time": "5",
     }
 
-    save_config(sample_config,
-                filename_prefix=temp_config_file.replace(".othellorc", ""))
+    save_config(
+        sample_config, filename_prefix=temp_config_file.replace(".othellorc", "")
+    )
 
     loaded_config = load_config(
-        filename_prefix=temp_config_file.replace(".othellorc", ""))
+        filename_prefix=temp_config_file.replace(".othellorc", "")
+    )
 
     assert loaded_config == sample_config
 
@@ -54,8 +56,7 @@ def test_load_nonexistent_config():
 def test_save_config_invalid_filename():
     invalid_config = {"mode": "normal"}
     with pytest.raises(IOError):
-        save_config(invalid_config,
-                    filename_prefix="/invalid/path/test_config")
+        save_config(invalid_config, filename_prefix="/invalid/path/test_config")
 
 
 def test_load_config_invalid_filename():
@@ -67,10 +68,12 @@ def test_save_and_load_empty_config(temp_config_file):
     empty_config = {}
 
     save_config(
-        empty_config, filename_prefix=temp_config_file.replace(".othellorc", ""))
+        empty_config, filename_prefix=temp_config_file.replace(".othellorc", "")
+    )
 
     loaded_config = load_config(
-        filename_prefix=temp_config_file.replace(".othellorc", ""))
+        filename_prefix=temp_config_file.replace(".othellorc", "")
+    )
 
     assert loaded_config == empty_config
 

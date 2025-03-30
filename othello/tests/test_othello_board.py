@@ -2,23 +2,35 @@ from copy import copy
 import pytest
 
 from othello.bitboard import Bitboard
-from othello.othello_board import BoardSize, CannotPopException, Color, OthelloBoard, GameOverException, IllegalMoveException
+from othello.othello_board import (
+    BoardSize,
+    CannotPopException,
+    Color,
+    OthelloBoard,
+    GameOverException,
+    IllegalMoveException,
+)
 
 
 def test_init_six():
     b = OthelloBoard(BoardSize.SIX_BY_SIX)
-    assert str(b) == """  a b c d e f
+    assert (
+        str(b)
+        == """  a b c d e f
 1 _ _ _ _ _ _
 2 _ _ · _ _ _
 3 _ · O X _ _
 4 _ _ X O · _
 5 _ _ _ · _ _
 6 _ _ _ _ _ _"""
+    )
 
 
 def test_init_eight():
     b = OthelloBoard(BoardSize.EIGHT_BY_EIGHT)
-    assert str(b) == """  a b c d e f g h
+    assert (
+        str(b)
+        == """  a b c d e f g h
 1 _ _ _ _ _ _ _ _
 2 _ _ _ _ _ _ _ _
 3 _ _ _ · _ _ _ _
@@ -27,12 +39,15 @@ def test_init_eight():
 6 _ _ _ _ · _ _ _
 7 _ _ _ _ _ _ _ _
 8 _ _ _ _ _ _ _ _"""
+    )
 
 
 def test_init_ten():
     b = OthelloBoard(BoardSize.TEN_BY_TEN)
     print(b)
-    assert str(b) == """   a b c d e f g h i j
+    assert (
+        str(b)
+        == """   a b c d e f g h i j
 1  _ _ _ _ _ _ _ _ _ _
 2  _ _ _ _ _ _ _ _ _ _
 3  _ _ _ _ _ _ _ _ _ _
@@ -43,12 +58,15 @@ def test_init_ten():
 8  _ _ _ _ _ _ _ _ _ _
 9  _ _ _ _ _ _ _ _ _ _
 10 _ _ _ _ _ _ _ _ _ _"""
+    )
 
 
 def test_init_twelve():
     b = OthelloBoard(BoardSize.TWELVE_BY_TWELVE)
     print(b)
-    assert str(b) == """   a b c d e f g h i j k l
+    assert (
+        str(b)
+        == """   a b c d e f g h i j k l
 1  _ _ _ _ _ _ _ _ _ _ _ _
 2  _ _ _ _ _ _ _ _ _ _ _ _
 3  _ _ _ _ _ _ _ _ _ _ _ _
@@ -61,6 +79,7 @@ def test_init_twelve():
 10 _ _ _ _ _ _ _ _ _ _ _ _
 11 _ _ _ _ _ _ _ _ _ _ _ _
 12 _ _ _ _ _ _ _ _ _ _ _ _"""
+    )
 
 
 """ black's turn, C => candidate
@@ -319,6 +338,7 @@ def test_eq():
     def __set(b: OthelloBoard):
         b.play(5, 4)
         b.play(5, 5)
+
     b = OthelloBoard(BoardSize.EIGHT_BY_EIGHT)
     __set(b)
     b2 = OthelloBoard(BoardSize.EIGHT_BY_EIGHT)

@@ -6,11 +6,12 @@ import othello
 from othello.blitz_timer import BlitzTimer
 
 TEST_TIME = 0.1
-PLAYER1 = 'black'
-PLAYER2 = 'white'
+PLAYER1 = "black"
+PLAYER2 = "white"
 
 
 # TEST INITIALIZATION
+
 
 def test_init():
     """
@@ -25,12 +26,13 @@ def test_init():
     timer = BlitzTimer(TEST_TIME)
     assert timer.start_time is None
     assert timer.total_time == TEST_TIME * 60
-    assert timer.remaining_time['black'] == TEST_TIME * 60
-    assert timer.remaining_time['white'] == TEST_TIME * 60
+    assert timer.remaining_time["black"] == TEST_TIME * 60
+    assert timer.remaining_time["white"] == TEST_TIME * 60
     assert timer.current_player is None
 
 
 # TEST STARTING
+
 
 def test_starting():
     """
@@ -47,11 +49,12 @@ def test_starting():
     timer.start_timer(PLAYER1)
     assert timer.start_time is not None
     assert timer.current_player == PLAYER1
-    assert timer.remaining_time['black'] == TEST_TIME * 60
-    assert timer.remaining_time['white'] == TEST_TIME * 60
+    assert timer.remaining_time["black"] == TEST_TIME * 60
+    assert timer.remaining_time["white"] == TEST_TIME * 60
 
 
 # TEST PAUSING
+
 
 def test_pausing():
     """
@@ -71,6 +74,7 @@ def test_pausing():
 
 
 # TEST SWITCHING
+
 
 def test_switching():
     """
@@ -92,6 +96,7 @@ def test_switching():
 
 
 # TEST REMAINING
+
 
 def test_remaining():
     """
@@ -124,6 +129,7 @@ def test_remaining():
 
 
 # TEST TIME IS UP
+
 
 def test_time_up():
     """

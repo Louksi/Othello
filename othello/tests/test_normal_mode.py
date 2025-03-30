@@ -40,8 +40,7 @@ def normal_game():
 def mock_possible_moves():
     """Fixture to create a mock bitboard for possible moves."""
     bitboard = MagicMock()
-    bitboard.get.side_effect = lambda x, y: (
-        x, y) == (3, 2)
+    bitboard.get.side_effect = lambda x, y: (x, y) == (3, 2)
     return bitboard
 
 
@@ -107,7 +106,10 @@ def test_display_board(capfd):
 
     captured = capfd.readouterr()
     assert str(game.board) in captured.out
-    assert f"{game.current_player.name}'s turn ({game.current_player.value})" in captured.out
+    assert (
+        f"{game.current_player.name}'s turn ({game.current_player.value})"
+        in captured.out
+    )
 
 
 def test_normal_turn_switch(normal_game):
@@ -168,7 +170,8 @@ def test_game_over_both_players_no_moves(mock_game):
     game.current_player = Color.BLACK
     empty_moves = Bitboard(0)
     game.switch_player = MagicMock(
-        side_effect=lambda: setattr(game, 'current_player', Color.WHITE))
+        side_effect=lambda: setattr(game, "current_player", Color.WHITE)
+    )
 
     assert game.check_game_over(empty_moves) == False
     game.switch_player()
@@ -189,8 +192,7 @@ def test_display_possible_moves(mock_game, capsys):
     """Test if display_possible_moves correctly prints the possible moves."""
     game = mock_game
     possible_moves = MagicMock()
-    possible_moves.get = MagicMock(side_effect=lambda x, y: (
-        x, y) in [(2, 3), (4, 5)])
+    possible_moves.get = MagicMock(side_effect=lambda x, y: (x, y) in [(2, 3), (4, 5)])
 
     game.display_possible_moves(possible_moves)
     captured = capsys.readouterr()
@@ -238,11 +240,10 @@ def test_popcount_game_over_condition(mock_game):
 
 
 def test_process_move():
-    '''Use Mock functions to play the game and process some illegal moves'''
+    """Use Mock functions to play the game and process some illegal moves"""
     game = NormalGame(filename=None, board_size=BoardSize.EIGHT_BY_EIGHT)
     possible_moves = MagicMock()
-    possible_moves.get.side_effect = lambda x, y: (
-        x, y) in [(3, 2), (4, 5)]
+    possible_moves.get.side_effect = lambda x, y: (x, y) in [(3, 2), (4, 5)]
 
     game.board.play = MagicMock()
 
@@ -254,12 +255,11 @@ def test_process_move():
 
     with patch("builtins.print") as mock_print:
         assert game.process_move(1, 1, possible_moves) is False
-        mock_print.assert_called_with(
-            "Invalid move. Not a legal play. Try again.")
+        mock_print.assert_called_with("Invalid move. Not a legal play. Try again.")
 
 
 def test_switch_player():
-    '''Tests valid switches between players'''
+    """Tests valid switches between players"""
     game = NormalGame(filename=None, board_size=BoardSize.EIGHT_BY_EIGHT)
 
     game.current_player = Color.BLACK
@@ -270,15 +270,15 @@ def test_switch_player():
     assert game.current_player == Color.BLACK
 
 
-@patch('builtins.input')
-@patch('builtins.print')
+@patch("builtins.input")
+@patch("builtins.print")
 def test_play_quit_command(mock_print, mock_input, normal_game):
     """Test that the QUIT command exits the game properly."""
     # Set up the mock to return 'q' when input is called
-    mock_input.return_value = 'q'
+    mock_input.return_value = "q"
 
     # Set up command parser to recognize 'q' as QUIT
-    with patch('othello.game_modes.CommandParser') as mock_parser_class:
+    with patch("othello.game_modes.CommandParser") as mock_parser_class:
         mock_parser = MagicMock()
         mock_parser_class.return_value = mock_parser
         mock_parser.parse_str.return_value = (CommandKind.QUIT,)
@@ -302,16 +302,16 @@ def test_play_quit_command(mock_print, mock_input, normal_game):
 
         # Verify interactions
         mock_input.assert_called_once_with("Enter your move or command: ")
-        mock_parser.parse_str.assert_called_once_with('q')
+        mock_parser.parse_str.assert_called_once_with("q")
 
 
-@patch('builtins.input')
+@patch("builtins.input")
 def test_play_valid_move(mock_input, normal_game):
     """Test playing a valid move and switching players."""
     # Set up to exit after one valid move
-    mock_input.side_effect = ['e3', 'q']
+    mock_input.side_effect = ["e3", "q"]
 
-    with patch('othello.game_modes.CommandParser') as mock_parser_class:
+    with patch("othello.game_modes.CommandParser") as mock_parser_class:
         mock_parser = MagicMock()
         mock_parser_class.return_value = mock_parser
 
@@ -321,7 +321,7 @@ def test_play_valid_move(mock_input, normal_game):
         play_command.y_coord = 2  # 3
         mock_parser.parse_str.side_effect = [
             (CommandKind.PLAY_MOVE, play_command),
-            (CommandKind.QUIT,)
+            (CommandKind.QUIT,),
         ]
 
         # Mock other methods
@@ -341,13 +341,13 @@ def test_play_valid_move(mock_input, normal_game):
         normal_game.switch_player.assert_called_once()
 
 
-@patch('builtins.input')
+@patch("builtins.input")
 def test_play_invalid_move(mock_input, normal_game):
     """Test playing an invalid move and not switching players."""
     # Set up to try an invalid move, then quit
-    mock_input.side_effect = ['a1', 'q']
+    mock_input.side_effect = ["a1", "q"]
 
-    with patch('othello.game_modes.CommandParser') as mock_parser_class:
+    with patch("othello.game_modes.CommandParser") as mock_parser_class:
         mock_parser = MagicMock()
         mock_parser_class.return_value = mock_parser
 
@@ -357,7 +357,7 @@ def test_play_invalid_move(mock_input, normal_game):
         play_command.y_coord = 0  # 1
         mock_parser.parse_str.side_effect = [
             (CommandKind.PLAY_MOVE, play_command),
-            (CommandKind.QUIT,)
+            (CommandKind.QUIT,),
         ]
 
         # Mock other methods
@@ -365,8 +365,7 @@ def test_play_invalid_move(mock_input, normal_game):
         normal_game.get_possible_moves = MagicMock(return_value=Bitboard(1))
         normal_game.check_game_over = MagicMock(return_value=False)
         normal_game.display_possible_moves = MagicMock()
-        normal_game.process_move = MagicMock(
-            return_value=False)  # Invalid move
+        normal_game.process_move = MagicMock(return_value=False)  # Invalid move
         normal_game.switch_player = MagicMock()
 
         # Run the test
@@ -378,21 +377,18 @@ def test_play_invalid_move(mock_input, normal_game):
         normal_game.switch_player.assert_not_called()
 
 
-@patch('builtins.input')
+@patch("builtins.input")
 def test_play_help_command(mock_input, normal_game):
     """Test that the HELP command works correctly."""
     # Set up to request help, then quit
-    mock_input.side_effect = ['help', 'q']
+    mock_input.side_effect = ["help", "q"]
 
-    with patch('othello.game_modes.CommandParser') as mock_parser_class:
+    with patch("othello.game_modes.CommandParser") as mock_parser_class:
         mock_parser = MagicMock()
         mock_parser_class.return_value = mock_parser
 
         # First return HELP command, then QUIT
-        mock_parser.parse_str.side_effect = [
-            (CommandKind.HELP,),
-            (CommandKind.QUIT,)
-        ]
+        mock_parser.parse_str.side_effect = [(CommandKind.HELP,), (CommandKind.QUIT,)]
 
         # Mock other methods
         normal_game.display_board = MagicMock()
@@ -459,20 +455,20 @@ def test_play_game_over(mock_input, normal_game):
 '''
 
 
-@patch('builtins.input')
+@patch("builtins.input")
 def test_play_parser_exception(mock_input, normal_game):
     """Test handling of CommandParserException."""
     # Set up to cause an exception, then quit
-    mock_input.side_effect = ['invalid', 'q']
+    mock_input.side_effect = ["invalid", "q"]
 
-    with patch('othello.game_modes.CommandParser') as mock_parser_class:
+    with patch("othello.game_modes.CommandParser") as mock_parser_class:
         mock_parser = MagicMock()
         mock_parser_class.return_value = mock_parser
 
         # First raise exception, then return QUIT
         mock_parser.parse_str.side_effect = [
             CommandParserException("Invalid command"),
-            (CommandKind.QUIT,)
+            (CommandKind.QUIT,),
         ]
 
         # Mock other methods
@@ -490,13 +486,14 @@ def test_play_parser_exception(mock_input, normal_game):
         assert mock_parser.print_help.call_count == 1
 
 
-@patch('builtins.input')
+@patch("builtins.input")
 def test_play_save_and_quit(mock_input, normal_game):
     """Test that SAVE_AND_QUIT command works correctly."""
-    mock_input.return_value = 'save'
+    mock_input.return_value = "save"
 
-    with patch('othello.game_modes.CommandParser') as mock_parser_class, \
-            patch('othello.game_modes.save_board_state_history') as mock_save:
+    with patch("othello.game_modes.CommandParser") as mock_parser_class, patch(
+        "othello.game_modes.save_board_state_history"
+    ) as mock_save:
         mock_parser = MagicMock()
         mock_parser_class.return_value = mock_parser
         mock_parser.parse_str.return_value = (CommandKind.SAVE_AND_QUIT,)
@@ -516,12 +513,12 @@ def test_play_save_and_quit(mock_input, normal_game):
         mock_save.assert_called_once_with(normal_game.board)
 
 
-@patch('builtins.input')
+@patch("builtins.input")
 def test_play_forfeit(mock_input, normal_game, capsys):
     """Test that FORFEIT command works correctly."""
-    mock_input.return_value = 'forfeit'
+    mock_input.return_value = "forfeit"
 
-    with patch('othello.game_modes.CommandParser') as mock_parser_class:
+    with patch("othello.game_modes.CommandParser") as mock_parser_class:
         mock_parser = MagicMock()
         mock_parser_class.return_value = mock_parser
         mock_parser.parse_str.return_value = (CommandKind.FORFEIT,)
@@ -545,20 +542,20 @@ def test_play_forfeit(mock_input, normal_game, capsys):
         normal_game.switch_player.assert_called_once()
 
 
-@patch('builtins.input')
+@patch("builtins.input")
 def test_play_restart(mock_input, normal_game):
     """Test that RESTART command works correctly."""
     # Set up to restart, then quit
-    mock_input.side_effect = ['restart', 'q']
+    mock_input.side_effect = ["restart", "q"]
 
-    with patch('othello.game_modes.CommandParser') as mock_parser_class:
+    with patch("othello.game_modes.CommandParser") as mock_parser_class:
         mock_parser = MagicMock()
         mock_parser_class.return_value = mock_parser
 
         # First return RESTART command, then QUIT
         mock_parser.parse_str.side_effect = [
             (CommandKind.RESTART,),
-            (CommandKind.QUIT,)
+            (CommandKind.QUIT,),
         ]
 
         # Mock methods

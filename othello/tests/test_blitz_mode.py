@@ -26,7 +26,7 @@ def test_blitzMode_init(monkeypatch):
     Tests the initialization of a BlitzGame object.
     Ensures the board size and initial player are correctly set.
     """
-    monkeypatch.setattr(sys, 'argv', ["othello", "-b", "-t", "30"])
+    monkeypatch.setattr(sys, "argv", ["othello", "-b", "-t", "30"])
     mode, parseConfig = parser.parse_args()
     assert mode == parser.GameMode.BLITZ.value
     assert parseConfig["blitz_time"] == 30
@@ -42,7 +42,8 @@ def test_blitz_game_init_with_custom_time():
     """Test BlitzGame initialization with a custom time parameter."""
     custom_time = 15
     game = BlitzGame(
-        filename=None, board_size=BoardSize.EIGHT_BY_EIGHT, time=custom_time)
+        filename=None, board_size=BoardSize.EIGHT_BY_EIGHT, time=custom_time
+    )
 
     assert game.blitz_timer.total_time == custom_time * 60
 
@@ -53,26 +54,26 @@ def test_blitz_game_init_with_int_board_size():
     assert game.board.size == BoardSize.EIGHT_BY_EIGHT
 
 
-@patch('sys.exit')
+@patch("sys.exit")
 def test_switch_player_time_up_black(mock_exit, mock_blitz_game):
     """Test switch_player when black's time is up."""
     game = mock_blitz_game
     game.current_player = Color.BLACK
 
-    game.blitz_timer.is_time_up.side_effect = lambda player: player == 'black'
+    game.blitz_timer.is_time_up.side_effect = lambda player: player == "black"
 
     game.switch_player()
 
     mock_exit.assert_called_once_with(0)
 
 
-@patch('sys.exit')
+@patch("sys.exit")
 def test_switch_player_time_up_white(mock_exit, mock_blitz_game):
     """Test switch_player when white's time is up."""
     game = mock_blitz_game
     game.current_player = Color.WHITE
 
-    game.blitz_timer.is_time_up.side_effect = lambda player: player == 'white'
+    game.blitz_timer.is_time_up.side_effect = lambda player: player == "white"
     game.switch_player()
     mock_exit.assert_called_once_with(0)
 
@@ -133,7 +134,7 @@ def test_blitz_check_game_over_board_full(mock_blitz_game):
     original_super = super(BlitzGame, game).check_game_over
 
     # Use a patching approach to call the real method but control the outcome
-    with patch('builtins.super') as mock_super:
+    with patch("builtins.super") as mock_super:
         mock_parent_game = MagicMock()
         mock_super.return_value = mock_parent_game
 
@@ -147,14 +148,14 @@ def test_blitz_check_game_over_board_full(mock_blitz_game):
         mock_parent_game.check_game_over.assert_called_with(valid_moves)
 
 
-@patch('builtins.input')
-@patch('builtins.print')
+@patch("builtins.input")
+@patch("builtins.print")
 def test_blitz_play_command_quit(mock_print, mock_input, mock_blitz_game):
     """Test the quit command in the play loop."""
-    mock_input.return_value = 'quit'
+    mock_input.return_value = "quit"
     game = mock_blitz_game
 
-    with patch('othello.game_modes.CommandParser') as mock_parser_class:
+    with patch("othello.game_modes.CommandParser") as mock_parser_class:
         mock_parser = MagicMock()
         mock_parser_class.return_value = mock_parser
         mock_parser.parse_str.return_value = (CommandKind.QUIT, None)
@@ -175,15 +176,15 @@ def test_blitz_play_command_quit(mock_print, mock_input, mock_blitz_game):
     assert game.get_possible_moves.call_count == 1
 
 
-@patch('builtins.input')
-@patch('builtins.print')
+@patch("builtins.input")
+@patch("builtins.print")
 def test_blitz_play_command_forfeit(mock_print, mock_input, mock_blitz_game):
     """Test the forfeit command in the play loop."""
-    mock_input.return_value = 'forfeit'
+    mock_input.return_value = "forfeit"
     game = mock_blitz_game
     game.current_player = Color.BLACK
 
-    with patch('othello.game_modes.CommandParser') as mock_parser_class:
+    with patch("othello.game_modes.CommandParser") as mock_parser_class:
         mock_parser = MagicMock()
         mock_parser_class.return_value = mock_parser
         mock_parser.parse_str.return_value = (CommandKind.FORFEIT, None)
@@ -204,21 +205,21 @@ def test_blitz_play_command_forfeit(mock_print, mock_input, mock_blitz_game):
     mock_print.assert_any_call("BLACK forfeited.")
 
 
-@patch('builtins.input')
-@patch('builtins.print')
+@patch("builtins.input")
+@patch("builtins.print")
 def test_blitz_play_command_help(mock_print, mock_input, mock_blitz_game):
     """Test the help command in the play loop."""
-    mock_input.return_value = 'help'
+    mock_input.return_value = "help"
     game = mock_blitz_game
 
-    with patch('othello.game_modes.CommandParser') as mock_parser_class:
+    with patch("othello.game_modes.CommandParser") as mock_parser_class:
         mock_parser = MagicMock()
         mock_parser_class.return_value = mock_parser
 
         # Set up the parser to return HELP first, then QUIT when called again
         mock_parser.parse_str.side_effect = [
             (CommandKind.HELP, None),
-            (CommandKind.QUIT, None)
+            (CommandKind.QUIT, None),
         ]
 
         # Mock internal methods
@@ -235,21 +236,21 @@ def test_blitz_play_command_help(mock_print, mock_input, mock_blitz_game):
     mock_parser.print_help.assert_called_once()
 
 
-@patch('builtins.input')
-@patch('builtins.print')
+@patch("builtins.input")
+@patch("builtins.print")
 def test_blitz_play_command_restart(mock_print, mock_input, mock_blitz_game):
     """Test the restart command in the play loop."""
-    mock_input.return_value = 'restart'
+    mock_input.return_value = "restart"
     game = mock_blitz_game
 
-    with patch('othello.game_modes.CommandParser') as mock_parser_class:
+    with patch("othello.game_modes.CommandParser") as mock_parser_class:
         mock_parser = MagicMock()
         mock_parser_class.return_value = mock_parser
 
         # Set up the parser to return RESTART first, then QUIT when called again
         mock_parser.parse_str.side_effect = [
             (CommandKind.RESTART, None),
-            (CommandKind.QUIT, None)
+            (CommandKind.QUIT, None),
         ]
 
         # Mock internal methods
@@ -267,14 +268,15 @@ def test_blitz_play_command_restart(mock_print, mock_input, mock_blitz_game):
     game.board.restart.assert_called_once()
 
 
-@patch('builtins.input')
+@patch("builtins.input")
 def test_blitz_play_command_save_and_quit(mock_input, mock_blitz_game):
     """Test the save and quit command in the play loop."""
-    mock_input.return_value = 'save'
+    mock_input.return_value = "save"
     game = mock_blitz_game
 
-    with patch('othello.game_modes.CommandParser') as mock_parser_class, \
-            patch('othello.game_modes.save_board_state_history') as mock_save:
+    with patch("othello.game_modes.CommandParser") as mock_parser_class, patch(
+        "othello.game_modes.save_board_state_history"
+    ) as mock_save:
         mock_parser = MagicMock()
         mock_parser_class.return_value = mock_parser
         mock_parser.parse_str.return_value = (CommandKind.SAVE_AND_QUIT, None)
@@ -293,11 +295,11 @@ def test_blitz_play_command_save_and_quit(mock_input, mock_blitz_game):
     mock_save.assert_called_once_with(game.board)
 
 
-@patch('builtins.input')
-@patch('builtins.print')
+@patch("builtins.input")
+@patch("builtins.print")
 def test_blitz_play_valid_move(mock_print, mock_input, mock_blitz_game):
     """Test playing a valid move in the play loop."""
-    mock_input.return_value = 'a1'
+    mock_input.return_value = "a1"
     game = mock_blitz_game
     game.current_player = Color.BLACK
 
@@ -305,14 +307,14 @@ def test_blitz_play_valid_move(mock_print, mock_input, mock_blitz_game):
     play_command.x_coord = 0  # 'a'
     play_command.y_coord = 0  # '1'
 
-    with patch('othello.game_modes.CommandParser') as mock_parser_class:
+    with patch("othello.game_modes.CommandParser") as mock_parser_class:
         mock_parser = MagicMock()
         mock_parser_class.return_value = mock_parser
 
         # Set up the parser to return PLAY_MOVE first, then QUIT when called again
         mock_parser.parse_str.side_effect = [
             (CommandKind.PLAY_MOVE, play_command),
-            (CommandKind.QUIT, None)
+            (CommandKind.QUIT, None),
         ]
 
         # Mock internal methods
@@ -334,25 +336,25 @@ def test_blitz_play_valid_move(mock_print, mock_input, mock_blitz_game):
     game.display_time.assert_called_once()
 
 
-@patch('builtins.input')
-@patch('builtins.print')
+@patch("builtins.input")
+@patch("builtins.print")
 def test_blitz_play_invalid_move(mock_print, mock_input, mock_blitz_game):
     """Test playing an invalid move in the play loop."""
-    mock_input.return_value = 'a1'
+    mock_input.return_value = "a1"
     game = mock_blitz_game
 
     play_command = MagicMock()
     play_command.x_coord = 0  # 'a'
     play_command.y_coord = 0  # '1'
 
-    with patch('othello.game_modes.CommandParser') as mock_parser_class:
+    with patch("othello.game_modes.CommandParser") as mock_parser_class:
         mock_parser = MagicMock()
         mock_parser_class.return_value = mock_parser
 
         # Set up the parser to return PLAY_MOVE first, then QUIT when called again
         mock_parser.parse_str.side_effect = [
             (CommandKind.PLAY_MOVE, play_command),
-            (CommandKind.QUIT, None)
+            (CommandKind.QUIT, None),
         ]
 
         # Mock internal methods
@@ -373,23 +375,23 @@ def test_blitz_play_invalid_move(mock_print, mock_input, mock_blitz_game):
     game.switch_player.assert_not_called()
 
 
-@patch('builtins.input')
-@patch('builtins.print')
+@patch("builtins.input")
+@patch("builtins.print")
 def test_blitz_play_parser_exception(mock_print, mock_input, mock_blitz_game):
     """Test handling of parser exceptions in the play loop."""
     from othello.command_parser import CommandParserException
 
-    mock_input.return_value = 'invalid'
+    mock_input.return_value = "invalid"
     game = mock_blitz_game
 
-    with patch('othello.game_modes.CommandParser') as mock_parser_class:
+    with patch("othello.game_modes.CommandParser") as mock_parser_class:
         mock_parser = MagicMock()
         mock_parser_class.return_value = mock_parser
 
         # Set up the parser to raise an exception first, then return QUIT when called again
         mock_parser.parse_str.side_effect = [
             CommandParserException("Invalid command"),
-            (CommandKind.QUIT, None)
+            (CommandKind.QUIT, None),
         ]
 
         # Mock internal methods
@@ -398,7 +400,7 @@ def test_blitz_play_parser_exception(mock_print, mock_input, mock_blitz_game):
         game.check_game_over = MagicMock(return_value=False)
         game.display_possible_moves = MagicMock()
 
-        with patch('othello.game_modes.log.log_error_message') as mock_log:
+        with patch("othello.game_modes.log.log_error_message") as mock_log:
             with pytest.raises(SystemExit) as e:
                 game.play()
 

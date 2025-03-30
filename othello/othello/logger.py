@@ -2,6 +2,7 @@
 Logger used for debug mode.
 Uses logging to display debug messages and error messages.
 """
+
 # pylint: disable=locally-disabled, multiple-statements, line-too-long, import-error, no-name-in-module
 
 import logging
@@ -20,13 +21,14 @@ def logging_config(debug: bool) -> None:
         raise TypeError()
     if debug:
         level = logging.DEBUG
-        logging.basicConfig(level=level,
-                            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                            handlers=[
-                                # logging.StreamHandler(),  # Log to the console, uncomment this line if you need it
-                                logging.FileHandler(
-                                    "othello.log", mode="w")  # Log to a file
-                            ])
+        logging.basicConfig(
+            level=level,
+            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            handlers=[
+                # logging.StreamHandler(),  # Log to the console, uncomment this line if you need it
+                logging.FileHandler("othello.log", mode="w")  # Log to a file
+            ],
+        )
 
 
 def log_error_message(error: str, context: str | None = None) -> None:

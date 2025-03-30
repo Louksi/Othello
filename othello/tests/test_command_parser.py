@@ -1,6 +1,11 @@
 import pytest
 
-from othello.command_parser import CommandKind, CommandParser, CommandParserException, PlayCommand
+from othello.command_parser import (
+    CommandKind,
+    CommandParser,
+    CommandParserException,
+    PlayCommand,
+)
 
 
 def test_help():
