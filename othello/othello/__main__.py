@@ -60,8 +60,6 @@ def main():
     board = None
 
     # first we try to retrieve a save from given filename if it exists
-
-    # first we try to retrieve a save from given filename if it exists
     filename = config["filename"]
     if filename is None:
         board = OthelloBoard(size)
@@ -100,35 +98,10 @@ def main():
         controller = GameController(board, black_player, white_player)
 
     # finally, we run either in gui or in cli
-    # then we setup black and white, specifying if they are AI players or not
-    black_player = (
-        AIPlayer(board, config["ai_depth"], config["ai_mode"], config["ai_heuristic"])
-        if mode == parser.GameMode.AI.value and config["ai_color"] == "X"
-        else HumanPlayer()
-    )
-    white_player = (
-        AIPlayer(board, config["ai_depth"], config["ai_mode"], config["ai_heuristic"])
-        if mode == parser.GameMode.AI.value and config["ai_color"] == "O"
-        else HumanPlayer()
-    )
-
-    # then we setup the game controller depenging of the gamemode given
-    if mode == parser.GameMode.BLITZ.value:
-        controller = GameController(
-            board, black_player, white_player, True, config["blitz_time"]
-        )
-    elif mode == parser.GameMode.CONTEST.value:
-        raise Exception("//todo")
-    else:
-        controller = GameController(board, black_player, white_player)
-
-    # finally, we run either in gui or in cli
     if config["gui"]:
         gui = OthelloGUI(controller)
         gui.run()
     else:
-        cli = OthelloCLI(controller, controller.is_blitz, config["blitz_time"])
-        cli.play()
         cli = OthelloCLI(controller, controller.is_blitz, config["blitz_time"])
         cli.play()
 
