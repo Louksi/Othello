@@ -8,6 +8,11 @@ from __future__ import annotations  # used for self-referencing classes...
 from enum import Enum, auto
 from copy import copy
 
+import logging
+
+
+logger = logging.getLogger("Othello")
+
 
 class Direction(Enum):
     """

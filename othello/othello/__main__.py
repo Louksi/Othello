@@ -69,10 +69,11 @@ def main():
                 file_content = file.read()
             board = BoardParser(file_content).parse()
         except FileNotFoundError:
-            logger.error("File not found: %s", filename)
+            context = "File not found: %s" % filename
+            log.log_error_message(FileNotFoundError, context=context)
             raise
         except Exception as err:
-            logger.error("Failed to load game: %s", err)
+            log.log_error_message(err, context="Failed to load game.")
             raise
 
     # then we setup black and white, specifying if they are AI players or not
@@ -86,6 +87,8 @@ def main():
         if mode == parser.GameMode.AI.value and config["ai_color"] == "O"
         else HumanPlayer()
     )
+    logger.debug(f"   Black player is of class {black_player.__class__}.")
+    logger.debug(f"   White player is of class {white_player.__class__}.")
 
     # then we setup the game controller depenging of the gamemode given
     if mode == parser.GameMode.BLITZ.value:
@@ -93,15 +96,20 @@ def main():
             board, black_player, white_player, True, config["blitz_time"]
         )
     elif mode == parser.GameMode.CONTEST.value:
+        log.log_error_message(
+            "#todo#", context="The contest mode is not implemented yet."
+        )
         raise Exception("//todo")
     else:
         controller = GameController(board, black_player, white_player)
 
     # finally, we run either in gui or in cli
     if config["gui"]:
+        logger.debug("Starting graphical user interface.")
         gui = OthelloGUI(controller)
         gui.run()
     else:
+        logger.debug("Starting command-line interface.")
         cli = OthelloCLI(controller, controller.is_blitz, config["blitz_time"])
         cli.play()
 

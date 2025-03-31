@@ -115,7 +115,7 @@ class OthelloGUI(Gtk.Application):
         super().__init__(application_id="fr.ubx.othello")
         GLib.set_application_name("othello")
         self.board = board
-        logger.debug("Game initialized with board:\n%s", self.board)
+        logger.debug("   Game initialized with board:\n%s", self.board)
 
     def do_activate(self):
         """
@@ -196,6 +196,10 @@ class OthelloWindow(Gtk.ApplicationWindow):
         self.create_layout()
         self.connect_signals()
         self.controller.next_move()
+
+        logger.debug("   Game initialized, grid size: %d", self.grid_size)
+        if self.is_blitz:
+            logger.debug("   Blitz mode time limit: %d seconds", self.time_limit)
 
     def initialize_ui_components(self):
         """
@@ -297,31 +301,41 @@ class OthelloWindow(Gtk.ApplicationWindow):
         Update the game state after a move or game state change.
         Handles end-of-game conditions.
         """
-
+        logger.debug(
+            "Updating game state in update_game_state function "
+            "from OthelloWindow in gui.py."
+        )
         if self.is_blitz:
             if self.blitz_timer.is_time_up("black"):
+                logger.debug("   Black's time is up.")
                 self.show_error_dialog("Black's time is up! White wins!")
             elif self.blitz_timer.is_time_up("white"):
+                logger.debug("   White's time is up.")
                 self.show_error_dialog("White's time is up! Black wins!")
         if self.controller.is_game_over():
-            logger.debug("Game over condition detected.")
+            logger.debug("  Game over condition detected.")
 
             black_score = self.controller.popcount(Color.BLACK)
             white_score = self.controller.popcount(Color.WHITE)
-            logger.debug("Final score - Black: %s, White: %s", black_score, white_score)
+            logger.debug(
+                "   Final score - Black: %s, White: %s", black_score, white_score
+            )
             self.show_error_dialog(
                 f"Final score - Black: {black_score}, White: {white_score}"
             )
 
             if black_score > white_score:
-                logger.debug("Black wins.")
+                logger.debug("   Black wins.")
                 self.show_error_dialog("Black wins!")
+                logger.debug("End of the Othello game.")
             elif white_score > black_score:
-                logger.debug("White wins.")
+                logger.debug("   White wins.")
                 self.show_error_dialog("White wins!")
+                logger.debug("End of the Othello game.")
             else:
-                logger.debug("The game is a tie.")
+                logger.debug("   The game is a tie.")
                 self.show_error_dialog("The game is a tie!")
+                logger.debug("End of the Othello game.")
         self.drawing_area.queue_draw()
         self.update_nb_pieces()
         self.update_play_history()
@@ -367,6 +381,11 @@ class OthelloWindow(Gtk.ApplicationWindow):
         )
         self.white_timer_label.set_text(
             f"White: {self.blitz_timer.display_time_player(Color.WHITE)}"
+        )
+        logger.debug(
+            "Time remaining - Black: %s, White: %s",
+            self.blitz_timer.display_time_player(Color.BLACK),
+            self.blitz_timer.display_time_player(Color.WHITE),
         )
 
     def update_play_history(self):
@@ -501,11 +520,19 @@ class OthelloWindow(Gtk.ApplicationWindow):
         """
         if self.over or not self.controller.current_player_is_human():
             return
+        logger.debug("Entering board_click function from OthelloWindow in gui.py.")
         board_x = int(click_x / self.cell_size)
         board_y = int(click_y / self.cell_size)
+        logger.debug(
+            "   Board click at position: (%d, %d) by player %s.",
+            board_x,
+            board_y,
+            self.controller.get_current_player().name,
+        )
         if 0 <= board_x < self.grid_size and 0 <= board_y < self.grid_size:
             try:
                 self.controller.play(board_x, board_y)
+                logger.debug("   Move (%s, %s) is legal, playing.", board_x, board_y)
                 if self.blitz_timer is not None:
                     current_player = (
                         "black"
@@ -514,9 +541,17 @@ class OthelloWindow(Gtk.ApplicationWindow):
                     )
                     self.blitz_timer.change_player(current_player)
             except GameOverException as err:
+                log.log_error_message(
+                    err,
+                    context="Exception raised in board_click from OthelloWindow in gui.py.",
+                )
                 self.over_message = str(err)
                 self.over = True
             except IllegalMoveException as err:
+                log.log_error_message(
+                    err,
+                    context="Exception raised in board_click from OthelloWindow in gui.py.",
+                )
                 self.logger.debug(err)
 
     def forfeit_handler(self, _button: Gtk.Button):
@@ -525,6 +560,7 @@ class OthelloWindow(Gtk.ApplicationWindow):
 
         :param _button: The button widget (unused)
         """
+        logger.debug("Entering forfeit_handler function from OthelloWindow in gui.py.")
         self.show_confirm_dialog(
             "Are you sure? This will close the program and your"
             " progression will be lost!",
@@ -538,10 +574,13 @@ class OthelloWindow(Gtk.ApplicationWindow):
         :param response: Dialog response value
         """
         if response == -5:  # OK button
+            logger.debug("Restarting game after user confirmation")
+            logger.debug("   %s wins.", (~self.controller.get_current_player()).name)
             self.show_confirm_dialog(
                 f"{(~self.controller.get_current_player()).name} wins the game",
                 lambda _: self.quit(),
             )
+            logger.debug("End of the Othello game.")
 
     def restart_handler(self, _button: Gtk.Button):
         """
@@ -549,6 +588,10 @@ class OthelloWindow(Gtk.ApplicationWindow):
 
         :param _button: The button widget (unused)
         """
+        logger.debug(
+            "Restarting game after user confirmation, in "
+            "restart_handler function from OthelloWindow in gui.py."
+        )
         self.show_confirm_dialog(
             "Are you sure you want to restart the game?", self.restart_handler_callback
         )
@@ -625,11 +668,14 @@ class OthelloWindow(Gtk.ApplicationWindow):
 
         :param file_path: Path to save the game
         """
+        logger.debug(
+            "Entering save_game_to_file function from OthelloWindow in gui.py."
+        )
         try:
             with open(file_path, "w", encoding="utf-8") as file:
                 game_data = self.controller.export()
                 file.write(game_data)
-            logger.debug("Game saved to %s" % file_path)
+            logger.debug("   Game saved to %s" % file_path)
         except IOError as err:
             context = "Failed to save game to %s." % file_path
             log.log_error_message(err, context=context)
@@ -664,11 +710,14 @@ class OthelloWindow(Gtk.ApplicationWindow):
 
         :param file_path: Path to save the game history
         """
+        logger.debug(
+            "Entering save_history_to_file function from OthelloWindow in gui.py."
+        )
         try:
             with open(file_path, "w", encoding="utf-8") as file:
                 game_data = self.controller.export_history()
                 file.write(game_data)
-            logger.debug("Game history saved to %s" % file_path)
+            logger.debug("   Game history saved to %s" % file_path)
         except IOError as err:
             context = "Failed to save history to %s." % file_path
             log.log_error_message(err, context=context)

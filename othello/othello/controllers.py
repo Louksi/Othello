@@ -4,6 +4,7 @@ from __future__ import annotations
 from random import choice
 from abc import ABC, abstractmethod
 
+import logging
 
 from othello.ai_features import find_best_move
 from othello.othello_board import (
@@ -14,6 +15,9 @@ from othello.othello_board import (
     OthelloBoard,
 )
 from othello.parser import DEFAULT_BLITZ_TIME
+import othello.logger as log
+
+logger = logging.getLogger("Othello")
 
 
 class Player:
@@ -222,6 +226,7 @@ class GameController:
         :param blitz_mode: If True, the game is in blitz mode and the time limit is used
         :param time_limit: The time limit for blitz mode
         """
+        logger.debug("Initializing controller in GameController, from controllers.py.")
         self._board = board
         self.size = board.size
         self.first_player_human = True
@@ -440,3 +445,81 @@ class GameController:
         :rtype: str
         """
         return str(self._board)
+
+
+class RandomPlayerGameController(GameController):
+    def __init__(self, board: OthelloBoard, random_player_color: Color):
+        super().__init__(board)
+        logger.debug("   Controller for Random Player.")
+        self._random_player_color = random_player_color
+        self.first_player_human = random_player_color is not Color.BLACK
+
+    def ready(self):
+        if self._random_player_color is Color.BLACK:
+            logger.debug("Random player is ready to play.")
+            self._play()
+
+    def _play(self):
+        move = choice(
+            self.get_possible_moves(self._random_player_color).hot_bits_coordinates()
+        )
+        self.play(move[0], move[1])
+
+    def play(self, x_coord: int, y_coord: int):
+        self._board.play(x_coord, y_coord)
+        if self.post_play_callback is not None:
+            self.post_play_callback()
+        if self._board.current_player is self._random_player_color:
+            self._play()
+
+
+class AIPlayerGameController(GameController):
+    def __init__(
+        self,
+        board: OthelloBoard,
+        ai_color: Color = Color.BLACK,
+        depth: int = 3,
+        algorithm: str = "minimax",
+        heuristic: str = "coin_parity",
+        random_player: bool = False,
+    ):
+        super().__init__(board)
+        logger.debug("   Controller for AI Player.")
+
+        if isinstance(ai_color, str):
+            if ai_color == "X":
+                self.ai_color = Color.BLACK
+            elif ai_color == "O":
+                self.ai_color = Color.WHITE
+            else:
+                self.ai_color = ai_color
+        elif not isinstance(ai_color, Color):
+            log.log_error_message(
+                ValueError, "Invalid ai_color type: {type(ai_color)}."
+            )
+            raise ValueError(
+                f"Invalid ai_color type: {type(ai_color)}. Must be a string or Color enum."
+            )
+
+        self.depth = depth
+        self.algorithm = algorithm
+        self.heuristic = heuristic
+        self.random_player = random_player
+
+    def ready(self):
+        if self.ai_color is self._board.current_player:
+            logger.debug("AI player is ready to play.")
+            self._play()
+
+    def _play(self):
+        move = find_best_move(
+            self._board, self.depth, self.ai_color, self.algorithm, self.heuristic
+        )
+        self.play(move[0], move[1])
+
+    def play(self, x_coord: int, y_coord: int):
+        self._board.play(x_coord, y_coord)
+        if self.post_play_callback is not None:
+            self.post_play_callback()
+        if self._board.current_player is self.ai_color:
+            self._play()
