@@ -89,6 +89,25 @@ def test_check_game_over_continues_when_moves_exist(normal_game):
     assert result is False
 
 
+def test_check_game_over_white_more_popcount(normal_game):
+    """Test that check_game_over returns True when white has more pieces."""
+    normal_game.controller.is_game_over.return_value = True
+    normal_game.controller.popcount.return_value = 40
+
+    result = normal_game.check_game_over(MagicMock())
+
+    assert result is True
+
+
+def test_get_player_move(normal_game, capsys):
+    """Test that player input is parsed correctly."""
+    with patch("builtins.input", return_value="e4"):
+        result = normal_game.get_player_move()
+        captured = capsys.readouterr()
+
+    assert result == (4, 3)
+
+
 def test_process_valid_move(normal_game):
     """Test that valid moves are processed correctly."""
     possible_moves = MagicMock()
@@ -126,7 +145,100 @@ def test_display_possible_moves(normal_game, capsys):
     assert "e6" in captured.out
 
 
-# //TODO revoir ces deux tests
+def test_check_parser_input(normal_game):
+    # Create the mock game instance
+    mock_controller = MagicMock()
+    normal_game = OthelloCLI(mock_controller)
+    normal_game.parser = MagicMock()
+    normal_game.running = True
+    normal_game.process_move = MagicMock()
+
+    # Test PLAY_MOVE with valid move
+    play_command = MagicMock()
+    play_command.x_coord = 3
+    play_command.y_coord = 4
+    mock_controller.get_possible_moves.return_value = [(3, 4)]
+    normal_game.process_move.return_value = True
+
+    normal_game.check_parser_input("e4", CommandKind.PLAY_MOVE, play_command)
+    normal_game.process_move.assert_called_with(
+        3, 4, mock_controller.get_possible_moves.return_value
+    )
+
+    # Test PLAY_MOVE with invalid move
+    normal_game.process_move.reset_mock()
+    normal_game.process_move.return_value = False
+    with patch("builtins.print") as mock_print:
+        normal_game.check_parser_input("e4", CommandKind.PLAY_MOVE, play_command)
+        mock_print.assert_called_with("Invalid move. Try again.")
+
+    # Test HELP command
+    normal_game.check_parser_input("help", CommandKind.HELP)
+    normal_game.parser.print_help.assert_called_once()
+
+    # Test RULES command
+    normal_game.parser.print_rules = MagicMock()
+    normal_game.check_parser_input("rules", CommandKind.RULES)
+    normal_game.parser.print_rules.assert_called_once()
+
+    # Test SAVE_AND_QUIT command
+    with patch(
+        "othello.cli.save_board_state_history"
+    ) as mock_save:  # Adjust import path as needed
+        normal_game.check_parser_input("save", CommandKind.SAVE_AND_QUIT)
+        mock_save.assert_called_with(mock_controller)
+        assert normal_game.running is False
+
+    # Reset running state for subsequent tests
+    normal_game.running = True
+
+    # Test SAVE_HISTORY command
+    with patch(
+        "othello.cli.save_board_state_history"
+    ) as mock_save:  # Adjust import path as needed
+        normal_game.check_parser_input("history", CommandKind.SAVE_HISTORY)
+        mock_save.assert_called_with(mock_controller, only_hist=True)
+
+    # Test FORFEIT command
+    mock_player = MagicMock()
+    mock_player.name = "BLACK"
+    mock_opponent = MagicMock()
+    mock_opponent.name = "WHITE"
+    mock_controller.get_current_player.return_value = mock_player
+    mock_player.__invert__.return_value = mock_opponent
+
+    with patch("builtins.print") as mock_print:
+        normal_game.check_parser_input("forfeit", CommandKind.FORFEIT)
+        mock_print.assert_any_call("BLACK forfeited.")
+        mock_print.assert_any_call("Game Over, WHITE wins!")
+        assert normal_game.running is False
+
+    # Reset running state for subsequent tests
+    normal_game.running = True
+
+    # Test RESTART command
+    normal_game.check_parser_input("restart", CommandKind.RESTART)
+    mock_controller.restart.assert_called_once()
+
+    # Test QUIT command
+    with patch("builtins.print") as mock_print:
+        normal_game.check_parser_input("quit", CommandKind.QUIT)
+        mock_print.assert_called_with("Exiting without saving...")
+        assert normal_game.running is False
+
+    # Reset running state for subsequent tests
+    normal_game.running = True
+
+    # Test invalid command
+    with patch("builtins.print") as mock_print:
+        normal_game.check_parser_input(
+            "invalid", MagicMock()
+        )  # Use a MagicMock that won't match any case
+        mock_print.assert_called_with("Invalid command. Try again.")
+        normal_game.parser.print_help.assert_called()
+
+
+# TODO revoir ces deux tests
 @patch("builtins.input")
 def _test_play_loop_with_quit_command(mock_input, normal_game):
     """Test that quit command exits the game."""
