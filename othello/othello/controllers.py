@@ -19,6 +19,7 @@ import othello.logger as log
 
 logger = logging.getLogger("Othello")
 
+
 class Player:
     """
     Base class for a player in the game.
@@ -482,7 +483,6 @@ class AIPlayerGameController(GameController):
         heuristic: str = "coin_parity",
         random_player: bool = False,
     ):
-
         super().__init__(board)
         logger.debug("   Controller for AI Player.")
 

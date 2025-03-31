@@ -96,12 +96,15 @@ class OthelloCLI:
             if black_score > white_score:
                 logger.debug("   Black wins.")
                 print("Black wins!")
+                logger.debug("End of the Othello game.")
             elif white_score > black_score:
                 logger.debug("   White wins.")
                 print("White wins!")
+                logger.debug("End of the Othello game.")
             else:
                 logger.debug("   The game is a tie.")
                 print("The game is a tie!")
+                logger.debug("End of the Othello game.")
 
             return True
 

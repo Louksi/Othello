@@ -87,6 +87,8 @@ def main():
         if mode == parser.GameMode.AI.value and config["ai_color"] == "O"
         else HumanPlayer()
     )
+    logger.debug(f"   Black player is of class {black_player.__class__}.")
+    logger.debug(f"   White player is of class {white_player.__class__}.")
 
     # then we setup the game controller depenging of the gamemode given
     if mode == parser.GameMode.BLITZ.value:
@@ -94,6 +96,9 @@ def main():
             board, black_player, white_player, True, config["blitz_time"]
         )
     elif mode == parser.GameMode.CONTEST.value:
+        log.log_error_message(
+            "#todo#", context="The contest mode is not implemented yet."
+        )
         raise Exception("//todo")
     else:
         controller = GameController(board, black_player, white_player)
