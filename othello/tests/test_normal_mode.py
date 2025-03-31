@@ -238,50 +238,35 @@ def test_check_parser_input(normal_game):
         normal_game.parser.print_help.assert_called()
 
 
-# TODO revoir ces deux tests
-@patch("builtins.input")
-def _test_play_loop_with_quit_command(mock_input, normal_game):
-    """Test that quit command exits the game."""
-    mock_input.return_value = "q"
-    normal_game.check_game_over = MagicMock(return_value=False)
+def test_play(normal_game):
+    # Set up additional mocks needed for play function
+    normal_game.parser = MagicMock()
+    normal_game.display_history = MagicMock()
+    normal_game.display_board = MagicMock()
+    normal_game.display_possible_moves = MagicMock()
+    normal_game.check_game_over = MagicMock()
+    normal_game.check_parser_input = MagicMock()
 
-    with patch("othello.cli.CommandParser") as mock_parser_class:
-        mock_parser = MagicMock()
-        mock_parser_class.return_value = mock_parser
-        mock_parser.parse_str.return_value = (CommandKind.QUIT,)
+    # Configure controller mock (may already be set up in fixture)
+    normal_game.controller.get_turn_number.return_value = 1
+    normal_game.controller.get_possible_moves.return_value = [(3, 4)]
 
-        with pytest.raises(SystemExit):
-            normal_game.play()
+    # Configure check_game_over to break the loop
+    # First call returns False (continue loop), second returns True (exit loop)
+    normal_game.check_game_over.side_effect = [False, True]
 
+    # Set up command parsing
+    command_mock = MagicMock()
+    normal_game.parser.parse_str.return_value = (CommandKind.PLAY_MOVE, command_mock)
 
-@patch("builtins.input")
-def _test_play_loop_with_valid_move(mock_input, normal_game):
-    """Test that valid move is processed correctly."""
-    mock_input.side_effect = ["e3", "q"]
-    normal_game.check_game_over = MagicMock(return_value=False)
+    # Mock input function
+    with patch("builtins.input", return_value="e4"):
+        # Run the play method
+        normal_game.play()
 
-    # Create a mock for possible moves
-    mock_possible_moves = MagicMock()
-    normal_game.controller.get_possible_moves = MagicMock(
-        return_value=mock_possible_moves
-    )
-
-    with patch("othello.cli.CommandParser") as mock_parser_class:
-        mock_parser = MagicMock()
-        mock_parser_class.return_value = mock_parser
-
-        play_command = MagicMock()
-        play_command.x_coord = 4
-        play_command.y_coord = 2
-        mock_parser.parse_str.side_effect = [
-            (CommandKind.PLAY_MOVE, play_command),
-            (CommandKind.QUIT,),
-        ]
-
-        normal_game.process_move = MagicMock(return_value=True)
-
-        with pytest.raises(SystemExit):
-            normal_game.play()
-
-        # Verify process_move was called with the correct arguments
-        normal_game.process_move.assert_called_once_with(4, 2, mock_possible_moves)
+    # Verify the expected methods were called
+    assert normal_game.display_history.called
+    assert normal_game.display_board.called
+    assert normal_game.display_possible_moves.called
+    assert normal_game.controller.next_move.called
+    assert normal_game.check_game_over.call_count == 2
