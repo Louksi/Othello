@@ -1,11 +1,13 @@
 """
 Program arguments parsing
 """
-# pylint: disable=locally-disabled, multiple-statements, line-too-long, import-error, no-name-in-module
-import argparse
+
 import sys
 from typing import Tuple
 from enum import Enum
+from typing import Any
+import argparse
+
 import othello
 from othello.othello_board import Color
 
@@ -16,6 +18,7 @@ class GameMode(Enum):
     """
     Enum matching gamemode options to its string representation
     """
+
     NORMAL = "normal"
     BLITZ = "blitz"
     CONTEST = "contest"
@@ -24,6 +27,7 @@ class GameMode(Enum):
 
 class AIColor(Enum):
     """Enum matching ai color option to its string representation"""
+
     BLACK = "X"
     WHITE = "O"
     ALL = "A"
@@ -31,14 +35,18 @@ class AIColor(Enum):
 
 class AIMode(Enum):
     """Enum matching ai algorithm mode option to its string representation"""
+
     MINIMAX = "minimax"
     ALPHABETA = "ab"
 
 
 class AIHeuristic(Enum):
     """Enum matching ai heuristic option to its string representation"""
-    DEFAULT = "default"
-    OTHER = "other"
+
+    CORNERS_CAPTURED = "corners_captured"
+    COIN_PARITY = "coin_parity"
+    MOBILITY = "mobility"
+    ALL_IN_ONE = "all_in_one"
 
 
 VALID_SIZES = [6, 8, 10, 12]
@@ -49,7 +57,7 @@ VALID_AIMODES = [x.value for x in AIMode]
 VALID_AIHEURISTICS = [x.value for x in AIHeuristic]
 DEFAULT_AI_DEPTH = 3
 DEFAULT_AI_TIME = 5
-DEFAULT_AI_HEURISTIC = "default"
+DEFAULT_AI_HEURISTIC = "corners_captured"
 DEFAULT_GUI = False
 
 # Default configuration
@@ -63,13 +71,14 @@ default_config = {
     "ai_mode": "minimax",
     "ai_shallow": False,
     "ai_depth": 3,
-    "ai_heuristic": "default",
+    "ai_heuristic": "corners_captured",
     "ai_time": 5,
-    "gui": DEFAULT_GUI
+    "gui": DEFAULT_GUI,
 }
 
 
 # PARSER
+
 
 def create_parser() -> argparse.ArgumentParser:
     """
@@ -80,105 +89,124 @@ def create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="othello",
         description="Othello - Reversi game implementation",
-        usage="othello [OPTIONS] [FILENAME]"
+        usage="othello [OPTIONS] [FILENAME]",
     )
 
     # file
-    parser.add_argument("filename",
-                        nargs="?",
-                        help="Load game from specified file"
-                        )
+    parser.add_argument("filename", nargs="?", help="Load game from specified file")
 
     # options
-    parser.add_argument("-V", "--version",
-                        action="version",
-                        version=f"%(prog)s {VERSION}",
-                        help="Display the program's current version and exit"
-                        )
+    parser.add_argument(
+        "-V",
+        "--version",
+        action="version",
+        version=f"%(prog)s {VERSION}",
+        help="Display the program's current version and exit",
+    )
 
-    parser.add_argument("-d", "--debug",
-                        action="store_true",
-                        help="Enable debug mode, will display debug information during the game"
-                        )
+    parser.add_argument(
+        "-d",
+        "--debug",
+        action="store_true",
+        help="Enable debug mode, will display debug information during the game",
+    )
 
-    parser.add_argument("-s", "--size",
-                        type=int,
-                        choices=VALID_SIZES,
-                        default=8,
-                        metavar="SIZE",
-                        help=f"Set board size to one of {VALID_SIZES}, default is {VALID_SIZES[1]}"
-                        )
+    parser.add_argument(
+        "-s",
+        "--size",
+        type=int,
+        choices=VALID_SIZES,
+        default=8,
+        metavar="SIZE",
+        help=f"Set board size to one of {VALID_SIZES}, default is {VALID_SIZES[1]}",
+    )
 
-    parser.add_argument("-b", "--blitz",
-                        action="store_true",
-                        help=f"Enable blitz game mode, (default time for each player: {DEFAULT_BLITZ_TIME} minutes)"
-                        )
+    parser.add_argument(
+        "-b",
+        "--blitz",
+        action="store_true",
+        help=f"Enable blitz game mode, (default time for each player: {DEFAULT_BLITZ_TIME} minutes)",
+    )
 
-    parser.add_argument("-t", "--time",
-                        type=int,
-                        metavar="TIME",
-                        help=f"Set initial time (in minutes) for each player in Blitz mode, default is {DEFAULT_BLITZ_TIME} minutes"
-                        )
+    parser.add_argument(
+        "-t",
+        "--time",
+        type=int,
+        metavar="TIME",
+        help=f"Set initial time (in minutes) for each player in Blitz mode, default is {DEFAULT_BLITZ_TIME} minutes",
+    )
 
-    parser.add_argument("-c", "--contest",
-                        type=str,
-                        metavar="FILENAME",
-                        help="Enable contest game mode with specified file"
-                        )
+    parser.add_argument(
+        "-c",
+        "--contest",
+        type=str,
+        metavar="FILENAME",
+        help="Enable contest game mode with specified file",
+    )
 
-    parser.add_argument("-a", "--ai",
-                        nargs="?",
-                        const=VALID_AICOLORS[0],
-                        choices=VALID_AICOLORS,
-                        metavar="COLOR",
-                        help="Enable AI game mode with optional color specification: black: 'X' / white: 'O' / all: 'A', default is black"
-                        )
+    parser.add_argument(
+        "-a",
+        "--ai",
+        nargs="?",
+        const=VALID_AICOLORS[0],
+        choices=VALID_AICOLORS,
+        metavar="COLOR",
+        help="Enable AI game mode with optional color specification: black: 'X' / white: 'O' / all: 'A', default is black",
+    )
 
-    parser.add_argument("--ai-mode",
-                        type=str,
-                        choices=VALID_AIMODES,
-                        default=VALID_AIMODES[0],
-                        help="Set AI algorithm mode: minimax: 'minimax' / alpha-beta: 'ab', default is minimax"
-                        )
+    parser.add_argument(
+        "--ai-mode",
+        type=str,
+        choices=VALID_AIMODES,
+        default=VALID_AIMODES[0],
+        help="Set AI algorithm mode: minimax: 'minimax' / alpha-beta: 'ab', default is minimax",
+    )
 
-    parser.add_argument("--ai-shallow",
-                        action="store_true",
-                        help="Enable shallow AI mode, allows for a preliminary shallow exploration of the move tree"
-                        )
+    parser.add_argument(
+        "--ai-shallow",
+        action="store_true",
+        help="Enable shallow AI mode, allows for a preliminary shallow exploration of the move tree",
+    )
 
-    parser.add_argument("--ai-depth",
-                        type=int,
-                        default=DEFAULT_AI_DEPTH,
-                        metavar="DEPTH",
-                        help=f"Set AI search depth (root_depth = 0), default is {DEFAULT_AI_DEPTH}"
-                        )
+    parser.add_argument(
+        "--ai-depth",
+        type=int,
+        default=DEFAULT_AI_DEPTH,
+        metavar="DEPTH",
+        help=f"Set AI search depth (root_depth = 0), default is {DEFAULT_AI_DEPTH}",
+    )
 
-    parser.add_argument("--ai-heuristic",
-                        type=str,
-                        choices=VALID_AIHEURISTICS,
-                        default=DEFAULT_AI_HEURISTIC,
-                        metavar="HEURISTIC",
-                        help=f"Set AI heuristic: default: 'default' / other: 'other', default is '{DEFAULT_AI_HEURISTIC}'"
-                        )
+    parser.add_argument(
+        "--ai-heuristic",
+        type=str,
+        choices=VALID_AIHEURISTICS,
+        default=DEFAULT_AI_HEURISTIC,
+        metavar="HEURISTIC",
+        help=f"Set AI heuristic: default: 'default' / other: 'other', default is '{DEFAULT_AI_HEURISTIC}'",
+    )
 
-    parser.add_argument("--ai-time",
-                        type=int,
-                        default=DEFAULT_AI_TIME,
-                        metavar="TIME",
-                        help=f"Set AI time limit (in seconds), default is {DEFAULT_AI_TIME} seconds"
-                        )
+    parser.add_argument(
+        "--ai-time",
+        type=int,
+        default=DEFAULT_AI_TIME,
+        metavar="TIME",
+        help=f"Set AI time limit (in seconds), default is {DEFAULT_AI_TIME} seconds",
+    )
 
-    parser.add_argument("--gui",
-                        action="store_true",
-                        default=DEFAULT_GUI,
-                        help="Launch the GUI version instead of the CLI one.")
+    parser.add_argument(
+        "--gui",
+        action="store_true",
+        default=DEFAULT_GUI,
+        help="Launch the GUI version instead of the CLI one.",
+    )
 
     return parser
 
 
 # PARSING
 
-def parse_args() -> Tuple[GameMode, dict]:
+
+def parse_args() -> tuple[str, dict[str, Any]]:
     """
     Parse the arguments and checks for errors.
 
@@ -197,9 +225,12 @@ def parse_args() -> Tuple[GameMode, dict]:
         parse_error(parser, f"Invalid option(s): {', '.join(unknown_args)}")
 
     # specifying more than one game mode raises an error
-    if (args.contest and args.blitz) or (args.contest and args.ai) or (args.ai and args.blitz):
-        parse_error(
-            parser, "Specifying more than one game mode is not possible")
+    if (
+        (args.contest and args.blitz)
+        or (args.contest and args.ai)
+        or (args.ai and args.blitz)
+    ):
+        parse_error(parser, "Specifying more than one game mode is not possible")
 
     # game mode
     mode = GameMode.NORMAL.value
@@ -215,12 +246,13 @@ def parse_args() -> Tuple[GameMode, dict]:
 
     if args.filename and not (args.size or args.blitz or args.contest or args.ai):
         parse_error(
-            parser, "Cannot specify options that break the game configuration when loading a game from a file")
+            parser,
+            "Cannot specify options that break the game configuration when loading a game from a file",
+        )
 
     # setting time if GM is not blitz raises an error
     if args.time and not args.blitz:
-        parse_error(
-            parser, "Time option is only valid in blitz mode: -b or --blitz")
+        parse_error(parser, "Time option is only valid in blitz mode: -b or --blitz")
 
     # setting negative time limit raises an error
     if args.time and args.time <= 0:
@@ -258,7 +290,7 @@ def parse_args() -> Tuple[GameMode, dict]:
         "ai_depth": DEFAULT_AI_DEPTH,
         "ai_heuristic": DEFAULT_AI_HEURISTIC,
         "ai_time": DEFAULT_AI_TIME,
-        "gui": args.gui
+        "gui": args.gui,
     }
 
     # specify game mode
@@ -278,6 +310,7 @@ def parse_args() -> Tuple[GameMode, dict]:
 
 
 # ERRORS
+
 
 def parse_error(parser: argparse.ArgumentParser, message: str) -> None:
     """

@@ -4,6 +4,4 @@ othello
 .. toctree::
    :maxdepth: 4
 
-   conftest
    othello
-   tests

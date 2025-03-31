@@ -1,11 +1,12 @@
+import pytest
+
 from othello.board_parser import BoardParser, BoardParserException
 from othello.othello_board import BoardSize, OthelloBoard, Color
-import pytest
 
 
 def test_starting_board():
     board_raw = """
-    
+
 #comment
 X
 _ _ _ _ _ _ _ _
@@ -33,8 +34,7 @@ _ _ X X O _
 _ O _ X X _
 _ _ _ _ _ _
 """
-    truth_board = OthelloBoard(
-        BoardSize.SIX_BY_SIX, current_player=Color.WHITE)
+    truth_board = OthelloBoard(BoardSize.SIX_BY_SIX, current_player=Color.WHITE)
     truth_board.black.bits = 0b000000011000001100001000000000000000
     truth_board.white.bits = 0b000000000010010000000100000000000000
     parser = BoardParser(board_raw)
@@ -50,7 +50,7 @@ O# ---
 _ _ _ _ _ _ # other comment
 _ _ _ _ _ _
 _ _ O X _ _
-_ _ X X O 
+_ _ X X O
 _ O _ X X _
 _ _ _ _ _ _
 """
@@ -74,7 +74,7 @@ _ O _ X X _
 
 def test_illegal_color():
     board_raw = """
-    
+
 #comment
 _ _ _ _ _ _ _ _
 _ _ _ _ _ _ _ _ # other comment
@@ -89,7 +89,7 @@ _ _ _ _ _ _ _ _"""
         b.parse()
 
     board_raw = """
-    
+
 #comment
 K
 _ _ _ _ _ _ _ _
@@ -254,7 +254,7 @@ def test_empty_board():
         b.parse()
 
     board_raw = """
-    
+
     """
     b = BoardParser(board_raw)
     with pytest.raises(BoardParserException):
@@ -382,3 +382,13 @@ O O O O O O
 """
     b = BoardParser(board_raw)
     b.parse()
+
+
+def test_get_current_line():
+    file_raw = """line1
+line 2
+line3"""
+    b = BoardParser(file_raw)
+    assert b.get_current_line() == "line1"
+    b._BoardParser__next_line()
+    assert b.get_current_line() == "line 2"

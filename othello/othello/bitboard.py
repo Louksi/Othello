@@ -2,10 +2,8 @@
 Internals of an othello bitboard, to store the presence or absence of elements on the board
     using single numbers
 """
-# pylint: disable=locally-disabled, multiple-statements, line-too-long, import-error, no-name-in-module
 
 from __future__ import annotations  # used for self-referencing classes...
-
 
 from enum import Enum, auto
 from copy import copy
@@ -15,6 +13,7 @@ class Direction(Enum):
     """
     Used to represent a direction we can go to from a case.
     """
+
     NORTH = auto()
     SOUTH = auto()
     EAST = auto()
@@ -50,9 +49,9 @@ class Bitboard:
         self.west_mask = 0
         self.east_mask = 0
         for i in range(size * size):
-            self.mask |= (1 << i)
+            self.mask |= 1 << i
             self.west_mask |= (1 << i) if i % self.size != 0 else 0
-            self.east_mask |= (1 << i) if i % self.size != self.size-1 else 0
+            self.east_mask |= (1 << i) if i % self.size != self.size - 1 else 0
         self.bits = bits & self.mask
 
     def set(self, x_coord: int, y_coord: int, value: bool) -> None:
@@ -70,13 +69,13 @@ class Bitboard:
         self.__check_bit_idx_is_legal(bit_idx)
         if value:
             # we simply need to set the corresponding bit to 1 using binary-or
-            self.bits |= (1 << bit_idx)
+            self.bits |= 1 << bit_idx
         else:
             # a little trickier, we need to generate a mask that has a 0 at the location
             # we want to set to 0, then use a binary with the mask effectively
             # keeping every set bit but the one we are trying to set to 0
             mask = self.mask
-            mask ^= (1 << bit_idx)
+            mask ^= 1 << bit_idx
             self.bits &= mask
 
     def get(self, x_coord: int, y_coord: int) -> bool:
@@ -133,18 +132,24 @@ class Bitboard:
         remaining_bits = self.bits
         while remaining_bits > 0:
             chunk_n = remaining_bits & 0xFFFFFFFFFFFFFFFF
-            chunk_n = (chunk_n & 0x5555555555555555) + \
-                ((chunk_n >> 1) & 0x5555555555555555)
-            chunk_n = (chunk_n & 0x3333333333333333) + \
-                ((chunk_n >> 2) & 0x3333333333333333)
-            chunk_n = (chunk_n & 0x0F0F0F0F0F0F0F0F) + \
-                ((chunk_n >> 4) & 0x0F0F0F0F0F0F0F0F)
-            chunk_n = (chunk_n & 0x00FF00FF00FF00FF) + \
-                ((chunk_n >> 8) & 0x00FF00FF00FF00FF)
-            chunk_n = (chunk_n & 0x0000FFFF0000FFFF) + \
-                ((chunk_n >> 16) & 0x0000FFFF0000FFFF)
-            chunk_n = (chunk_n & 0x00000000FFFFFFFF) + \
-                ((chunk_n >> 32) & 0x00000000FFFFFFFF)
+            chunk_n = (chunk_n & 0x5555555555555555) + (
+                (chunk_n >> 1) & 0x5555555555555555
+            )
+            chunk_n = (chunk_n & 0x3333333333333333) + (
+                (chunk_n >> 2) & 0x3333333333333333
+            )
+            chunk_n = (chunk_n & 0x0F0F0F0F0F0F0F0F) + (
+                (chunk_n >> 4) & 0x0F0F0F0F0F0F0F0F
+            )
+            chunk_n = (chunk_n & 0x00FF00FF00FF00FF) + (
+                (chunk_n >> 8) & 0x00FF00FF00FF00FF
+            )
+            chunk_n = (chunk_n & 0x0000FFFF0000FFFF) + (
+                (chunk_n >> 16) & 0x0000FFFF0000FFFF
+            )
+            chunk_n = (chunk_n & 0x00000000FFFFFFFF) + (
+                (chunk_n >> 32) & 0x00000000FFFFFFFF
+            )
             summed += chunk_n
             remaining_bits >>= 64
         return summed
@@ -160,10 +165,7 @@ class Bitboard:
         while bits_copy > 0:
             last_hot_bit = bits_copy & -bits_copy
             position_1d = (last_hot_bit).bit_length() - 1
-            positions.append((
-                position_1d % self.size,
-                position_1d // self.size
-            ))
+            positions.append((position_1d % self.size, position_1d // self.size))
             bits_copy &= bits_copy - 1
         return positions
 
@@ -229,7 +231,7 @@ class Bitboard:
         :rtype: int
         """
         clone = copy(self)
-        clone.bits = (self.bits >> self.size-1 & self.west_mask) & self.mask
+        clone.bits = (self.bits >> self.size - 1 & self.west_mask) & self.mask
         return clone
 
     def __shift_nw(self) -> Bitboard:
@@ -240,7 +242,7 @@ class Bitboard:
         :rtype: int
         """
         clone = copy(self)
-        clone.bits = (self.bits >> self.size+1 & self.east_mask) & self.mask
+        clone.bits = (self.bits >> self.size + 1 & self.east_mask) & self.mask
         return clone
 
     def __shift_se(self) -> Bitboard:
@@ -251,7 +253,7 @@ class Bitboard:
         :rtype: int
         """
         clone = copy(self)
-        clone.bits = (self.bits << self.size+1 & self.west_mask) & self.mask
+        clone.bits = (self.bits << self.size + 1 & self.west_mask) & self.mask
         return clone
 
     def __shift_sw(self) -> Bitboard:
@@ -262,7 +264,7 @@ class Bitboard:
         :rtype: int
         """
         clone = copy(self)
-        clone.bits = (self.bits << self.size-1 & self.east_mask) & self.mask
+        clone.bits = (self.bits << self.size - 1 & self.east_mask) & self.mask
         return clone
 
     def __coords_to_bit_idx(self, x_coord: int, y_coord: int) -> int:
@@ -405,5 +407,6 @@ class Bitboard:
             "".join(
                 f"{'|' if x == 0 else ''}{'·' if self.get(x, y) else ' '}|"
                 for x in range(self.size)
-            ) for y in range(self.size)
+            )
+            for y in range(self.size)
         )

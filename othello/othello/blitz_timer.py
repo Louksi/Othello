@@ -2,10 +2,12 @@
 Implementation of the blitz timer that's used to give both players
 a maximum time for all their plays (individually).
 """
+
 # pylint: disable=locally-disabled, multiple-statements, line-too-long, import-error, no-name-in-module
 
 from time import time
 import logging
+
 from othello.othello_board import Color
 
 logger = logging.getLogger("Othello")
@@ -23,16 +25,14 @@ class BlitzTimer:
         Args:
             time_limit (int): The time limit, in minutes.
         """
-        logger.debug(
-            "Initializing BlitzTimer with time_limit: %d minutes.", time_limit
-        )
+        logger.debug("Initializing BlitzTimer with time_limit: %d minutes.", time_limit)
         self.start_time = None
         self.total_time = time_limit * 60  # Convert minutes to seconds
-        self.remaining_time = {
-            "black": self.total_time, "white": self.total_time}
+        self.remaining_time = {"black": self.total_time, "white": self.total_time}
         self.current_player = None
         logger.debug(
-            "BlitzTimer initialized with %d seconds per player.", self.total_time)
+            "BlitzTimer initialized with %d seconds per player.", self.total_time
+        )
 
     def start_timer(self, player: str) -> None:
         """
@@ -52,11 +52,12 @@ class BlitzTimer:
         if self.start_time and self.current_player:
             elapsed = time() - self.start_time
             base_time = self.remaining_time[self.current_player]
-            self.remaining_time[self.current_player] = max(
-                0, base_time - elapsed)
+            self.remaining_time[self.current_player] = max(0, base_time - elapsed)
             logger.debug(
                 "Timer paused for %s. Elapsed: %.2fs, Remaining: %.2fs.",
-                self.current_player, elapsed, self.remaining_time[self.current_player]
+                self.current_player,
+                elapsed,
+                self.remaining_time[self.current_player],
             )
             self.start_time = None
             self.current_player = None
@@ -70,8 +71,7 @@ class BlitzTimer:
         Args:
             player (str): Either 'black' or 'white'.
         """
-        logger.debug("Changing player from %s to %s.",
-                     self.current_player, player)
+        logger.debug("Changing player from %s to %s.", self.current_player, player)
         self.pause_timer()
         self.start_timer(player)
 
@@ -87,15 +87,21 @@ class BlitzTimer:
         """
         if self.start_time and player == self.current_player:
             elapsed = time() - self.start_time
+            self.start_time = time()
             base_time = self.remaining_time[player]
             self.remaining_time[player] = max(0, base_time - elapsed)
             logger.debug(
                 "Updated remaining time for %s: %.2fs (elapsed: %.2fs).",
-                player, self.remaining_time[player], elapsed
+                player,
+                self.remaining_time[player],
+                elapsed,
             )
         else:
-            logger.debug("Returning cached remaining time "
-                         "for %s: %.2fs.", player, self.remaining_time[player])
+            logger.debug(
+                "Returning cached remaining time " "for %s: %.2fs.",
+                player,
+                self.remaining_time[player],
+            )
         return self.remaining_time[player]
 
     def is_time_up(self, player: str) -> bool:
@@ -121,8 +127,9 @@ class BlitzTimer:
             tuple: (minutes, seconds).
         """
         logger.debug("Converting time for player: %s.", player)
-        total_seconds = int(self.get_remaining_time(
-            "black" if player is Color.BLACK else "white"))
+        total_seconds = int(
+            self.get_remaining_time("black" if player is Color.BLACK else "white")
+        )
         return divmod(total_seconds, 60)  # Returns (minutes, seconds)
 
     def display_time_player(self, player: Color) -> str:
@@ -143,7 +150,7 @@ class BlitzTimer:
         Displays the remaining time for both players.
 
         Returns:
-            str: Time formatted as "Black Time: MM:SS\nWhite Time: MM:SS".
+            str: Time formatted as "Black Time: MM:SS\\nWhite Time: MM:SS".
         """
         logger.debug("Displaying time for both players.")
         black_time = self.display_time_player(Color.BLACK)

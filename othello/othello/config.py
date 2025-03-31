@@ -1,5 +1,4 @@
-"""
-CONFIG FILE
+"""CONFIG FILE
 
 This module manages the configuration for the Othello game.
 
@@ -16,10 +15,12 @@ Configuration Options:
     - ai_heuristic: default/custom
     - ai_time: 5/X (seconds)
 """
-# pylint: disable=locally-disabled, multiple-statements, line-too-long, import-error, no-name-in-module
 
+from os import confstr
 import sys
 import logging
+
+from othello.controllers import GameController
 from othello.othello_board import OthelloBoard
 import othello.logger as log
 
@@ -29,8 +30,9 @@ SEPARATOR = "="
 
 def save_config(config: dict, filename_prefix: str = "current_config") -> None:
     """Save configuration into a .othellorc file."""
-    logger.debug("Saving configuration: %s with filename_prefix: %s",
-                 config, filename_prefix)
+    logger.debug(
+        "Saving configuration: %s with filename_prefix: %s", config, filename_prefix
+    )
     filename = f"{filename_prefix}.othellorc"
 
     try:
@@ -49,14 +51,12 @@ def save_config(config: dict, filename_prefix: str = "current_config") -> None:
         log.log_error_message(err, context="Error while saving configuration.")
         raise
 
-    logger.debug(
-        "Configuration saved successfully with %d entries.", len(config))
+    logger.debug("Configuration saved successfully with %d entries.", len(config))
 
 
 def load_config(filename_prefix: str = "current_config") -> dict:
     """Load a configuration from a .othellorc file."""
-    logger.debug("Loading configuration with filename_prefix: %s",
-                 filename_prefix)
+    logger.debug("Loading configuration with filename_prefix: %s", filename_prefix)
     filename = f"{filename_prefix}.othellorc"
     config = {}
 
@@ -79,21 +79,39 @@ def load_config(filename_prefix: str = "current_config") -> dict:
     return config
 
 
-def save_board_state_history(board: OthelloBoard, filename_prefix="default") -> None:
+def save_board_state_history(
+    controller: GameController, filename_prefix=None, only_hist=False
+) -> None:
     """Save the board state history into a .othellorc file."""
-    logger.debug(
-        "Saving board state history to filename_prefix: %s", filename_prefix)
-    filename = f"{filename_prefix}.othellorc"
+    logger.debug("Saving board state history to filename_prefix: %s", filename_prefix)
+    if filename_prefix is None:
+        while True:
+            try:
+                filename_prefix = input("enter save file name: ")
+                open(filename_prefix + ".sav", "w", encoding="utf-8")
+                break
+            except Exception as err:
+                print(f"Couldn't use {filename_prefix}.sav: {err}")
+    filename = f"{filename_prefix}.sav"
 
     try:
         with open(filename, "w", encoding="utf-8") as file:
-            file.write(board.export())
+            if only_hist:
+                file.write(controller.export_history())
+            else:
+                file.write(controller.export())
+        print(f"Game saved in {filename_prefix}.sav")
     except IOError as err:
         log.log_error_message(
-            err, context=f"Failed to save board state to {filename}.")
+            str(err), context=f"Failed to save board state to {filename}."
+        )
         raise
 
-    logger.debug("Board state successfully saved to %s", filename)
+    logger.debug(
+        "%s state successfully saved to %s",
+        "History" if only_hist else "Board",
+        filename,
+    )
 
 
 def display_config(config: dict) -> None:

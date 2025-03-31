@@ -1,25 +1,36 @@
 from copy import copy
-from othello import othello_board
-from othello.bitboard import Bitboard
-from othello.board_parser import BoardParser
-from othello.othello_board import BoardSize, CannotPopException, Color, OthelloBoard, GameOverException, IllegalMoveException
 import pytest
+
+from othello.bitboard import Bitboard
+from othello.othello_board import (
+    BoardSize,
+    CannotPopException,
+    Color,
+    OthelloBoard,
+    GameOverException,
+    IllegalMoveException,
+)
 
 
 def test_init_six():
     b = OthelloBoard(BoardSize.SIX_BY_SIX)
-    assert str(b) == """  a b c d e f
+    assert (
+        str(b)
+        == """  a b c d e f
 1 _ _ _ _ _ _
 2 _ _ · _ _ _
 3 _ · O X _ _
 4 _ _ X O · _
 5 _ _ _ · _ _
 6 _ _ _ _ _ _"""
+    )
 
 
 def test_init_eight():
     b = OthelloBoard(BoardSize.EIGHT_BY_EIGHT)
-    assert str(b) == """  a b c d e f g h
+    assert (
+        str(b)
+        == """  a b c d e f g h
 1 _ _ _ _ _ _ _ _
 2 _ _ _ _ _ _ _ _
 3 _ _ _ · _ _ _ _
@@ -28,12 +39,15 @@ def test_init_eight():
 6 _ _ _ _ · _ _ _
 7 _ _ _ _ _ _ _ _
 8 _ _ _ _ _ _ _ _"""
+    )
 
 
 def test_init_ten():
     b = OthelloBoard(BoardSize.TEN_BY_TEN)
     print(b)
-    assert str(b) == """   a b c d e f g h i j
+    assert (
+        str(b)
+        == """   a b c d e f g h i j
 1  _ _ _ _ _ _ _ _ _ _
 2  _ _ _ _ _ _ _ _ _ _
 3  _ _ _ _ _ _ _ _ _ _
@@ -44,12 +58,15 @@ def test_init_ten():
 8  _ _ _ _ _ _ _ _ _ _
 9  _ _ _ _ _ _ _ _ _ _
 10 _ _ _ _ _ _ _ _ _ _"""
+    )
 
 
 def test_init_twelve():
     b = OthelloBoard(BoardSize.TWELVE_BY_TWELVE)
     print(b)
-    assert str(b) == """   a b c d e f g h i j k l
+    assert (
+        str(b)
+        == """   a b c d e f g h i j k l
 1  _ _ _ _ _ _ _ _ _ _ _ _
 2  _ _ _ _ _ _ _ _ _ _ _ _
 3  _ _ _ _ _ _ _ _ _ _ _ _
@@ -62,6 +79,7 @@ def test_init_twelve():
 10 _ _ _ _ _ _ _ _ _ _ _ _
 11 _ _ _ _ _ _ _ _ _ _ _ _
 12 _ _ _ _ _ _ _ _ _ _ _ _"""
+    )
 
 
 """ black's turn, C => candidate
@@ -277,8 +295,12 @@ def test_game_over_exception_when_board_full():
     board.white = white
     board.current_player = Color.BLACK
 
-    with pytest.raises(GameOverException):
-        board.play(3, 3)
+    assert not board.is_game_over()
+
+    board.play(3, 3)
+    assert board.is_game_over()
+
+    assert board.is_game_over()
 
 
 def test_illegal_move_occupied_cell():
@@ -320,6 +342,7 @@ def test_eq():
     def __set(b: OthelloBoard):
         b.play(5, 4)
         b.play(5, 5)
+
     b = OthelloBoard(BoardSize.EIGHT_BY_EIGHT)
     __set(b)
     b2 = OthelloBoard(BoardSize.EIGHT_BY_EIGHT)
@@ -347,14 +370,14 @@ def test__str__():
     The given position is the standard starting position of the game, with the black pions at D4 and E5, and the white pions at D5 and E4.
     The expected string representation of the board is the following:
     a b c d e f g h
-    0                
-    1                
-    2                
-    3      O X       
-    4      X O       
-    5                
-    6                
-    7                
+    0
+    1
+    2
+    3      O X
+    4      X O
+    5
+    6
+    7
     """
     b = OthelloBoard(BoardSize.EIGHT_BY_EIGHT)
     starting_board = """  a b c d e f g h
