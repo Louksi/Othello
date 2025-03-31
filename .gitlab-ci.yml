@@ -140,7 +140,7 @@ pre-commit:
 test-job:
   tags:
     - Docker
-    - shell
+      #- shell
   stage: test
   before_script:
     - apt update
