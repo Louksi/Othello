@@ -1,13 +1,20 @@
 from __future__ import annotations
 from random import choice
+from abc import ABC, abstractmethod
 
 
 from othello.ai_features import find_best_move
-from othello.othello_board import BoardSize, Color, GameOverException, OthelloBoard
+from othello.othello_board import (
+    BoardSize,
+    Color,
+    GameOverException,
+    IllegalMoveException,
+    OthelloBoard,
+)
 from othello.parser import DEFAULT_BLITZ_TIME
 
 
-class Player:
+class Player(ABC):
     def __init__(self):
         self.controller = None
         self.color = None
@@ -18,14 +25,15 @@ class Player:
     def set_color(self, color: Color):
         self.color = color
 
+    @abstractmethod
     def next_move(self):
-        pass
+        if self.controller is None:
+            raise Exception("controller not defined")
 
 
 class HumanPlayer(Player):
     def next_move(self):
-        if self.controller is None:
-            raise Exception("controller not defined")
+        super().next_move()
         if self.controller.human_play_callback is not None:
             self.controller.human_play_callback()
 
@@ -33,17 +41,13 @@ class HumanPlayer(Player):
 class RandomPlayer(Player):
 
     def next_move(self):
-        if self.controller is None:
-            raise Exception("controller not defined")
+        super().next_move()
         if self.color is None:
             raise Exception("color is not defined")
         move = choice(
             self.controller.get_possible_moves(self.color).hot_bits_coordinates()
         )
-        try:
-            self.controller.play(move[0], move[1])
-        except GameOverException:
-            raise
+        self.controller.play(move[0], move[1])
 
 
 class AIPlayer(Player):
@@ -60,8 +64,7 @@ class AIPlayer(Player):
         self.heuristic = heuristic
 
     def next_move(self):
-        if self.controller is None:
-            raise Exception("controller not defined")
+        super().next_move()
         move = find_best_move(
             self.board, self.depth, self.color, self.algorithm, self.heuristic
         )

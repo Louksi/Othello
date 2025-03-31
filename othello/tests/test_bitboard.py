@@ -258,6 +258,48 @@ def test_xor():
     ).bits == 0b1000000000000000000000000000000000000000000000000000000000000
 
 
+def test_and():
+    b = Bitboard(8)
+    b.set(4, 7, True)
+    b.set(2, 3, True)
+    assert (
+        b
+        & Bitboard(
+            b.size, bits=0b0000000000000000000000000000000000100000000000000000000000000
+        )
+    ).bits == 0b100000000000000000000000000
+
+
+def test_or():
+    b = Bitboard(8)
+    b.set(3, 7, True)
+    b.set(7, 3, True)
+    assert (
+        b
+        | Bitboard(
+            b.size, bits=0b0000000000000000000000000000000000100000000000000000000000000
+        )
+    ).bits == 0b100000000000000000000000000010000100000000000000000000000000
+
+
+def test_invert():
+    b = Bitboard(8)
+    b.set(5, 7, True)
+    b.set(3, 2, True)
+    b.set(4, 4, True)
+    assert (
+        ~b
+    ).bits == 0b1101111111111111111111111110111111111111111101111111111111111111
+
+
+def test_hash():
+    b = Bitboard(6)
+    b.set(4, 5, True)
+    b.set(3, 3, True)
+    b.set(1, 1, True)
+    assert hash(b) == -1957283818685289992
+
+
 def test_empty():
     b = Bitboard(8)
     assert b.empty()
