@@ -11,23 +11,23 @@ def normal_game():
     """Fixture to create a NormalGame instance with mocked board."""
     controller_mock = MagicMock(spec=GameController)
     game = OthelloCLI(controller=controller_mock)
-    game.board = MagicMock()
-    game.board.black = MagicMock()
-    game.board.white = MagicMock()
-    game.board.size = BoardSize.EIGHT_BY_EIGHT
-    game.board.get_current_player.return_value = Color.BLACK
+    game.controller = MagicMock()
+    game.controller.black = MagicMock()
+    game.controller.white = MagicMock()
+    game.controller.size = BoardSize.EIGHT_BY_EIGHT
+    game.controller.get_current_player.return_value = Color.BLACK
     return game
 
 
 def test_check_game_over_when_board_says_game_over(normal_game):
     """Test that check_game_over returns True when board.is_game_over is True."""
-    normal_game.board.is_game_over.return_value = True
-    normal_game.board.popcount.return_value = 0
+    normal_game.controller.is_game_over.return_value = True
+    normal_game.controller.popcount.return_value = 0
 
     result = normal_game.check_game_over(MagicMock())
 
     assert result is True
-    normal_game.board.is_game_over.assert_called_once()
+    normal_game.controller.is_game_over.assert_called_once()
 
 
 def test_check_game_over_prints_correct_winner(normal_game, capsys):
@@ -41,8 +41,8 @@ def test_check_game_over_prints_correct_winner(normal_game, capsys):
         else:
             return 0
 
-    normal_game.board.is_game_over.return_value = True
-    normal_game.board.popcount.side_effect = popcount_side_effect
+    normal_game.controller.is_game_over.return_value = True
+    normal_game.controller.popcount.side_effect = popcount_side_effect
     normal_game.check_game_over(MagicMock())
     captured = capsys.readouterr()
 
@@ -53,9 +53,9 @@ def test_check_game_over_prints_correct_winner(normal_game, capsys):
 
 def test_check_game_over_prints_tie(normal_game, capsys):
     """Test that tie is printed when scores are equal."""
-    normal_game.board.is_game_over.return_value = True
-    normal_game.board.popcount.return_value = 32
-    normal_game.board.popcount.return_value = 32
+    normal_game.controller.is_game_over.return_value = True
+    normal_game.controller.popcount.return_value = 32
+    normal_game.controller.popcount.return_value = 32
 
     normal_game.check_game_over(MagicMock())
     captured = capsys.readouterr()
@@ -66,7 +66,7 @@ def test_check_game_over_prints_tie(normal_game, capsys):
 
 def test_check_game_over_skips_turn_when_no_moves(normal_game, capsys):
     """Test that turn is skipped when current player has no moves but game isn't over."""
-    normal_game.board.is_game_over.return_value = False
+    normal_game.controller.is_game_over.return_value = False
     possible_moves = MagicMock()
     possible_moves.bits = 0
 
@@ -80,7 +80,7 @@ def test_check_game_over_skips_turn_when_no_moves(normal_game, capsys):
 
 def test_check_game_over_continues_when_moves_exist(normal_game):
     """Test that game continues when moves exist."""
-    normal_game.board.is_game_over.return_value = False
+    normal_game.controller.is_game_over.return_value = False
     possible_moves = MagicMock()
     possible_moves.bits = 1
 
@@ -93,12 +93,12 @@ def test_process_valid_move(normal_game):
     """Test that valid moves are processed correctly."""
     possible_moves = MagicMock()
     possible_moves.get.return_value = True
-    normal_game.board.play = MagicMock()
+    normal_game.controller.play = MagicMock()
 
     result = normal_game.process_move(3, 2, possible_moves)
 
     assert result is True
-    normal_game.board.play.assert_called_once_with(3, 2)
+    normal_game.controller.play.assert_called_once_with(3, 2)
 
 
 def test_process_invalid_move(normal_game, capsys):
@@ -150,7 +150,9 @@ def _test_play_loop_with_valid_move(mock_input, normal_game):
 
     # Create a mock for possible moves
     mock_possible_moves = MagicMock()
-    normal_game.board.get_possible_moves = MagicMock(return_value=mock_possible_moves)
+    normal_game.controller.get_possible_moves = MagicMock(
+        return_value=mock_possible_moves
+    )
 
     with patch("othello.cli.CommandParser") as mock_parser_class:
         mock_parser = MagicMock()

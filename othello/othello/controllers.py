@@ -2,10 +2,17 @@
 
 from __future__ import annotations
 from random import choice
+from abc import ABC, abstractmethod
 
 
 from othello.ai_features import find_best_move
-from othello.othello_board import BoardSize, Color, GameOverException, OthelloBoard
+from othello.othello_board import (
+    BoardSize,
+    Color,
+    GameOverException,
+    IllegalMoveException,
+    OthelloBoard,
+)
 from othello.parser import DEFAULT_BLITZ_TIME
 
 
@@ -129,6 +136,63 @@ class AIPlayer(Player):
         """
         if self.controller is None:
             raise Exception("controller not defined")
+        move = find_best_move(
+            self.board, self.depth, self.color, self.algorithm, self.heuristic
+        )
+        self.controller.play(move[0], move[1])
+
+
+class Player(ABC):
+    def __init__(self):
+        self.controller = None
+        self.color = None
+
+    def attach(self, controller: GameController):
+        self.controller = controller
+
+    def set_color(self, color: Color):
+        self.color = color
+
+    @abstractmethod
+    def next_move(self):
+        if self.controller is None:
+            raise Exception("controller not defined")
+
+
+class HumanPlayer(Player):
+    def next_move(self):
+        super().next_move()
+        if self.controller.human_play_callback is not None:
+            self.controller.human_play_callback()
+
+
+class RandomPlayer(Player):
+
+    def next_move(self):
+        super().next_move()
+        if self.color is None:
+            raise Exception("color is not defined")
+        move = choice(
+            self.controller.get_possible_moves(self.color).hot_bits_coordinates()
+        )
+        self.controller.play(move[0], move[1])
+
+
+class AIPlayer(Player):
+    def __init__(
+        self,
+        board: OthelloBoard,
+        depth: int = 3,
+        algorithm: str = "minimax",
+        heuristic: str = "coin_parity",
+    ):
+        self.board = board
+        self.depth = depth
+        self.algorithm = algorithm
+        self.heuristic = heuristic
+
+    def next_move(self):
+        super().next_move()
         move = find_best_move(
             self.board, self.depth, self.color, self.algorithm, self.heuristic
         )
