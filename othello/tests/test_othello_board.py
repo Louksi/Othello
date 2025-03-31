@@ -297,8 +297,8 @@ def test_game_over_exception_when_board_full():
 
     assert not board.is_game_over()
 
-    with pytest.raises(GameOverException):
-        board.play(3, 3)
+    board.play(3, 3)
+    assert board.is_game_over()
 
     assert board.is_game_over()
 

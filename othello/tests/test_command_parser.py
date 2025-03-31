@@ -58,3 +58,51 @@ def test_illegal_data():
     cp = CommandParser(6)
     with pytest.raises(CommandParserException):
         cp.parse_str("aaaaaaaaaaaa")
+
+
+def test_print_help(capsys):
+    cp = CommandParser(8)
+    cp.print_help()
+    captured = capsys.readouterr()
+    assert "Othello Game Help" in captured.out
+    assert "=================" in captured.out
+    assert "Coordinate format: [column][row] (e.g., a1, b2)" in captured.out
+    assert "Othello Game Commands" in captured.out
+    assert "restart - Restart the game" in captured.out
+    assert "ff" in captured.out and "Forfeit" in captured.out
+    assert "?" in captured.out
+    assert "r" in captured.out
+    assert "q" in captured.out
+    assert "s" in captured.out
+    assert "sh" in captured.out
+
+
+def test_print_rules(capsys, monkeypatch):
+    monkeypatch.setattr("builtins.input", lambda: "")
+    cp = CommandParser(8)
+    cp.print_rules()
+    captured = capsys.readouterr()
+    assert "Othello/Reversi Rules" in captured.out
+    assert "====================" in captured.out
+    assert "Objective:" in captured.out
+    assert "The goal is to have the majority of your color discs" in captured.out
+    assert "Setup:" in captured.out
+    assert "The game is played on an 8×8 board" in captured.out
+    assert "Black moves first" in captured.out
+    assert "Gameplay:" in captured.out
+    assert (
+        "A move consists of placing a disc of your color on an empty square"
+        in captured.out
+    )
+    assert "To outflank means to place a disc" in captured.out
+    assert (
+        "All of the opponent's discs that are outflanked are flipped to your color"
+        in captured.out
+    )
+    assert "Winning:" in captured.out
+    assert "The player with the most discs of their color on the" in captured.out
+    assert (
+        "If both players have the same number of discs, the game is a draw."
+        in captured.out
+    )
+    assert "Press Enter to continue playing..." in captured.out

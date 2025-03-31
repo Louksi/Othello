@@ -9,9 +9,10 @@ class TestBlitzMode:
 
     @pytest.fixture
     def blitz_game(self):
-        game = OthelloCLI(blitz_mode=True)
-        game.board = MagicMock()
-        game.board.get_current_player.return_value = Color.BLACK
+        mock_board = MagicMock()
+        game = OthelloCLI(mock_board, blitz_mode=True)
+        game.controller = MagicMock()
+        game.controller.get_current_player.return_value = Color.BLACK
         game.blitz_timer = MagicMock()
         return game
 
@@ -30,7 +31,7 @@ class TestBlitzMode:
     def test_blitz_timer_switch_white_to_black(self, blitz_game):
         """Should switch from white to black on valid move"""
         # Set current player to white
-        blitz_game.board.get_current_player.return_value = Color.WHITE
+        blitz_game.controller.get_current_player.return_value = Color.WHITE
 
         # Setup mock moves
         mock_moves = MagicMock()

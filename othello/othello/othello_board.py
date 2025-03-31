@@ -32,7 +32,7 @@ class Color(Enum):
     def __str__(self) -> str:
         if self is Color.BLACK:
             return "black"
-        elif self is Color.WHITE:
+        if self is Color.WHITE:
             return "white"
         return "empty"
 
@@ -151,17 +151,20 @@ class OthelloBoard:
         self.black.set(self.size.value // 2, self.size.value // 2 - 1, True)
 
     def force_game_over(self):
+        """
+        Force the game to be over.
+        """
         self.forced_game_over = True
 
     def is_game_over(self) -> bool:
         """
-        Checks wether or not a board is in a game over state.
+        Checks whether or not a board is in a game over state.
         """
 
-        m1, m2 = self.line_cap_move(self.current_player), self.line_cap_move(
+        move_1, move_2 = self.line_cap_move(self.current_player), self.line_cap_move(
             ~self.current_player
         )
-        return self.forced_game_over or (m1.popcount() == m2.popcount() == 0)
+        return self.forced_game_over or (move_1.popcount() == move_2.popcount() == 0)
 
     def line_cap_move(self, current_player: Color) -> Bitboard:
         """
@@ -195,14 +198,19 @@ class OthelloBoard:
         return len(self.__history) // 2 + 1
 
     def get_last_play(self):
+        """
+        Returns the last played move.
+
+        Returns:
+            tuple[Bitboard, Bitboard, int, int, Color]: last played move.
+        """
+        if len(self.__history) == 0:
+            return None
         last_play, last_play_idx = self.__history[-1], 0
         while last_play[2] == -1 and last_play[3] == -1:
             last_play_idx += 1
             last_play = self.__history[-last_play_idx]
         return last_play
-
-    def attach_hist_callback(self, cb):
-        self.hist_callback = cb
 
     def line_cap(self, x_coord: int, y_coord: int, current_player: Color) -> Bitboard:
         """
@@ -255,10 +263,6 @@ class OthelloBoard:
         self.white = popped[1]
         self.current_player = popped[4]
 
-    def call_hist_callback(self):
-        if self.hist_callback is not None:
-            self.hist_callback()
-
     def play(self, x_coord: int, y_coord: int):
         """
         Changes the state of the Board, pushing the move at x_coord;y_coord if it is a legal play.
@@ -290,14 +294,11 @@ class OthelloBoard:
                 self.black = bits_p if self.current_player is Color.BLACK else bits_o
                 self.white = bits_o if self.current_player is Color.BLACK else bits_p
                 self.current_player = ~self.current_player
-                # self.call_hist_callback()
                 if self.line_cap_move(self.current_player).bits == 0:
                     self.__history.append(
                         (self.black, self.white, -1, -1, self.current_player)
                     )
                     self.current_player = ~self.current_player
-                if self.line_cap_move(self.current_player).bits == 0:
-                    raise GameOverException
             else:
                 raise IllegalMoveException(x_coord, y_coord, self.current_player)
 

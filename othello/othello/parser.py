@@ -3,13 +3,11 @@ Program arguments parsing
 """
 
 import sys
-from typing import Tuple
 from enum import Enum
 from typing import Any
 import argparse
 
 import othello
-from othello.othello_board import Color
 
 # VARIABLES
 
@@ -43,8 +41,10 @@ class AIMode(Enum):
 class AIHeuristic(Enum):
     """Enum matching ai heuristic option to its string representation"""
 
-    DEFAULT = "default"
-    OTHER = "other"
+    CORNERS_CAPTURED = "corners_captured"
+    COIN_PARITY = "coin_parity"
+    MOBILITY = "mobility"
+    ALL_IN_ONE = "all_in_one"
 
 
 VALID_SIZES = [6, 8, 10, 12]
@@ -55,7 +55,7 @@ VALID_AIMODES = [x.value for x in AIMode]
 VALID_AIHEURISTICS = [x.value for x in AIHeuristic]
 DEFAULT_AI_DEPTH = 3
 DEFAULT_AI_TIME = 5
-DEFAULT_AI_HEURISTIC = "default"
+DEFAULT_AI_HEURISTIC = "corners_captured"
 DEFAULT_GUI = False
 
 # Default configuration
@@ -69,7 +69,7 @@ default_config = {
     "ai_mode": "minimax",
     "ai_shallow": False,
     "ai_depth": 3,
-    "ai_heuristic": "default",
+    "ai_heuristic": "corners_captured",
     "ai_time": 5,
     "gui": DEFAULT_GUI,
 }

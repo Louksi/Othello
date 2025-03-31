@@ -382,3 +382,13 @@ O O O O O O
 """
     b = BoardParser(board_raw)
     b.parse()
+
+
+def test_get_current_line():
+    file_raw = """line1
+line 2
+line3"""
+    b = BoardParser(file_raw)
+    assert b.get_current_line() == "line1"
+    b._BoardParser__next_line()
+    assert b.get_current_line() == "line 2"

@@ -1,5 +1,3 @@
-# pylint: disable=locally-disabled, multiple-statements, line-too-long, import-error, no-name-in-module
-
 import random
 from copy import deepcopy
 
@@ -175,7 +173,6 @@ def find_best_move(
     best_move = (-1, -1)
     best_score = float("-inf") if max_player == board.current_player else float("inf")
     for move_x, move_y in valid_moves:
-
         new_board = deepcopy(board)
 
         new_board.play(move_x, move_y)

@@ -3,18 +3,14 @@
 import logging
 import sys
 
-import othello.parser as parser
 import othello.logger as log
 from othello.command_parser import CommandParser, CommandKind, CommandParserException
-from othello.board_parser import BoardParser
 from othello.parser import DEFAULT_BLITZ_TIME
 from othello.config import save_board_state_history
-from othello.othello_board import BoardSize, OthelloBoard, Color
+from othello.othello_board import GameOverException, Color
 from othello.blitz_timer import BlitzTimer
 from othello.controllers import (
     GameController,
-    RandomPlayerGameController,
-    AIPlayerGameController,
 )
 
 
@@ -35,8 +31,9 @@ class OthelloCLI:
         blitz_time: int | None = None,
     ):
         # Initialize the base board first
-        self.board = controller
+        self.controller = controller
         self.blitz_mode = blitz_mode
+        self.running = False
         if blitz_mode:
             self.blitz_timer = BlitzTimer(
                 blitz_time if blitz_time is not None else DEFAULT_BLITZ_TIME
@@ -44,7 +41,7 @@ class OthelloCLI:
             self.blitz_timer.start_timer("black")
 
         logger.debug(
-            "CLI initialized, current_player: %s.", self.board.get_current_player()
+            "CLI initialized, current_player: %s.", self.controller.get_current_player()
         )
 
     def display_board(self):
@@ -56,9 +53,10 @@ class OthelloCLI:
         and corresponding symbol.
         """
         logger.debug("Entering display_board function from cli.py.")
-        print(str(self.board))
+        print(str(self.controller))
         print(
-            f"\n{self.board.get_current_player().name}'s turn ({self.board.get_current_player().value})"
+            f"\n{self.controller.get_current_player().name}'s turn "
+            f"({self.controller.get_current_player().value})"
         )
 
     def check_game_over(self, possible_moves):
@@ -83,12 +81,12 @@ class OthelloCLI:
                 print("White's time is up! Black wins!")
                 return True
 
-        if self.board.is_game_over():
+        if self.controller.is_game_over():
             logger.debug("Game over condition detected.")
 
             # Print final score
-            black_score = self.board.black.popcount()
-            white_score = self.board.white.popcount()
+            black_score = self.controller.popcount(Color.BLACK)
+            white_score = self.controller.popcount(Color.WHITE)
             logger.debug(
                 "   Final score - Black: %s, White: %s", black_score, white_score
             )
@@ -111,10 +109,10 @@ class OthelloCLI:
         if possible_moves.bits == 0:
             logger.debug(
                 "   No moves available for %s player. Skipping turn.",
-                self.board.get_current_player(),
+                self.controller.get_current_player(),
             )
             print(
-                f"No valid moves for {self.board.get_current_player().name}. Skipping turn."
+                f"No valid moves for {self.controller.get_current_player().name}. Skipping turn."
             )
 
         return False
@@ -138,10 +136,10 @@ class OthelloCLI:
         )
         logger.debug("   Available moves:\n%s", str(possible_moves))
         print("Possible moves: ")
-        for y in range(self.board.size.value):
-            for x in range(self.board.size.value):
-                if possible_moves.get(x, y):
-                    print(f"{chr(ord('a')+x)}{y+1}", end=" ")
+        for y_coord in range(self.controller.size.value):
+            for x_coord in range(self.controller.size.value):
+                if possible_moves.get(x_coord, y_coord):
+                    print(f"{chr(ord('a')+x_coord)}{y_coord+1}", end=" ")
         print()
 
     def get_player_move(self):
@@ -196,11 +194,16 @@ class OthelloCLI:
         if self.blitz_mode:
             logger.debug("   Changing player in Blitz mode")
             current = (
-                "black" if self.board.get_current_player() == Color.BLACK else "white"
+                "black"
+                if self.controller.get_current_player() == Color.BLACK
+                else "white"
             )
             self.blitz_timer.change_player("white" if current == "black" else "black")
 
-        self.board.play(x_coord, y_coord)
+        try:
+            self.controller.play(x_coord, y_coord)
+        except GameOverException:
+            print("game over")
         return True
 
     def check_parser_input(self, command_str, command_kind, *args):
@@ -232,9 +235,11 @@ class OthelloCLI:
             if not self.process_move(
                 x_coord,
                 y_coord,
-                self.board.get_possible_moves(self.board.get_current_player()),
+                self.controller.get_possible_moves(
+                    self.controller.get_current_player()
+                ),
             ):
-                logger.debug("   The move is invalid.")
+                logger.debug("   The move is not legal.")
                 print("Invalid move. Try again.")
                 return
 
@@ -246,35 +251,38 @@ class OthelloCLI:
                 case CommandKind.RULES:
                     logger.debug("   Executing %s command.", command_kind)
                     self.parser.print_rules()
-                case CommandKind.SAVE_AND_QUIT | CommandKind.SAVE_HISTORY:
+                case CommandKind.SAVE_AND_QUIT:
                     logger.debug("   Executing %s command.", command_kind)
-                    save_board_state_history(self.board)
+                    save_board_state_history(self.controller)
                     logger.debug("   Game saved, exiting.")
-                    sys.exit(0)
+                    self.running = False
+                case CommandKind.SAVE_HISTORY:
+                    logger.debug("   Executing %s command.", command_kind)
+                    save_board_state_history(self.controller, only_hist=True)
                 case CommandKind.FORFEIT:
                     logger.debug(
                         "   %s executed %s command.",
-                        self.board.get_current_player().name,
+                        self.controller.get_current_player().name,
                         command_kind,
                     )
-                    print(f"{self.board.get_current_player().name} forfeited.")
-                    # self.switch_player()
+                    print(f"{self.controller.get_current_player().name} forfeited.")
+                    winner = (~self.controller.get_current_player()).name
                     logger.debug(
                         "   Game Over, %s wins! Exiting.",
-                        self.board.get_current_player().name,
+                        winner,
                     )
-                    print(f"Game Over, {self.board.get_current_player().name} wins!")
-                    sys.exit(0)
+                    print(f"Game Over, {winner} wins!")
+                    self.running = False
                 case CommandKind.RESTART:
                     logger.debug("   Executing %s command.", command_kind)
-                    self.board.restart()
+                    self.controller.restart()
                     logger.debug("   Board restarted to initial state")
                 case CommandKind.QUIT:
                     logger.debug("   Executing %s command.", command_kind)
                     print("Exiting without saving...")
-                    sys.exit(0)
+                    self.running = False
                 case _:
-                    logger.debug("   Invalid command: %s.", command_kind)
+                    logger.debug("   Invalid command: %s.", command_str)
                     print("Invalid command. Try again.")
                     self.parser.print_help()
 
@@ -286,7 +294,7 @@ class OthelloCLI:
         to_print = "Play history:\n" + "\n".join(
             [
                 f"{play[4]} placed a piece at {chr(ord('A') + play[2])}{play[3] + 1}"
-                for play in self.board.get_history()[-self.NB_PLAYS_IN_HISTORY :]
+                for play in self.controller.get_history()[-self.NB_PLAYS_IN_HISTORY :]
             ]
         )
         print(to_print, "\n")
@@ -306,27 +314,13 @@ class OthelloCLI:
         :return: None
         """
         logger.debug("Entering play function from cli.py.")
-        self.parser = CommandParser(board_size=self.board.size.value)
+        self.parser = CommandParser(board_size=self.controller.size.value)
 
-        possible_moves = self.board.get_possible_moves(self.board.get_current_player())
+        possible_moves = self.controller.get_possible_moves(
+            self.controller.get_current_player()
+        )
 
-        def turn_display():
-            print(f"=== turn {self.board.get_turn_number()} ===")
-            self.display_history()
-            self.display_board()
-            possible_moves = self.board.get_possible_moves(
-                self.board.get_current_player()
-            )
-            self.display_possible_moves(possible_moves)
-
-        self.board.post_play_callback = turn_display
-        turn_display()
-        self.board.ready()
-
-        while True:
-            if self.check_game_over(possible_moves):
-                continue
-
+        def human_play_callback():
             if self.blitz_mode:
                 print(self.blitz_timer.display_time())
             command_str = input("Enter your move or command: ").strip()
@@ -339,3 +333,24 @@ class OthelloCLI:
                 context = "Failed to parse command %s", command_str
                 print(f"Error: {e}\nInvalid command. Please try again.")
                 self.parser.print_help()
+
+        def turn_display():
+            print(f"=== turn {self.controller.get_turn_number()} ===")
+            self.display_history()
+            self.display_board()
+            possible_moves = self.controller.get_possible_moves(
+                self.controller.get_current_player()
+            )
+            self.display_possible_moves(possible_moves)
+
+        self.controller.human_play_callback = human_play_callback
+        self.controller.post_play_callback = turn_display
+        turn_display()
+
+        self.running = True
+
+        while self.running:
+            if self.check_game_over(possible_moves):
+                self.running = False
+
+            self.controller.next_move()
