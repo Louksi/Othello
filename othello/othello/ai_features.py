@@ -1,6 +1,7 @@
 # pylint: disable=locally-disabled, multiple-statements, line-too-long, import-error, no-name-in-module
 
 import random
+import time
 from copy import deepcopy
 from typing import Dict, Optional, Tuple
 
@@ -38,8 +39,8 @@ def compute_board_hash(board: OthelloBoard, zobrist_table: list[list[list[int]]]
     :rtype: int
     """
     hash_value = 0
-    for x in range(8):
-        for y in range(8):
+    for x in range(board.size.value):
+        for y in range(board.size.value):
             if get_player_at(board, x, y) == Color.BLACK:
                 hash_value ^= zobrist_table[x][y][0]
             elif get_player_at(board, x, y) == Color.WHITE:
@@ -236,76 +237,6 @@ def alphabeta(board: OthelloBoard, depth: int, alpha: int,
     return eval
 
 
-def iterative_alphabeta(board: OthelloBoard, depth: int, alpha: int, beta: int, max_player: Color,
-                        heuristic_function, zobrist_table: list[list[list[int]]], transposition_table: TranspositionTable) -> int:
-    """
-    Implements iterative deepening Alpha-Beta pruning with transposition table.
-
-    :param board: The current state of the Othello board.
-    :type board: OthelloBoard
-    :param depth: Maximum search depth.
-    :type depth: int
-    :param max_player: The player for whom the best move is being calculated.
-    :type max_player: Color
-    :param heuristic_function: The heuristic function to evaluate board states.
-    :type heuristic_function: Callable
-    :param zobrist_table: Pre-generated Zobrist hashing table.
-    :type zobrist_table: List[List[List[int]]]
-    :param transposition_table: Transposition table to cache board evaluations.
-    :type transposition_table: TranspositionTable
-    :return: The evaluation score of the best move.
-    :rtype: int
-    """
-    board_hash = compute_board_hash(board, zobrist_table)
-
-    cached_score = transposition_table.lookup(board_hash, depth)
-    if cached_score is not None:
-        return cached_score
-
-    if depth == 0 or board.is_game_over():
-        score = heuristic_function(board, max_player)
-        transposition_table.store(board_hash, depth, score)
-        return score
-
-    valid_moves = board.line_cap_move(
-        board.current_player).hot_bits_coordinates()
-
-    if not valid_moves:
-        return iterative_alphabeta(board, depth - 1, alpha, beta, max_player, heuristic_function, zobrist_table, transposition_table)
-
-    # Maximizing player's turn
-    if max_player == board.current_player:
-        eval = float("-inf")
-        for move_x, move_y in valid_moves:
-            board.play(move_x, move_y)
-            eval_score = iterative_alphabeta(board, depth - 1, max_player,
-                                             heuristic_function, zobrist_table,
-                                             transposition_table)
-
-            eval = max(eval, eval_score)
-            board.pop()
-            alpha = max(alpha, eval)
-            if beta <= alpha:
-                break
-
-    # Minimizing player's turn
-    else:
-        eval = float("inf")
-        for move_x, move_y in valid_moves:
-            board.play(move_x, move_y)
-            eval_score = iterative_alphabeta(board, depth - 1, max_player,
-                                             heuristic_function, zobrist_table,
-                                             transposition_table)
-
-            eval = min(eval, eval_score)
-            board.pop()
-            beta = min(beta, eval)
-            if beta <= alpha:
-                break
-
-    return eval
-
-
 def find_best_move(board: OthelloBoard, depth: int = 3, max_player: Color = Color.BLACK, search_algo: str = "minimax", heuristic: str = "corners_captured") -> tuple[int, int]:
     """
     Finds the best move according to the given search algorithm.
@@ -461,6 +392,21 @@ def mobility_heuristic(board: OthelloBoard, max_player: Color) -> int:
 
 
 def all_in_one_heuristic(board: OthelloBoard, max_player: Color) -> int:
+    """
+    Computes the All-in-One heuristic.
+
+    This heuristic is a weighted sum of the Corners Captured, Mobility, and Coin Parity
+    heuristics. The weights are chosen such that capturing corners is the most important
+    aspect of the game, followed by controlling the number of possible moves (mobility),
+    and then by controlling the number of coins (parity).
+
+    :param board: The Othello board instance.
+    :type board: OthelloBoard
+    :param max_player: The player for whom we calculate the heuristic (BLACK or WHITE).
+    :type max_player: Color
+    :returns: A heuristic value between -100 and 100.
+    :rtype: int
+    """
     w_corners = 10
     w_mobility = 4
     w_coins = 1
