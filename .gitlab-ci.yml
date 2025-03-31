@@ -149,9 +149,9 @@ test-job:
     - python --version ; pip --version
     - pip install pycairo
     - pip install pytest pytest-cov
-    - pip install meson-python
+      #- pip install meson-python
     - cd othello
-    - pip install PyGObject --no-build-isolation --no-deps || echo "Failed to install PyGObject, continuing anyway"
+      #- pip install PyGObject --no-build-isolation --no-deps || echo "Failed to install PyGObject, continuing anyway"
     - pip install ./ --no-deps
   script:
     - python -m pytest
