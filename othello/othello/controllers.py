@@ -167,7 +167,6 @@ class HumanPlayer(Player):
 
 
 class RandomPlayer(Player):
-
     def next_move(self):
         super().next_move()
         if self.color is None:
