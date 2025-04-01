@@ -296,34 +296,20 @@ class OthelloWindow(Gtk.ApplicationWindow):
         Handles end-of-game conditions.
         """
 
-        if self.is_blitz:
-            if self.blitz_timer.is_time_up("black"):
-                self.show_error_dialog("Black's time is up! White wins!")
-            elif self.blitz_timer.is_time_up("white"):
-                self.show_error_dialog("White's time is up! Black wins!")
-        if self.controller.is_game_over():
-            logger.debug("Game over condition detected.")
-
+        if self.controller.is_game_over:
             black_score = self.controller.popcount(Color.BLACK)
             white_score = self.controller.popcount(Color.WHITE)
             logger.debug("Final score - Black: %s, White: %s", black_score, white_score)
             self.show_error_dialog(
                 f"Final score - Black: {black_score}, White: {white_score}"
             )
+            self.show_error_dialog(self.controller.game_over_message)
 
-            if black_score > white_score:
-                logger.debug("Black wins.")
-                self.show_error_dialog("Black wins!")
-            elif white_score > black_score:
-                logger.debug("White wins.")
-                self.show_error_dialog("White wins!")
-            else:
-                logger.debug("The game is a tie.")
-                self.show_error_dialog("The game is a tie!")
         self.drawing_area.queue_draw()
         self.update_nb_pieces()
         self.update_play_history()
-        GLib.idle_add(self.controller.next_move)
+        if not self.controller.is_game_over:
+            GLib.idle_add(self.controller.next_move)
 
     def update_nb_pieces(self):
         """
@@ -340,20 +326,9 @@ class OthelloWindow(Gtk.ApplicationWindow):
         """
         Background thread to update timer displays and check for time-outs.
         """
-        if self.blitz_timer is not None:
-            while not self.over:
+        if self.controller.is_blitz():
+            while not self.controller.is_game_over:
                 GLib.idle_add(self.update_timers)
-                current_player = (
-                    "black"
-                    if self.controller.get_current_player() is Color.BLACK
-                    else "white"
-                )
-
-                if self.blitz_timer.is_time_up(current_player):
-                    self.blitz_loser = self.controller.get_current_player()
-                    GLib.idle_add(self.update_game_state)
-                    self.over = True
-                    self.over_message = f"{self.blitz_loser} lost due to time"
                 time.sleep(1)
 
     def update_timers(self):
@@ -361,10 +336,10 @@ class OthelloWindow(Gtk.ApplicationWindow):
         Update the timer display labels.
         """
         self.black_timer_label.set_text(
-            f"Black: {self.blitz_timer.display_time_player(Color.BLACK)}"
+            f"Black: {self.controller.display_time_player(Color.BLACK)}"
         )
         self.white_timer_label.set_text(
-            f"White: {self.blitz_timer.display_time_player(Color.WHITE)}"
+            f"White: {self.controller.display_time_player(Color.WHITE)}"
         )
 
     def update_play_history(self):

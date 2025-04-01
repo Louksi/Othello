@@ -103,7 +103,7 @@ def main():
         gui = OthelloGUI(controller)
         gui.run()
     else:
-        cli = OthelloCLI(controller, controller.is_blitz, config["blitz_time"])
+        cli = OthelloCLI(controller, controller.is_blitz())
         cli.play()
 
 
