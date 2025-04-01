@@ -3,6 +3,7 @@ from copy import deepcopy
 
 from othello.othello_board import OthelloBoard, BoardSize, Color, GameOverException
 from othello.ai_features import (
+    all_in_one_heuristic,
     corners_captured_heuristic,
     coin_parity_heuristic,
     find_best_move,
@@ -113,6 +114,17 @@ def board_6_game_over():
     return board
 
 
+@pytest.fixture
+def board_6_empty():
+    """Create an empty board with no possible moves."""
+    board = OthelloBoard(BoardSize.SIX_BY_SIX)
+    board.white.set(2, 2, False)
+    board.white.set(3, 3, False)
+    board.black.set(2, 3, False)
+    board.black.set(3, 2, False)
+    return board
+
+
 # endregion Fixtures
 
 # region Corners Captured
@@ -187,7 +199,31 @@ def test_mobility_start_pos(board_start_pos):
     assert mobility_heuristic(board_start_pos, Color.WHITE) == 0
 
 
+def test_mobility_no_move(board_6_empty):
+    assert mobility_heuristic(board_6_empty, Color.BLACK) == 0
+    assert mobility_heuristic(board_6_empty, Color.WHITE) == 0
+
+
+def test_mobility_no_color(board_start_pos):
+    assert mobility_heuristic(board_start_pos, Color.EMPTY) == Color.EMPTY
+
+
 # endregion Mobility
+
+# region All In One Heuristic
+
+
+def test_all_in_one_start_pos(board_start_pos):
+    assert all_in_one_heuristic(board_start_pos, Color.BLACK) == 0
+    assert all_in_one_heuristic(board_start_pos, Color.WHITE) == 0
+
+
+def test_all_in_one_advantage_black(board_with_corners):
+    assert all_in_one_heuristic(board_with_corners, Color.BLACK) > 0
+    assert all_in_one_heuristic(board_with_corners, Color.WHITE) < 0
+
+
+# endregion All In One Heuristic
 
 # region Minimax/Alphabeta
 
