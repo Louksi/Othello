@@ -1,6 +1,7 @@
 """Controllers for the Othello game."""
 
 from __future__ import annotations
+import logging
 from random import choice
 from abc import ABC, abstractmethod
 
@@ -14,6 +15,7 @@ from othello.othello_board import (
     IllegalMoveException,
     OthelloBoard,
 )
+from othello.blitz_timer import BlitzTimer
 from othello.parser import DEFAULT_BLITZ_TIME
 import othello.logger as log
 
@@ -217,7 +219,7 @@ class GameController:
         black_player,
         white_player,
         blitz_mode=False,
-        time_limit=None,
+        time_limit=0,
     ):
         """
         Initialize the game controller.
@@ -231,15 +233,29 @@ class GameController:
         self.size = board.size
         self.first_player_human = True
         self.post_play_callback = None
-        self.is_blitz = blitz_mode
+        self.blitz = None
+        if blitz_mode:
+            self.blitz = BlitzTimer(time_limit)
+            self.blitz.start_timer("black")
         self.time_limit = time_limit if time_limit is not None else DEFAULT_BLITZ_TIME
-        black_player.attach(self)
         self.human_play_callback = None
         self.post_play_callback = None
+        black_player.attach(self)
         black_player.set_color(Color.BLACK)
         white_player.attach(self)
         white_player.set_color(Color.WHITE)
         self.players = {Color.BLACK: black_player, Color.WHITE: white_player}
+        self.is_game_over = False
+        self.game_over_message = ""
+        self.winner = Color | None
+        self.logger = logging.getLogger("Othello")
+
+    def is_blitz(self):
+        return self.blitz is not None
+
+    def display_time_player(self, p_color: Color):
+        if self.blitz is not None:
+            return self.blitz.display_time_player(p_color)
 
     def next_move(self):
         """
@@ -258,9 +274,55 @@ class GameController:
         :param x_coord: The x coordinate of the move (0 indexed)
         :param y_coord: The y coordinate of the move (0 indexed)
         """
-        self._board.play(x_coord, y_coord)
+        if self.is_game_over:
+            self.logger.debug(
+                "Tried to play (%d:%d) in a game over game", x_coord, y_coord
+            )
+            return
+
+        if self.blitz is not None:
+            if self.blitz.is_time_up("black"):
+                self.is_game_over = True
+                self.winner = Color.WHITE
+                self.game_over_message = "Black's time is up! White wins!"
+            elif self.blitz.is_time_up("white"):
+                self.is_game_over = True
+                self.winner = Color.BLACK
+                self.game_over_message = "White's time is up! Black wins!"
+
+        if not self.is_game_over:
+            self._board.play(x_coord, y_coord)
+
+        if self._board.is_game_over():
+            self.is_game_over = True
+            black_score = self.popcount(Color.BLACK)
+            white_score = self.popcount(Color.WHITE)
+            self.logger.debug(
+                "Final score - Black: %s, White: %s", black_score, white_score
+            )
+
+            if black_score > white_score:
+                self.logger.debug("Black wins.")
+                self.game_over_message = "Black wins!"
+                self.winner = Color.BLACK
+            elif white_score > black_score:
+                self.logger.debug("White wins.")
+                self.game_over_message = "White wins!"
+                self.winner = Color.WHITE
+            else:
+                self.logger.debug("The game is a tie.")
+                self.game_over_message = "The game is a tie!"
+                self.winner = None
+
         if self.post_play_callback is not None:
             self.post_play_callback()
+        if self.blitz is not None:
+            current = "black" if self.get_current_player() == Color.BLACK else "white"
+            self.blitz.change_player(current)
+
+    def display_time(self):
+        if self.blitz is not None:
+            return self.blitz.display_time()
 
     def get_possible_moves(self, player: Color):
         """
@@ -337,20 +399,6 @@ class GameController:
         :rtype: int
         """
         return self._board.get_turn_id()
-
-    def is_game_over(self):
-        """
-        Check whether the game is in a game over state.
-
-        The game is in a game over state when either player has no valid moves
-        available, or the board is completely full. When the game is in a game
-        over state, a winner can be determined by counting the number of pieces
-        on the board of each color.
-
-        :return: True if the game is in a game over state, False otherwise.
-        :rtype: bool
-        """
-        return self._board.is_game_over()
 
     def get_current_player(self):
         """

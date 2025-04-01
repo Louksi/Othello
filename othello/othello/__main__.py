@@ -109,8 +109,8 @@ def main():
         gui = OthelloGUI(controller)
         gui.run()
     else:
-        logger.debug("Starting command-line interface.")
-        cli = OthelloCLI(controller, controller.is_blitz, config["blitz_time"])
+        logger.debug("Starting command line user interface.")
+        cli = OthelloCLI(controller, controller.is_blitz())
         cli.play()
 
 

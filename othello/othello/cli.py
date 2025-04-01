@@ -28,17 +28,11 @@ class OthelloCLI:
         self,
         controller: GameController,
         blitz_mode: bool = False,
-        blitz_time: int | None = None,
     ):
         # Initialize the base board first
         self.controller = controller
         self.blitz_mode = blitz_mode
         self.running = False
-        if blitz_mode:
-            self.blitz_timer = BlitzTimer(
-                blitz_time if blitz_time is not None else DEFAULT_BLITZ_TIME
-            )
-            self.blitz_timer.start_timer("black")
 
         logger.debug(
             "CLI initialized, current_player: %s.", self.controller.get_current_player()
@@ -71,17 +65,7 @@ class OthelloCLI:
         """
         logger.debug("Entering check_game_over function from cli.py.")
 
-        if self.blitz_mode:
-            if self.blitz_timer.is_time_up("black"):
-                logger.debug("   Black's time ran out, White wins.")
-                print("Black's time is up! White wins!")
-                return True
-            elif self.blitz_timer.is_time_up("white"):
-                logger.debug("   White's time ran out, Black wins.")
-                print("White's time is up! Black wins!")
-                return True
-
-        if self.controller.is_game_over():
+        if self.controller.is_game_over:
             logger.debug("Game over condition detected.")
 
             # Print final score
@@ -91,20 +75,7 @@ class OthelloCLI:
                 "   Final score - Black: %s, White: %s", black_score, white_score
             )
             print(f"Final score - Black: {black_score}, White: {white_score}")
-
-            # Determine winner
-            if black_score > white_score:
-                logger.debug("   Black wins.")
-                print("Black wins!")
-                logger.debug("End of the Othello game.")
-            elif white_score > black_score:
-                logger.debug("   White wins.")
-                print("White wins!")
-                logger.debug("End of the Othello game.")
-            else:
-                logger.debug("   The game is a tie.")
-                print("The game is a tie!")
-                logger.debug("End of the Othello game.")
+            print(self.controller.game_over_message)
 
             return True
 
@@ -194,15 +165,6 @@ class OthelloCLI:
             print("Invalid move. Not a legal play. Try again.")
             return False
         logger.debug("   Move (%s, %s) is legal, playing.", x_coord, y_coord)
-        if self.blitz_mode:
-            logger.debug("   Changing player in Blitz mode")
-            current = (
-                "black"
-                if self.controller.get_current_player() == Color.BLACK
-                else "white"
-            )
-            self.blitz_timer.change_player("white" if current == "black" else "black")
-
         try:
             self.controller.play(x_coord, y_coord)
         except GameOverException:
@@ -325,7 +287,7 @@ class OthelloCLI:
 
         def human_play_callback():
             if self.blitz_mode:
-                print(self.blitz_timer.display_time())
+                print(self.controller.display_time())
             command_str = input("Enter your move or command: ").strip()
             logger.debug("   Player input: '%s'.", command_str)
             try:
@@ -355,5 +317,5 @@ class OthelloCLI:
         while self.running:
             if self.check_game_over(possible_moves):
                 self.running = False
-
-            self.controller.next_move()
+            else:
+                self.controller.next_move()
