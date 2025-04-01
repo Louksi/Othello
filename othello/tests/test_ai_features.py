@@ -1,4 +1,3 @@
-from copy import deepcopy
 import pytest
 from copy import deepcopy
 
@@ -9,6 +8,8 @@ from othello.ai_features import (
     find_best_move,
     minimax,
     alphabeta,
+    mobility_heuristic,
+    random_move,
 )
 
 # region Fixtures
@@ -71,7 +72,9 @@ def board_6_one_move_possible():
     board.white.set(1, 3, True)
     board.white.set(2, 2, True)
     board.white.set(2, 3, True)
+    board.black.set(2, 3, False)
     board.white.set(3, 2, True)
+    board.black.set(3, 2, False)
     board.white.set(3, 3, True)
     board.white.set(4, 2, True)
     return board
@@ -107,17 +110,6 @@ def board_6_game_over():
             else:
                 board.white.set(x, y, True)
 
-    return board
-
-
-@pytest.fixture
-def board_no_moves():
-    board = OthelloBoard(BoardSize.SIX_BY_SIX)
-    board.current_player = Color.BLACK
-    board.black.set(2, 2, True)
-    board.black.set(2, 3, True)
-    board.black.set(3, 2, True)
-    board.black.set(3, 3, True)
     return board
 
 
@@ -187,6 +179,16 @@ def test_invalid_color_empty_coin_parity(board_start_pos):
 
 # endregion Coin Parity
 
+# region Mobility
+
+
+def test_mobility_start_pos(board_start_pos):
+    assert mobility_heuristic(board_start_pos, Color.BLACK) == 0
+    assert mobility_heuristic(board_start_pos, Color.WHITE) == 0
+
+
+# endregion Mobility
+
 # region Minimax/Alphabeta
 
 
@@ -244,3 +246,19 @@ def test_game_over_best_move(board_6_game_over):
 
 
 # endregion Find Best Move
+
+# region Random Move
+
+
+def test_random_move_start(board_start_pos):
+    valid_moves = board_start_pos.line_cap_move(
+        board_start_pos.current_player
+    ).hot_bits_coordinates()
+    assert random_move(board_start_pos) in valid_moves
+
+
+def test_random_move_1_possible(board_6_one_move_possible):
+    assert random_move(board_6_one_move_possible) == (5, 5)
+
+
+# endregion Random Move
