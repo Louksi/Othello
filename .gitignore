@@ -23,7 +23,8 @@
 !reports/preliminary/images/*.png
 !reports/final
 
-!reports/final/.gitkeep
+!reports/final/report.tex
+!reports/final/bibliography.bib
 !reports/preliminary/report.tex
 !reports/preliminary/report1.tex
 !reports/preliminary/images/*
