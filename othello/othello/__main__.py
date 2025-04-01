@@ -78,12 +78,26 @@ def main():
 
     # then we setup black and white, specifying if they are AI players or not
     black_player = (
-        AIPlayer(board, config["ai_depth"], config["ai_mode"], config["ai_heuristic"])
+        AIPlayer(
+            board,
+            config["ai_depth"],
+            config["ai_mode"],
+            config["ai_heuristic"],
+            False,
+            config["benchmark"],
+        )
         if mode == parser.GameMode.AI.value and config["ai_color"] == "X"
         else HumanPlayer()
     )
     white_player = (
-        AIPlayer(board, config["ai_depth"], config["ai_mode"], config["ai_heuristic"])
+        AIPlayer(
+            board,
+            config["ai_depth"],
+            config["ai_mode"],
+            config["ai_heuristic"],
+            False,
+            config["benchmark"],
+        )
         if mode == parser.GameMode.AI.value and config["ai_color"] == "O"
         else HumanPlayer()
     )

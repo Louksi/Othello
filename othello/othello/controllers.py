@@ -482,6 +482,7 @@ class AIPlayerGameController(GameController):
         algorithm: str = "minimax",
         heuristic: str = "coin_parity",
         random_player: bool = False,
+        benchmark: bool = False,
     ):
         super().__init__(board)
         logger.debug("   Controller for AI Player.")
@@ -505,6 +506,7 @@ class AIPlayerGameController(GameController):
         self.algorithm = algorithm
         self.heuristic = heuristic
         self.random_player = random_player
+        self.benchmark = benchmark
 
     def ready(self):
         if self.ai_color is self._board.current_player:

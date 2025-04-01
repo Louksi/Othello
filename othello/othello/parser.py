@@ -72,6 +72,7 @@ default_config = {
     "ai_heuristic": "corners_captured",
     "ai_time": 5,
     "gui": DEFAULT_GUI,
+    "benchmark": False,
 }
 
 
@@ -198,6 +199,13 @@ def create_parser() -> argparse.ArgumentParser:
         help="Launch the GUI version instead of the CLI one.",
     )
 
+    parser.add_argument(
+        "--benchmark",
+        action="store_true",
+        default=False,
+        help="Benchark the AI performance.",
+    )
+
     return parser
 
 
@@ -289,6 +297,7 @@ def parse_args() -> tuple[str, dict[str, Any]]:
         "ai_heuristic": DEFAULT_AI_HEURISTIC,
         "ai_time": DEFAULT_AI_TIME,
         "gui": args.gui,
+        "benchmark": args.benchmark,
     }
 
     # specify game mode
