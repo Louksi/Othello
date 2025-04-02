@@ -79,7 +79,7 @@ def test_ai_player_next_move():
         mock_find_best_move.return_value = (4, 5)
         p.next_move()
         mock_find_best_move.assert_called_once_with(
-            board_mock, 3, Color.BLACK, "minimax", "coin_parity"
+            board_mock, 3, Color.BLACK, "minimax", "coin_parity", False
         )
         controller_mock.play.assert_called_once_with(4, 5)
     p = AIPlayer(board=board_mock, depth=5, algorithm="alphabeta", heuristic="mobility")
