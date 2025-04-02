@@ -1,5 +1,6 @@
 import random
 from copy import deepcopy
+import time
 
 from othello.othello_board import OthelloBoard, Color
 
@@ -137,6 +138,7 @@ def find_best_move(
     max_player: Color = Color.BLACK,
     search_algo: str = "minimax",
     heuristic: str = "corners_captured",
+    benchmark: bool = False,
 ) -> tuple[int, int]:
     """
     Determine the best move for the current player on the Othello board.
@@ -159,6 +161,9 @@ def find_best_move(
     :return: The coordinates of the best move for the current player.
     :rtype: tuple[int, int]
     """
+    if benchmark:
+        start_time = time.time()
+
     if depth == 0 or board.is_game_over():
         return (-1, -1)
 
@@ -194,6 +199,10 @@ def find_best_move(
         if score > best_score:
             best_score = score
             best_move = (move_x, move_y)
+
+    if benchmark:
+        end_time = time.time()
+        print(f"Time taken: {end_time - start_time} seconds")
 
     return best_move
 

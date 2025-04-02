@@ -188,16 +188,23 @@ class AIPlayer(Player):
         depth: int = 3,
         algorithm: str = "minimax",
         heuristic: str = "coin_parity",
+        benchmark: bool = False,
     ):
         self.board = board
         self.depth = depth
         self.algorithm = algorithm
         self.heuristic = heuristic
+        self.benchmark = benchmark
 
     def next_move(self):
         super().next_move()
         move = find_best_move(
-            self.board, self.depth, self.color, self.algorithm, self.heuristic
+            self.board,
+            self.depth,
+            self.color,
+            self.algorithm,
+            self.heuristic,
+            self.benchmark,
         )
         self.controller.play(move[0], move[1])
 
@@ -482,7 +489,6 @@ class AIPlayerGameController(GameController):
         algorithm: str = "minimax",
         heuristic: str = "coin_parity",
         random_player: bool = False,
-        benchmark: bool = False,
     ):
         super().__init__(board)
         logger.debug("   Controller for AI Player.")
@@ -506,7 +512,6 @@ class AIPlayerGameController(GameController):
         self.algorithm = algorithm
         self.heuristic = heuristic
         self.random_player = random_player
-        self.benchmark = benchmark
 
     def ready(self):
         if self.ai_color is self._board.current_player:

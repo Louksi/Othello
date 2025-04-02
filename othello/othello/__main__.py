@@ -83,24 +83,32 @@ def main():
             config["ai_depth"],
             config["ai_mode"],
             config["ai_heuristic"],
-            False,
             config["benchmark"],
         )
         if mode == parser.GameMode.AI.value and config["ai_color"] == "X"
-        else HumanPlayer()
+        else (
+            RandomPlayer()
+            if config["benchmark"] == True and config["ai_color"] == "0"
+            else HumanPlayer()
+        )
     )
+
     white_player = (
         AIPlayer(
             board,
             config["ai_depth"],
             config["ai_mode"],
             config["ai_heuristic"],
-            False,
             config["benchmark"],
         )
         if mode == parser.GameMode.AI.value and config["ai_color"] == "O"
-        else HumanPlayer()
+        else (
+            RandomPlayer()
+            if config["benchmark"] == True and config["ai_color"] == "X"
+            else HumanPlayer()
+        )
     )
+
     logger.debug(f"   Black player is of class {black_player.__class__}.")
     logger.debug(f"   White player is of class {white_player.__class__}.")
 
