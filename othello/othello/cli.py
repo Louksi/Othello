@@ -8,7 +8,6 @@ from othello.command_parser import CommandParser, CommandKind, CommandParserExce
 from othello.parser import DEFAULT_BLITZ_TIME
 from othello.config import save_board_state_history
 from othello.othello_board import GameOverException, Color
-from othello.blitz_timer import BlitzTimer
 from othello.controllers import (
     GameController,
 )
@@ -113,7 +112,7 @@ class OthelloCLI:
         for y_coord in range(self.controller.size.value):
             for x_coord in range(self.controller.size.value):
                 if possible_moves.get(x_coord, y_coord):
-                    print(f"{chr(ord('a')+x_coord)}{y_coord+1}", end=" ")
+                    print(f"{chr(ord('a') + x_coord)}{y_coord + 1}", end=" ")
         print()
 
     def get_player_move(self):

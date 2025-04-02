@@ -2,23 +2,25 @@
 Graphic interface to play the Othello game, inherits from __main__.py
 """
 
-from othello.ai_features import find_best_move
-from othello.blitz_timer import BlitzTimer
-from othello.othello_board import Color, GameOverException, OthelloBoard
-from gi.repository import Gtk, GLib
-import logging
-import math
-import sys
-import threading
-import time
-import cairo
-
 from gi import require_version
-
-from othello.player_abstraction import PlayerAbstraction
 
 require_version("Gtk", "4.0")
 require_version("Adw", "1")
+
+from gi.repository import Gtk, GLib, Adw
+from othello.controllers import GameController
+import cairo
+import time
+import threading
+import sys
+import math
+import logging
+from othello.othello_board import (
+    Color,
+    GameOverException,
+    IllegalMoveException,
+    OthelloBoard,
+)
 
 
 logger = logging.getLogger("Othello")
@@ -97,15 +99,7 @@ class OthelloGUI(Gtk.Application):
 
     PLAYS_IN_HISTORY = 15
 
-    def __init__(
-        self,
-        board: OthelloBoard,
-        time_limit: int | None = None,
-        ai_player=None,
-        ai_depth=None,
-        ai_mode=None,
-        ai_heuristic=None,
-    ):
+    def __init__(self, board: GameController):
         """
         Initialize the Othello GUI application.
 
@@ -118,11 +112,6 @@ class OthelloGUI(Gtk.Application):
         super().__init__(application_id="fr.ubx.othello")
         GLib.set_application_name("othello")
         self.board = board
-        self.time_limit = time_limit
-        self.ai_player = ai_player
-        self.ai_depth = ai_depth
-        self.ai_mode = ai_mode
-        self.ai_heuristic = ai_heuristic
         logger.debug("Game initialized with board:\n%s", self.board)
 
     def do_activate(self):
@@ -131,15 +120,7 @@ class OthelloGUI(Gtk.Application):
         Creates and presents the main application window.
         """
         logger.debug("Entering do_activate function from gui.py.")
-        window = OthelloWindow(
-            self,
-            self.board,
-            self.time_limit,
-            self.ai_player,
-            self.ai_depth,
-            self.ai_mode,
-            self.ai_heuristic,
-        )
+        window = OthelloWindow(self, self.board)
         window.present()
 
 
@@ -149,16 +130,7 @@ class OthelloWindow(Gtk.ApplicationWindow):
     Contains the game board, controls, and displays game state.
     """
 
-    def __init__(
-        self,
-        application,
-        board: PlayerAbstraction,
-        time_limit: int | None = None,
-        ai_player: str | None = None,
-        ai_depth: int | None = None,
-        ai_mode: str | None = None,
-        ai_heuristic: str | None = None,
-    ):
+    def __init__(self, application, board: GameController):
         """
         Initialize the Othello game window.
 
@@ -168,39 +140,35 @@ class OthelloWindow(Gtk.ApplicationWindow):
         """
         logger.debug("Entering initialization function for game window from gui.py.")
         super().__init__(application=application, title="Othello")
+        self.quit = lambda: application.quit()
         self.set_default_size(800, 600)
         self.over = False
         self.over_message = None
 
-        # Initialize attributes to avoid "attribute defined outside __init__" warnings
-        self.board = None
-        self.blitz_timer = None
+        self.controller: GameController
         self.is_blitz = False
-        self.time_limit = None
-        self.ai_player = ai_player
-        self.ai_depth = ai_depth
-        self.ai_mode = ai_mode
-        self.ai_heuristic = ai_heuristic
-        self.is_ai_mode = ai_player is not None
         self.grid_size = 0
         self.cell_size = 0
-        self.drawing_area = None
-        self.black_timer_label = None
-        self.white_timer_label = None
+        self.drawing_area: Gtk.DrawingArea
+        self.black_timer_label: Gtk.Label
+        self.white_timer_label: Gtk.Label
         self.blitz_thread = None
         self.blitz_loser = None
-        self.plays_list = None
-        self.black_nb_pieces = None
-        self.white_nb_pieces = None
-        self.forfeit_button = None
-        self.save_quit_button = None
-        self.restart_button = None
-        self.save_history_button = None
+        self.plays_list: ListBoxWithLength
+        self.black_nb_pieces: Gtk.Label
+        self.white_nb_pieces: Gtk.Label
+        self.forfeit_button: Gtk.Button
+        self.save_quit_button: Gtk.Button
+        self.restart_button: Gtk.Button
+        self.save_history_button: Gtk.Button
 
-        # Continue with initialization
-        self.__init_game(board, time_limit)
+        self.logger = logging.getLogger("Othello")
 
-    def __init_game(self, board, time_limit):
+        board.post_play_callback = self.update_game_state
+
+        self.__init_game(board)
+
+    def __init_game(self, board):
         """
         Initialize the game components and UI.
 
@@ -208,22 +176,15 @@ class OthelloWindow(Gtk.ApplicationWindow):
         :param time_limit: Optional time limit for blitz mode
         """
         logger.debug("Initializing game components and UI")
-        self.board = board
-        self.blitz_timer = None
-        self.is_blitz = time_limit is not None
-        if self.is_blitz:
-            self.blitz_timer = BlitzTimer(time_limit)
-            self.time_limit = time_limit
+        self.controller = board
+        self.is_blitz = self.controller.is_blitz
         self.grid_size = board.size.value
         self.cell_size = 50
 
         self.initialize_ui_components()
         self.create_layout()
         self.connect_signals()
-        if self.blitz_timer is not None:
-            self.blitz_timer.start_timer("black")
-            self.blitz_loser = None
-        self.board.ready()
+        self.controller.next_move()
 
     def initialize_ui_components(self):
         """
@@ -320,46 +281,45 @@ class OthelloWindow(Gtk.ApplicationWindow):
         last_moves_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
         main_grid.attach(last_moves_box, 1, 3, 1, 1)
 
-    # Game state management methods
     def update_game_state(self):
         """
         Update the game state after a move or game state change.
         Handles end-of-game conditions.
         """
-        if self.over:
-            self.show_error_dialog(self.over_message)
+
+        if self.controller.is_game_over:
+            black_score = self.controller.popcount(Color.BLACK)
+            white_score = self.controller.popcount(Color.WHITE)
+            logger.debug("Final score - Black: %s, White: %s", black_score, white_score)
+            self.show_error_dialog(
+                f"Final score - Black: {black_score}, White: {white_score}"
+            )
+            self.show_error_dialog(self.controller.game_over_message)
+
         self.drawing_area.queue_draw()
         self.update_nb_pieces()
+        self.update_play_history()
+        if not self.controller.is_game_over:
+            GLib.idle_add(self.controller.next_move)
 
     def update_nb_pieces(self):
         """
         Update the piece count labels.
         """
         self.black_nb_pieces.set_label(
-            f"Black has {self.board.get_pieces_count(Color.BLACK)} pieces"
+            f"Black has {self.controller.get_pieces_count(Color.BLACK)} pieces"
         )
         self.white_nb_pieces.set_label(
-            f"White has {self.board.get_pieces_count(Color.WHITE)} pieces"
+            f"White has {self.controller.get_pieces_count(Color.WHITE)} pieces"
         )
 
     def update_timers_thread(self):
         """
         Background thread to update timer displays and check for time-outs.
         """
-        if self.blitz_timer is not None:
-            while not self.over:
+        if self.controller.is_blitz():
+            while not self.controller.is_game_over:
                 GLib.idle_add(self.update_timers)
-                current_player = (
-                    "black"
-                    if self.board.get_current_player() is Color.BLACK
-                    else "white"
-                )
-
-                if self.blitz_timer.is_time_up(current_player):
-                    self.blitz_loser = self.board.get_current_player()
-                    GLib.idle_add(self.update_game_state)
-                    self.over = True
-                    self.over_message = f"{self.blitz_loser} lost due to time"
                 time.sleep(1)
 
     def update_timers(self):
@@ -367,19 +327,22 @@ class OthelloWindow(Gtk.ApplicationWindow):
         Update the timer display labels.
         """
         self.black_timer_label.set_text(
-            f"Black: {self.blitz_timer.display_time_player(Color.BLACK)}"
+            f"Black: {self.controller.display_time_player(Color.BLACK)}"
         )
         self.white_timer_label.set_text(
-            f"White: {self.blitz_timer.display_time_player(Color.WHITE)}"
+            f"White: {self.controller.display_time_player(Color.WHITE)}"
         )
 
-    def update_play_history(self, x: int, y: int):
+    def update_play_history(self):
         """
         Update the play history list with the latest move.
 
         :param x: Column coordinate of the move
         :param y: Row coordinate of the move
         """
+        last_play = self.controller.get_last_play()
+        if last_play is None:
+            return
         new_move = Gtk.Label(
             label=f"{last_play[4]} placed a piece at {chr(ord('A') + last_play[2])}{last_play[3] + 1}"
         )
@@ -439,11 +402,13 @@ class OthelloWindow(Gtk.ApplicationWindow):
         """
         black_piece_color = (0, 0, 0, 0.3)
         white_piece_color = (1, 1, 1, 0.3)
-        legal_moves = self.board.get_possible_moves(self.board.get_current_player())
+        legal_moves = self.controller.get_possible_moves(
+            self.controller.get_current_player()
+        )
 
         color = (
             black_piece_color
-            if self.board.get_current_player() == Color.BLACK
+            if self.controller.get_current_player() == Color.BLACK
             else white_piece_color
         )
         cr.set_source_rgba(*color)
@@ -469,8 +434,8 @@ class OthelloWindow(Gtk.ApplicationWindow):
         for x in range(self.grid_size):
             for y in range(self.grid_size):
                 if not (
-                    self.board.get_position(Color.BLACK, x, y)
-                    or self.board.get_position(Color.WHITE, x, y)
+                    self.controller.get_position(Color.BLACK, x, y)
+                    or self.controller.get_position(Color.WHITE, x, y)
                 ):
                     continue
 
@@ -478,7 +443,7 @@ class OthelloWindow(Gtk.ApplicationWindow):
                 center_y = y * self.cell_size + self.cell_size // 2
                 radius = self.cell_size // 2 - 2
 
-                if self.board.get_position(Color.BLACK, x, y):
+                if self.controller.get_position(Color.BLACK, x, y):
                     cr.set_source_rgb(*black_piece_color)
                 else:
                     cr.set_source_rgb(*white_piece_color)
@@ -495,24 +460,18 @@ class OthelloWindow(Gtk.ApplicationWindow):
         :param click_x: X coordinate of the click
         :param click_y: Y coordinate of the click
         """
-        if self.over:
+        if (
+            self.controller.is_game_over
+            or not self.controller.current_player_is_human()
+        ):
             return
         board_x = int(click_x / self.cell_size)
         board_y = int(click_y / self.cell_size)
         if 0 <= board_x < self.grid_size and 0 <= board_y < self.grid_size:
             try:
-                self.board.play(board_x, board_y)
-                if self.blitz_timer is not None:
-                    current_player = (
-                        "black"
-                        if self.board.get_current_player() is Color.BLACK
-                        else "white"
-                    )
-                    self.blitz_timer.change_player(current_player)
-            except GameOverException as err:
-                self.over_message = str(err)
-                self.over = True
-            self.update_game_state()
+                self.controller.play(board_x, board_y)
+            except IllegalMoveException as err:
+                self.logger.debug(err)
 
     def forfeit_handler(self, _button: Gtk.Button):
         """
@@ -533,7 +492,10 @@ class OthelloWindow(Gtk.ApplicationWindow):
         :param response: Dialog response value
         """
         if response == -5:  # OK button
-            sys.exit(0)
+            self.show_confirm_dialog(
+                f"{(~self.controller.get_current_player()).name} wins the game",
+                lambda _: self.quit(),
+            )
 
     def restart_handler(self, _button: Gtk.Button):
         """
@@ -555,12 +517,12 @@ class OthelloWindow(Gtk.ApplicationWindow):
             self.over = True
             if hasattr(self, "blitz_thread") and self.blitz_thread is not None:
                 self.blitz_thread.join(timeout=1.0)
-            self.board.restart()
+            self.controller.restart()
             for _ in range(len(self.plays_list)):
                 self.plays_list.remove(self.plays_list.get_last_child())
             self.update_nb_pieces()
             self.over = False
-            self.__init_game(self.board, self.time_limit)
+            self.__init_game(self.controller)
 
     def file_chooser(self, callback, default_file_name: str, file_extension: str):
         """
@@ -619,7 +581,7 @@ class OthelloWindow(Gtk.ApplicationWindow):
         """
         try:
             with open(file_path, "w", encoding="utf-8") as file:
-                game_data = self.board.export()
+                game_data = self.controller.export()
                 file.write(game_data)
             logger.info("Game saved to %s", file_path)
         except IOError as e:
@@ -653,7 +615,7 @@ class OthelloWindow(Gtk.ApplicationWindow):
         """
         try:
             with open(file_path, "w", encoding="utf-8") as file:
-                game_data = self.board.export_history()
+                game_data = self.controller.export_history()
                 file.write(game_data)
             logger.info("Game history saved to %s", file_path)
         except IOError as e:
