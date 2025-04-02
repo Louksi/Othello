@@ -7,7 +7,7 @@ from benchmarks_utils import AIHeuristic, AIMode, run_benchmark, save_results
 with open("baseline_times.json") as f:
     baseline_times = json.load(f)
 
-board_sizes = 6
+board_sizes = [6, 8]
 depth = 2  # Focus on deeper search
 modes = [AIMode.ALPHABETA]  # Focus on alpha-beta
 heuristics = [
