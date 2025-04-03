@@ -14,20 +14,26 @@
 !specs/GanttChart.gantt
 
 !othello/
+
 !reports/
 !reports/preliminary
 !reports/preliminary/Othello-Python.pdf
+!reports/preliminary/report.tex
+!reports/preliminary/report1.tex
+!reports/preliminary/images/*
 !reports/preliminary/images
 !reports/preliminary/images/*.jpg
 !reports/preliminary/images/*.jpeg
 !reports/preliminary/images/*.png
-!reports/final
 
+!reports/final
 !reports/final/report.tex
 !reports/final/bibliography.bib
-!reports/preliminary/report.tex
-!reports/preliminary/report1.tex
-!reports/preliminary/images/*
+!reports/final/images/*
+!reports/final/images
+!reports/final/images/*.jpg
+!reports/final/images/*.jpeg
+!reports/final/images/*.png
 
 !docs/conf.py
 !docs/*.rst
