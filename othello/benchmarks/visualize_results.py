@@ -97,22 +97,85 @@ def plot_heuristic_comparison(df):
     plt.show()
 
 
+# Add these new functions to your existing visualization script
+
+
+def plot_winrate_comparison(df):
+    """Compare win rates across configurations"""
+    plt.figure(figsize=(14, 8))
+
+    # Create combined label
+    df["config"] = df.apply(
+        lambda row: f"{row['ai_mode']} d{row['ai_depth']} {row['ai_heuristic']}", axis=1
+    )
+
+    # Plot win rates
+    sns.barplot(data=df, x="config", y="win_rate", hue="board_size", palette="coolwarm")
+
+    plt.title("AI Win Rate by Configuration")
+    plt.ylabel("Win Rate")
+    plt.xlabel("AI Configuration")
+    plt.xticks(rotation=45, ha="right")
+    plt.ylim(0, 1)
+    plt.legend(title="Board Size")
+    plt.tight_layout()
+    plt.savefig("winrate_comparison.png", dpi=300)
+    plt.show()
+
+
+def plot_win_loss_distribution(df):
+    """Show win/loss/draw distribution"""
+    plt.figure(figsize=(12, 6))
+
+    # Melt the data for stacked bar plot
+    melt_df = df.melt(
+        id_vars=["config", "board_size"],
+        value_vars=["black_wins", "white_wins", "draws"],
+        var_name="result",
+        value_name="count",
+    )
+
+    sns.barplot(
+        data=melt_df,
+        x="config",
+        y="count",
+        hue="result",
+        palette={"black_wins": "black", "white_wins": "lightgray", "draws": "red"},
+    )
+
+    plt.title("Win/Loss/Draw Distribution")
+    plt.ylabel("Number of Games")
+    plt.xlabel("AI Configuration")
+    plt.xticks(rotation=45, ha="right")
+    plt.legend(title="Result")
+    plt.tight_layout()
+    plt.savefig("win_loss_distribution.png", dpi=300)
+    plt.show()
+
+
+# Update your main function to include win rate visualizations
 def main():
     # Load all results
-    df = load_and_combine_results()
-
-    # Convert to numeric where needed
-    numeric_cols = ["avg_time", "baseline_time", "speedup_factor", "avg_moves_per_run"]
-    df[numeric_cols] = df[numeric_cols].apply(pd.to_numeric)
+    time_df = load_and_combine_results()  # Your existing time benchmarks
+    winrate_df = pd.read_csv("winrate_results.csv")  # New win rate data
 
     # Generate visualizations
-    plot_time_comparison(df)
-    plot_speedup_heatmap(df)
-    plot_heuristic_comparison(df)
+    plot_time_comparison(time_df)
+    plot_speedup_heatmap(time_df)
+    plot_heuristic_comparison(time_df)
+
+    # New win rate visualizations
+    plot_winrate_comparison(winrate_df)
+    plot_win_loss_distribution(winrate_df)
 
     # Save combined data
-    df.to_csv("combined_results.csv", index=False)
-    print("Visualizations saved and data combined to 'combined_results.csv'")
+    combined_df = pd.merge(
+        time_df,
+        winrate_df,
+        on=["board_size", "ai_depth", "ai_mode", "ai_heuristic"],
+        how="outer",
+    )
+    combined_df.to_csv("combined_results.csv", index=False)
 
 
 if __name__ == "__main__":

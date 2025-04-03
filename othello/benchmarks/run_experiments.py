@@ -1,7 +1,7 @@
 import subprocess
 
 experiments = [
-    "expermiment_minimax_vs_ab.py",
+    "benchmark_winrates.py",
 ]
 
 for exp in experiments:
