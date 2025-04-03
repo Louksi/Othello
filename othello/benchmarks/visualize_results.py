@@ -73,39 +73,6 @@ def plot_speedup_heatmap(df):
     plt.show()
 
 
-def plot_interactive_comparison(df):
-    """Interactive 3D plot using Plotly"""
-    fig = px.scatter_3d(
-        df,
-        x="ai_depth",
-        y="avg_time",
-        z="speedup_factor",
-        color="ai_heuristic",
-        symbol="ai_mode",
-        size="avg_moves_per_run",
-        hover_name="ai_heuristic",
-        title="AI Performance Characteristics",
-        labels={
-            "ai_depth": "Search Depth",
-            "avg_time": "Avg Time (s)",
-            "speedup_factor": "Speedup Factor",
-            "ai_heuristic": "Heuristic",
-        },
-    )
-
-    fig.update_layout(
-        scene=dict(
-            xaxis_title="Search Depth",
-            yaxis_title="Time (seconds)",
-            zaxis_title="Speedup vs Baseline",
-        ),
-        margin=dict(l=0, r=0, b=0, t=30),
-    )
-
-    fig.write_html("interactive_3d_plot.html")
-    fig.show()
-
-
 def plot_heuristic_comparison(df):
     """Compare heuristics at max depth"""
     max_depth = df["ai_depth"].max()
@@ -142,7 +109,6 @@ def main():
     plot_time_comparison(df)
     plot_speedup_heatmap(df)
     plot_heuristic_comparison(df)
-    plot_interactive_comparison(df)
 
     # Save combined data
     df.to_csv("combined_results.csv", index=False)
