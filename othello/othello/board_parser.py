@@ -1,10 +1,14 @@
 """This module contains utilities used for loading an OthelloBoard from a save"""
 
 import re
+import logging
 
+import othello.logger as log
 from othello.bitboard import Bitboard
 from othello.othello_board import BoardSize, Color, IllegalMoveException, OthelloBoard
 
+
+logger = logging.getLogger("Othello")
 
 class BoardParserException(Exception):
     """
@@ -22,10 +26,12 @@ class BoardParser:
     """
 
     def __init__(self, raw_save: str):
+        logger.debug("Initializing BoardParser with %d lines of input.", len(raw_save.split('\n')))
         self.__buffer = raw_save.split("\n")
         self.__x = 0
         self.__y = 0
         self.__case_values = tuple(c.value for c in Color)
+        logger.debug("   Case values initialized: %s.", self.__case_values)
 
     def get_current_line(self) -> str:
         """
@@ -40,8 +46,11 @@ class BoardParser:
         """
         Parses the board given at init time and returns an OthelloBoard configured accordingly.
         """
+        logger.debug("Starting board parsing, parse function in board_parser.py.")
         board = self.__parse_board()
+        logger.debug("   Board parsed successfully.")
         if (maybe_computed_board := self.__parse_history(board)) is not None:
+            logger.debug("   History parsed successfully.")
             board = maybe_computed_board
 
         return board
@@ -56,12 +65,15 @@ class BoardParser:
         :return: An OthelloBoard configured with the state of the raw save
         :rtype: OthelloBoard
         """
+        logger.debug("Entering function __parse_board from board_parser.py.")
         color = None
         # first we need to find the color.
         self.__skip_newlines()
         if self.__eof():
+            log.log_error_message(BoardParserException("trying to parse an empty board", self.__y))
             raise BoardParserException("trying to parse an empty board", self.__y)
         if self.__current() not in (Color.BLACK.value, Color.WHITE.value):
+            log.log_error_message(BoardParserException("expected to find color", self.__y))
             raise BoardParserException("expected to find color", self.__y)
         color = Color.BLACK if self.__current() == Color.BLACK.value else Color.WHITE
         # then we need to find the start of the board
@@ -70,10 +82,12 @@ class BoardParser:
         self.__next_line()
         # we pre-parse the first line to find the supposed size of the board
         if self.__eof():
+            log.log_error_message(BoardParserException("reached end of file", self.__y))
             raise BoardParserException("reached end of file", self.__y)
         if (board_size := self.__find_board_size()) not in (
             bs.value for bs in BoardSize
         ):
+            log.log_error_message(BoardParserException("illegal board size value", self.__y))
             raise BoardParserException("illegal board size value", self.__y)
 
         # and now we generate the two masks and add black and white pieces line by line
@@ -81,6 +95,7 @@ class BoardParser:
         white_mask = Bitboard(board_size)
         for board_y in range(board_size):
             if self.__eof():
+                log.log_error_message(BoardParserException("reached end of file before finished parsing", self.__y))
                 raise BoardParserException(
                     "reached end of file before finished parsing", self.__y
                 )
@@ -90,6 +105,7 @@ class BoardParser:
             white_mask |= line_white_mask
             if board_y < board_size - 1:
                 self.__next_line()
+        logger.debug("   Board fully parsed: black_mask=%s, white_mask=%s, current_player=%s.", black_mask, white_mask, color)
         return OthelloBoard(
             BoardSize.from_value(board_size),
             black=black_mask,
@@ -111,8 +127,10 @@ class BoardParser:
         :return: An OthelloBoard configured with the state of the raw save
         :rtype: OthelloBoard | None
         """
+        logger.debug("Entering function __parse_history from board_parser.py.")
         self.__skip_newlines()
         if self.__eof():
+            logger.debug("   No history section found (EOF).")
             return None
         str_board_max_column = chr(ord("a") + board.size.value)
         str_board_max_line = board.size.value + 1
@@ -124,6 +142,7 @@ class BoardParser:
         while not self.__eof():
             self.__parse_history_turn(computed_board, line_regex_compiled)
             self.__skip_newlines()
+        logger.debug("   History parsing complete.")
         return computed_board
 
     def __parse_history_turn(self, board: OthelloBoard, line_regex):
@@ -134,6 +153,7 @@ class BoardParser:
         :raises BoardParserException: If the line is not correctly formatted
         :raises IllegalMoveException: If either the black or white move is illegal
         """
+        logger.debug("Parsing one turn")
         line = str()
         while not self.__eol():
             line += self.__current()
