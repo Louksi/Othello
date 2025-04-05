@@ -16,7 +16,8 @@ pre-commit:
   stage: pre-commit
   tags:
     - Debian
-    - Docker
+#    - Docker
+    - shell
   rules:
     - if: '$PRE_COMMIT_SKIP_BRANCH_PIPELINE && $CI_COMMIT_BRANCH'
       when: never
@@ -52,7 +53,7 @@ pre-commit:
     - when: never
 
   variables:
-    PRE_COMMIT_AUTO_FIX: "0"
+    PRE_COMMIT_AUTO_FIX: "1"
     PRE_COMMIT_DEDUPLICATE_MR_AND_BRANCH: "true"
 
   image: registry.gitlab.com/yesolutions/docker-pre-commit
