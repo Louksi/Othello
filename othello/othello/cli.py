@@ -240,6 +240,7 @@ class OthelloCLI:
                 case CommandKind.RESTART:
                     logger.debug("   Executing %s command.", command_kind)
                     self.controller.restart()
+                    self.play()
                     logger.debug("   Board restarted to initial state")
                 case CommandKind.QUIT:
                     logger.debug("   Executing %s command.", command_kind)
