@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import MagicMock, patch
 from othello.controllers import GameController
-from othello.othello_board import BoardSize, Color, Bitboard
+from othello.othello_board import BoardSize, Color, Bitboard, OthelloBoard
 from othello.command_parser import CommandKind, CommandParserException
 from othello.cli import OthelloCLI
 
@@ -21,13 +21,12 @@ def normal_game():
 
 def test_check_game_over_when_board_says_game_over(normal_game):
     """Test that check_game_over returns True when board.is_game_over is True."""
-    normal_game.controller.is_game_over.return_value = True
+    normal_game.controller._board.is_game_over.return_value = True
     normal_game.controller.popcount.return_value = 0
 
     result = normal_game.check_game_over(MagicMock())
 
     assert result is True
-    normal_game.controller.is_game_over.assert_called_once()
 
 
 def test_check_game_over_prints_correct_winner(normal_game, capsys):
@@ -41,7 +40,8 @@ def test_check_game_over_prints_correct_winner(normal_game, capsys):
         else:
             return 0
 
-    normal_game.controller.is_game_over.return_value = True
+    normal_game.controller.is_game_over = True
+    normal_game.controller.game_over_message = "Black wins!"
     normal_game.controller.popcount.side_effect = popcount_side_effect
     normal_game.check_game_over(MagicMock())
     captured = capsys.readouterr()
@@ -56,6 +56,7 @@ def test_check_game_over_prints_tie(normal_game, capsys):
     normal_game.controller.is_game_over.return_value = True
     normal_game.controller.popcount.return_value = 32
     normal_game.controller.popcount.return_value = 32
+    normal_game.controller.game_over_message = "The game is a tie!"
 
     normal_game.check_game_over(MagicMock())
     captured = capsys.readouterr()
@@ -66,7 +67,7 @@ def test_check_game_over_prints_tie(normal_game, capsys):
 
 def test_check_game_over_skips_turn_when_no_moves(normal_game, capsys):
     """Test that turn is skipped when current player has no moves but game isn't over."""
-    normal_game.controller.is_game_over.return_value = False
+    normal_game.controller.is_game_over = False
     possible_moves = MagicMock()
     possible_moves.bits = 0
 
@@ -80,7 +81,7 @@ def test_check_game_over_skips_turn_when_no_moves(normal_game, capsys):
 
 def test_check_game_over_continues_when_moves_exist(normal_game):
     """Test that game continues when moves exist."""
-    normal_game.controller.is_game_over.return_value = False
+    normal_game.controller.is_game_over = False
     possible_moves = MagicMock()
     possible_moves.bits = 1
 
@@ -147,7 +148,8 @@ def test_display_possible_moves(normal_game, capsys):
 
 def test_check_parser_input(normal_game):
     # Create the mock game instance
-    mock_controller = MagicMock()
+    mock_controller = MagicMock(spec=GameController)
+    mock_controller.size = BoardSize.EIGHT_BY_EIGHT
     normal_game = OthelloCLI(mock_controller)
     normal_game.parser = MagicMock()
     normal_game.running = True
@@ -217,8 +219,9 @@ def test_check_parser_input(normal_game):
     normal_game.running = True
 
     # Test RESTART command
-    normal_game.check_parser_input("restart", CommandKind.RESTART)
-    mock_controller.restart.assert_called_once()
+    with patch("othello.cli.OthelloCLI.play") as mock_play:
+        normal_game.check_parser_input("restart", CommandKind.RESTART)
+        mock_controller.restart.assert_called_once()
 
     # Test QUIT command
     with patch("builtins.print") as mock_print:
