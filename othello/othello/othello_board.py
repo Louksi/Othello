@@ -1,5 +1,5 @@
-
 from __future__ import annotations
+
 """
 Everything related to the actual board of Othello.
 """
