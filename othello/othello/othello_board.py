@@ -161,12 +161,72 @@ class OthelloBoard:
         Checks whether or not a board is in a game over state.
         """
 
-        move_1, move_2 = self.line_cap_move(self.current_player), self.line_cap_move(
-            ~self.current_player
+        move_1, move_2 = (
+            self.line_cap_move(self.current_player),
+            self.line_cap_move(~self.current_player),
         )
         return self.forced_game_over or (move_1.popcount() == move_2.popcount() == 0)
 
+    def shift_along(self, bits_o, bits_p):
+        size = self.size.value
+        mask = self.black.mask
+        west_mask = self.black.west_mask
+        east_mask = self.black.east_mask
+
+        empty_bits = (~(bits_p | bits_o)) & mask
+
+        moves_bits = 0
+
+        # define all shift operations as inline functions
+        tmp = bits_o & ((bits_p >> size) & mask)
+        while tmp != 0:
+            moves_bits |= empty_bits & ((tmp >> size) & mask)
+            tmp = bits_o & ((tmp >> size) & mask)
+        tmp = bits_o & ((bits_p << size) & mask)
+        while tmp != 0:
+            moves_bits |= empty_bits & ((tmp << size) & mask)
+            tmp = bits_o & ((tmp << size) & mask)
+        tmp = bits_o & (((bits_p << 1) & west_mask) & mask)
+        while tmp != 0:
+            moves_bits |= empty_bits & (((tmp << 1) & west_mask) & mask)
+            tmp = bits_o & (((tmp << 1) & west_mask) & mask)
+        tmp = bits_o & (((bits_p >> 1) & east_mask) & mask)
+        while tmp != 0:
+            moves_bits |= empty_bits & (((tmp >> 1) & east_mask) & mask)
+            tmp = bits_o & (((tmp >> 1) & east_mask) & mask)
+        tmp = bits_o & (((bits_p >> (size - 1)) & west_mask) & mask)
+        while tmp != 0:
+            moves_bits |= empty_bits & (((tmp >> (size - 1)) & west_mask) & mask)
+            tmp = bits_o & (((tmp >> (size - 1)) & west_mask) & mask)
+        tmp = bits_o & (((bits_p >> (size + 1)) & east_mask) & mask)
+        while tmp != 0:
+            moves_bits |= empty_bits & (((tmp >> (size + 1)) & east_mask) & mask)
+            tmp = bits_o & (((tmp >> (size + 1)) & east_mask) & mask)
+        tmp = bits_o & (((bits_p << (size + 1)) & west_mask) & mask)
+        while tmp != 0:
+            moves_bits |= empty_bits & (((tmp << (size + 1)) & west_mask) & mask)
+            tmp = bits_o & (((tmp << (size + 1)) & west_mask) & mask)
+        tmp = bits_o & (((bits_p << (size - 1)) & east_mask) & mask)
+        while tmp != 0:
+            moves_bits |= empty_bits & (((tmp << (size - 1)) & east_mask) & mask)
+            tmp = bits_o & (((tmp << (size - 1)) & east_mask) & mask)
+        return moves_bits
+
     def line_cap_move(self, current_player: Color) -> Bitboard:
+        """
+        Returns a bitboard of the possibles plays for `current_player`
+        Overrides the bitboard conveniance class for performances concerns
+        :param current_player: The player trying to do the capture
+        :param type: Color
+        :returns: A Bitboard of the possible capture moves for player `current_player`
+        """
+        bits_p = self.black.bits if current_player is Color.BLACK else self.white.bits
+        bits_o = self.white.bits if current_player is Color.BLACK else self.black.bits
+
+        moves_bits = self.shift_along(bits_o, bits_p)
+        return Bitboard(self.size.value, moves_bits)
+
+    def line_cap_move_(self, current_player: Color) -> Bitboard:
         """
         Returns a bitboard of the possibles plays for `current_player`
 
@@ -183,9 +243,6 @@ class OthelloBoard:
                 moves |= self.__empty_mask() & candidates.shift(shift_dir)
                 candidates = bits_o & candidates.shift(shift_dir)
         return moves
-
-    def ready(self):
-        pass
 
     def get_turn_id(self) -> int:
         """
@@ -232,8 +289,8 @@ class OthelloBoard:
         position.set(x_coord, y_coord, True)
         cap_mask = Bitboard(self.size.value, bits=position.bits)
         for shift_dir in Direction:
-            direction_mask = Bitboard(self.size.value, bits=position.bits)
-            direction_ptr = Bitboard(self.size.value, bits=position.bits)
+            direction_mask = Bitboard(self.size.value, position.bits)
+            direction_ptr = Bitboard(self.size.value, position.bits)
 
             while True:
                 # we can while True as we always ends up falling either in the elif
@@ -322,7 +379,7 @@ class OthelloBoard:
         """
         if move[2] == -1 and move[3] == -1:
             return "-1-1"
-        return f"{chr(ord('a') + move[2])}{move[3]+1}"
+        return f"{chr(ord('a') + move[2])}{move[3] + 1}"
 
     def export_board(self) -> str:
         """
