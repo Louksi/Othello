@@ -29,35 +29,58 @@ class Direction(Enum):
     SOUTH_WEST = auto()
 
 
+class BitboardProperties:
+    """Singleton class holding shared bitboard structure properties for each size"""
+
+    _instances = {}
+
+    @classmethod
+    def get(cls, size: int):
+        """Get or create the structure for a given size"""
+        if size not in cls._instances:
+            structure = cls()
+            structure.size = size
+            structure.mask = 0
+            structure.west_mask = 0
+            structure.east_mask = 0
+            for i in range(size * size):
+                structure.mask |= 1 << i
+                structure.west_mask |= (1 << i) if i % size != 0 else 0
+                structure.east_mask |= (1 << i) if i % size != size - 1 else 0
+            cls._instances[size] = structure
+        return cls._instances[size]
+
+
 class Bitboard:
-    """
-    Represents a bitboard, a way to represent the presence or absence of
+    """Represents a bitboard, a way to represent the presence or absence of
     objects on a board
     """
 
     def __init__(self, size: int, bits=0):
         """
         Initializes a Bitboard with a given size and bits.
-
-        The size of the bitboard is given by the `size` parameter. The `bits`
-        parameter is optional and defaults to 0. It is used to set the initial
-        state of the bitboard. The `mask`, `west_mask`, and `east_mask`
-        attributes of the bitboard are also initialized during this method.
+        Uses cached structure properties for the given size.
 
         :param size: The size of the bitboard.
         :type size: int
         :param bits: The initial state of the bitboard, defaults to 0.
         :type bits: int, optional
         """
-        self.size = size
-        self.mask = 0
-        self.west_mask = 0
-        self.east_mask = 0
-        for i in range(size * size):
-            self.mask |= 1 << i
-            self.west_mask |= (1 << i) if i % self.size != 0 else 0
-            self.east_mask |= (1 << i) if i % self.size != self.size - 1 else 0
+        structure = BitboardProperties.get(size)
+        self.size = structure.size
+        self.mask = structure.mask
+        self.west_mask = structure.west_mask
+        self.east_mask = structure.east_mask
         self.bits = bits & self.mask
+
+    def __copy__(self):
+        result = Bitboard.__new__(Bitboard)
+        result.size = self.size
+        result.mask = self.mask
+        result.west_mask = self.west_mask
+        result.east_mask = self.east_mask
+        result.bits = self.bits
+        return result
 
     def set(self, x_coord: int, y_coord: int, value: bool) -> None:
         """
