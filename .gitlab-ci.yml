@@ -16,8 +16,7 @@ pre-commit:
   stage: pre-commit
   tags:
     - Debian
-#    - Docker
-    - shell
+    - Docker
   rules:
     - if: '$PRE_COMMIT_SKIP_BRANCH_PIPELINE && $CI_COMMIT_BRANCH'
       when: never
