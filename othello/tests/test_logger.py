@@ -66,6 +66,7 @@ def test_debug_output_in_file():
         # Verify the debug message was logged
         mock_logger.debug.assert_called_once_with(debug_message)
 
+
 # empty error message
 def test_log_empty_error_message():
     """

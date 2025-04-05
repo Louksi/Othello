@@ -3,7 +3,6 @@ Logger used for debug mode.
 Uses logging to display debug messages and error messages.
 """
 
-
 import logging
 from typing import Any
 

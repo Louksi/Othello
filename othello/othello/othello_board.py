@@ -2,7 +2,6 @@
 Everything related to the actual board of Othello.
 """
 
-
 from __future__ import annotations
 from copy import copy
 from enum import Enum
