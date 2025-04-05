@@ -233,9 +233,6 @@ class OthelloBoard:
         :param type: Color
         :returns: A Bitboard of the possible capture moves for player `current_player`
         """
-        logger.debug(
-            f"Calculating possible moves for {current_player} in line_cap_move from othello_board.py."
-        )
         bits_p = self.black.bits if current_player is Color.BLACK else self.white.bits
         bits_o = self.white.bits if current_player is Color.BLACK else self.black.bits
 
@@ -299,9 +296,6 @@ class OthelloBoard:
         :returns: The bitboard of the captured bits.
         :rtype: Bitboard
         """
-        logger.debug(
-            f"Calculating captures in line_cap from othello_board.py, for move ({x_coord}, {y_coord}) by {current_player}."
-        )
         bits_p = self.black if current_player is Color.BLACK else self.white
         bits_o = self.white if current_player is Color.BLACK else self.black
         position = Bitboard(self.size.value)
