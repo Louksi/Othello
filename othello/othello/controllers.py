@@ -1,6 +1,8 @@
-"""Controllers for the Othello game."""
 
 from __future__ import annotations
+
+"""Controllers for the Othello game."""
+
 import logging
 from random import choice
 from abc import ABC, abstractmethod

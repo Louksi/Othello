@@ -1,9 +1,10 @@
+
+from __future__ import annotations  # used for self-referencing classes...
+
 """
 Internals of an othello bitboard, to store the presence or absence of elements on the board
     using single numbers
 """
-
-from __future__ import annotations  # used for self-referencing classes...
 
 from enum import Enum, auto
 from copy import copy
