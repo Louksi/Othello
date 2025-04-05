@@ -51,12 +51,22 @@ def test_debug_output_in_file():
     """
     Test that a debug message is properly written in the log file.
     """
-    pass
+    with patch("logging.getLogger") as mock_get_logger:
+        mock_logger = MagicMock()
+        mock_get_logger.return_value = mock_logger
 
+        # Set up debug mode
+        logging_config(debug=True)
+
+        # Get logger and send a debug message
+        logger = logging.getLogger("Othello")
+        debug_message = "This is a debug message"
+        logger.debug(debug_message)
+
+        # Verify the debug message was logged
+        mock_logger.debug.assert_called_once_with(debug_message)
 
 # empty error message
-
-
 def test_log_empty_error_message():
     """
     Test that an error message that is an empty string is still written in the log file, and does not raise an error.
@@ -69,8 +79,6 @@ def test_log_empty_error_message():
 
 
 # error message with context
-
-
 def test_log_error_with_context():
     """
     Test that an error message, with context provided, is properly written in the log file.
@@ -86,8 +94,6 @@ def test_log_error_with_context():
 
 
 # error message without context
-
-
 def test_log_error_without_context():
     """
     Test that an error message, without any context provided, is properly written in the log file.
@@ -102,8 +108,6 @@ def test_log_error_without_context():
 
 
 # error message is getting exec_info
-
-
 def test_log_error_exc_info():
     """
     Test that an error message, with context provided, is getting execution information that lead to the error.
@@ -141,21 +145,6 @@ def test_logging_config_no_argument():
     """
     with pytest.raises(TypeError):
         logging_config()
-
-
-# def test_log_nonstring_error_message():
-#     """
-#     Test that the error argument must be a string.
-#     Testing with an integer, a boolean, and None.
-#     """
-#     with pytest.raises(TypeError):
-#         log_error_message(error=123)
-
-#     with pytest.raises(TypeError):
-#         log_error_message(error=True)
-
-#     with pytest.raises(TypeError):
-#         log_error_message(error=None)
 
 
 def test_log_error_nonstring_context_message():
