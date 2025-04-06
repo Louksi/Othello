@@ -1,13 +1,12 @@
-from __future__ import annotations
-
 """
 Everything related to the actual board of Othello.
 """
 
-import logging
+from __future__ import annotations
 from copy import copy
 from enum import Enum
 from string import ascii_lowercase
+import logging
 
 import othello.logger as log
 from othello.bitboard import Bitboard, Direction
