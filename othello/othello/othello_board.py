@@ -8,7 +8,6 @@ from enum import Enum
 from string import ascii_lowercase
 import logging
 
-import othello.logger as log
 from othello.bitboard import Bitboard, Direction
 
 logger = logging.getLogger("Othello")
@@ -48,15 +47,6 @@ class IllegalMoveException(Exception):
         super().__init__(
             f"Move {x_coord}:{y_coord} from player {current_player} is illegal"
         )
-
-
-class GameOverException(Exception):
-    """
-    Thrown when the game is over after a play
-    """
-
-    def __init__(self, message="The board is in Game Over"):
-        super().__init__(message)
 
 
 class CannotPopException(Exception):
@@ -443,7 +433,7 @@ class OthelloBoard:
         logger.debug("Exporting history to string format in export.")
         export_str = "# history\n"
         for move_index, move in enumerate(self.__history):
-            move = self.__history[move_index]
+            # move = self.__history[move_index]
             if move[4] is Color.BLACK:
                 move_str = OthelloBoard.move_to_str(move)
                 export_str += f"{move_index // 2 + 1}. X {move_str}"
@@ -469,7 +459,7 @@ class OthelloBoard:
         """
         Resets the state of the game to a starting one with the same size.
         """
-        logger.debug(f"Restarting game with board size {self.size.value}.")
+        logger.debug("Restarting game with board size %d.", self.size.value)
         self.__history = []
         self.black = Bitboard(self.size.value)
         self.white = Bitboard(self.size.value)
@@ -506,8 +496,10 @@ class OthelloBoard:
         """
         Returns a string representation of a bitboard
         """
+        size_toggle_space = 10
+        height_toggle_space = 9
         rez = "  "
-        if self.size.value >= 10:
+        if self.size.value >= size_toggle_space:
             rez += " "
 
         rez += " ".join(
@@ -521,9 +513,12 @@ class OthelloBoard:
                 has_possible = self.line_cap_move(self.current_player).get(
                     x_coord, y_coord
                 )
-                if x_coord == 0:
+                if not x_coord:
                     rez += str(y_coord + 1) + " "
-                    if self.size.value >= 10 and y_coord < 9:
+                    if (
+                        self.size.value >= size_toggle_space
+                        and y_coord < height_toggle_space
+                    ):
                         rez += " "
                 if has_black:
                     rez += Color.BLACK.value

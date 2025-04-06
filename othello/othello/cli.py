@@ -7,7 +7,7 @@ import othello.logger as log
 from othello.command_parser import CommandParser, CommandKind, CommandParserException
 from othello.parser import DEFAULT_BLITZ_TIME
 from othello.config import save_board_state_history
-from othello.othello_board import GameOverException, Color
+from othello.othello_board import Color
 from othello.controllers import (
     GameController,
 )
@@ -164,11 +164,7 @@ class OthelloCLI:
             print("Invalid move. Not a legal play. Try again.")
             return False
         logger.debug("   Move (%s, %s) is legal, playing.", x_coord, y_coord)
-        try:
-            self.controller.play(x_coord, y_coord)
-        except GameOverException:
-            print("game over")
-        return True
+        self.controller.play(x_coord, y_coord)
 
     def check_parser_input(self, command_str, command_kind, *args):
         """
