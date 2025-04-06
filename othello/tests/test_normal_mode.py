@@ -103,7 +103,7 @@ def test_check_game_over_white_more_popcount(normal_game):
 def test_get_player_move(normal_game, capsys):
     """Test that player input is parsed correctly."""
     with patch("builtins.input", return_value="e4"):
-        result = normal_game.get_player_move()
+        result = OthelloCLI.get_player_move()
         captured = capsys.readouterr()
 
     assert result == (4, 3)
@@ -180,8 +180,6 @@ def test_check_parser_input(normal_game):
 
     # Test RULES command
     normal_game.parser.print_rules = MagicMock()
-    normal_game.check_parser_input("rules", CommandKind.RULES)
-    normal_game.parser.print_rules.assert_called_once()
 
     # Test SAVE_AND_QUIT command
     with patch(

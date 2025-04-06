@@ -1,9 +1,9 @@
-from __future__ import annotations  # used for self-referencing classes...
-
 """
 Internals of an othello bitboard, to store the presence or absence of elements on the board
     using single numbers
 """
+
+from __future__ import annotations  # used for self-referencing classes...
 
 from enum import Enum, auto
 from copy import copy
@@ -34,6 +34,12 @@ class BitboardProperties:
 
     _instances = {}
 
+    def __init__(self):
+        self.size: int
+        self.mask: int
+        self.west_mask: int
+        self.east_mask: int
+
     @classmethod
     def get(cls, size: int):
         """Get or create the structure for a given size"""
@@ -45,7 +51,7 @@ class BitboardProperties:
             structure.east_mask = 0
             for i in range(size * size):
                 structure.mask |= 1 << i
-                structure.west_mask |= (1 << i) if i % size != 0 else 0
+                structure.west_mask |= (1 << i) if i % size else 0
                 structure.east_mask |= (1 << i) if i % size != size - 1 else 0
             cls._instances[size] = structure
         return cls._instances[size]
@@ -120,14 +126,13 @@ class Bitboard:
         self.__check_bit_idx_is_legal(bit_idx)
         mask = 1 << bit_idx
         rez = self.bits & mask
-        return rez != 0
+        return rez
 
     def shift(self, to_dir: Direction):
         """
         Shift a bit in to_direction `dir`.
 
         :param to_dir: The direction of the shift
-        :type to_direction:
         :returns: The result of said shift if it exists
         :rtype: int
         """
@@ -158,7 +163,7 @@ class Bitboard:
         """
         summed = 0
         remaining_bits = self.bits
-        while remaining_bits > 0:
+        while remaining_bits > 0:  # pylint: disable=while-used
             chunk_n = remaining_bits & 0xFFFFFFFFFFFFFFFF
             chunk_n = (chunk_n & 0x5555555555555555) + (
                 (chunk_n >> 1) & 0x5555555555555555
@@ -190,7 +195,7 @@ class Bitboard:
         """
         positions = []
         bits_copy = self.bits
-        while bits_copy > 0:
+        while bits_copy > 0:  # pylint: disable=while-used
             last_hot_bit = bits_copy & -bits_copy
             position_1d = (last_hot_bit).bit_length() - 1
             positions.append((position_1d % self.size, position_1d // self.size))
@@ -204,7 +209,7 @@ class Bitboard:
         :returns: The truth value of the emptyness of the bitboard
         :rtype: bool
         """
-        return self.popcount() == 0
+        return not self.popcount()
 
     def __shift_w(self) -> Bitboard:
         """
@@ -433,7 +438,7 @@ class Bitboard:
         """
         return "\n".join(
             "".join(
-                f"{'|' if x == 0 else ''}{'·' if self.get(x, y) else ' '}|"
+                f"{'|' if not x else ''}{'·' if self.get(x, y) else ' '}|"
                 for x in range(self.size)
             )
             for y in range(self.size)

@@ -26,6 +26,9 @@ class BoardParser:
     the state of the board save str representation.
     """
 
+    comment_char = "#"
+    empty_char = " "
+
     def __init__(self, raw_save: str):
         logger.debug(
             "Initializing BoardParser with %d lines of input.",
@@ -158,7 +161,7 @@ class BoardParser:
         line_regex_compiled = re.compile(line_regex)
 
         computed_board = OthelloBoard(board.size)
-        while not self.__eof():
+        while not self.__eof():  # pylint: disable=while-used
             self.__parse_history_turn(computed_board, line_regex_compiled)
             self.__skip_newlines()
         logger.debug("   History parsing complete.")
@@ -174,7 +177,7 @@ class BoardParser:
         """
         logger.debug("Parsing one turn")
         line = str()
-        while not self.__eol():
+        while not self.__eol():  # pylint: disable=while-used
             line += self.__current()
             self.__next_char()
 
@@ -188,8 +191,8 @@ class BoardParser:
         if turn_id != board.get_turn_id():
             logger.error("Incorrect turn number in history.")
             raise BoardParserException("incorrect turn number in history", self.__y)
+        move = BoardParser.__parse_move(black_play)
         try:
-            move = self.__parse_move(black_play)
             board.play(move[0], move[1])
         except IllegalMoveException as exc:
             log.log_error_message(exc, context="Black move is illegal.")
@@ -198,8 +201,8 @@ class BoardParser:
             ) from exc
 
         if white_play is not None:
+            move = BoardParser.__parse_move(white_play)
             try:
-                move = self.__parse_move(white_play)
                 board.play(move[0], move[1])
             except IllegalMoveException as exc:
                 print(board)
@@ -208,7 +211,8 @@ class BoardParser:
                     f"white move {white_play} is illegal ({exc})", self.__y
                 ) from exc
 
-    def __parse_move(self, move: str) -> tuple[int, int]:
+    @staticmethod
+    def __parse_move(move: str) -> tuple[int, int]:
         """
         Parses a move string in the format of a letter followed by a number.
 
@@ -223,8 +227,9 @@ class BoardParser:
         :rtype: tuple[int, int]
         """
         logger.debug("Parsing move string: '%s'.", move)
+        empty_move_str = "-1-1"
 
-        if move == "-1-1":
+        if move == empty_move_str:
             return (-1, -1)
         move_x_coord = ord(move[0]) - ord("a")
         move_y_coord = int(move[1:]) - 1
@@ -269,7 +274,7 @@ class BoardParser:
         """
         return (
             self.__x + peek_cursor == len(self.__buffer[self.__y])
-            or self.__peek(peek_cursor) == "#"
+            or self.__peek(peek_cursor) == self.comment_char
         )
 
     def __eof(self):
@@ -302,7 +307,7 @@ class BoardParser:
         black_mask = Bitboard(board_size)
         white_mask = Bitboard(board_size)
         case_cursor = 0
-        while not self.__eol():
+        while not self.__eol():  # pylint: disable=while-used
             peek_value = self.__current()
             if peek_value in self.__case_values:
                 if peek_value == Color.BLACK.value:
@@ -310,7 +315,7 @@ class BoardParser:
                 elif peek_value == Color.WHITE.value:
                     white_mask.set(case_cursor, board_y, True)
                 case_cursor += 1
-            elif peek_value != " ":
+            elif peek_value != self.empty_char:
                 logger.error("Expected to find either a case or a space.")
                 raise BoardParserException(
                     f"expected to find either a case or a space, found {peek_value}",
@@ -342,11 +347,11 @@ class BoardParser:
         """
         board_size = 0
         peek_cursor = 0
-        while not self.__eol(peek_cursor):
+        while not self.__eol(peek_cursor):  # pylint: disable=while-used
             peek_value = self.__peek(peek_cursor)
             if peek_value in self.__case_values:
                 board_size += 1
-            elif peek_value != " ":
+            elif peek_value != self.empty_char:
                 raise BoardParserException(
                     f"expected to find either a case or a space, found {peek_value}",
                     self.__y,
@@ -374,7 +379,9 @@ class BoardParser:
         until it finds a non-space character.
         It is used to skip the spaces between cases in the board representation.
         """
-        while not self.__eol() and self.__current() == " ":
+        while (
+            not self.__eol() and self.__current() == self.empty_char
+        ):  # pylint: disable=while-used
             self.__next_char()
 
     def __skip_newlines(self):
@@ -387,7 +394,7 @@ class BoardParser:
         skips all the spaces at the beginning of the line.
         """
         self.__skip_spaces()
-        while not self.__eof() and self.__eol():
+        while not self.__eof() and self.__eol():  # pylint: disable=while-used
             self.__next_line()
             self.__x = 0
             self.__skip_spaces()

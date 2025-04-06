@@ -20,11 +20,10 @@ from gi.repository import Gtk, GLib  # pylint: disable=wrong-import-position
 
 import othello  # pylint: disable=wrong-import-position
 from othello.controllers import GameController  # pylint: disable=wrong-import-position
-from othello.othello_board import (
-    Color,
-    IllegalMoveException,
+from othello.othello_board import (  # pylint: disable=wrong-import-position
+    Color,  # pylint: disable=wrong-import-position
+    IllegalMoveException,  # pylint: disable=wrong-import-position
 )  # pylint: disable=wrong-import-position
-
 
 logger = logging.getLogger("Othello")
 
@@ -561,13 +560,10 @@ class OthelloWindow(Gtk.ApplicationWindow):
 
         :param file_path: Path to save the game
         """
-        try:
-            with open(file_path, "w", encoding="utf-8") as file:
-                game_data = self.controller.export()
-                file.write(game_data)
-            logger.info("Game saved to %s", file_path)
-        except IOError as io_err:
-            self.show_error_dialog(f"Failed to save game: {str(io_err)}")
+        with open(file_path, "w", encoding="utf-8") as file:
+            game_data = self.controller.export()
+            file.write(game_data)
+        logger.info("Game saved to %s", file_path)
 
     def save_history_handler(self, _button: Gtk.Button) -> None:
         """Handle save history button click."""
@@ -595,13 +591,10 @@ class OthelloWindow(Gtk.ApplicationWindow):
 
         :param file_path: Path to save the game history
         """
-        try:
-            with open(file_path, "w", encoding="utf-8") as file:
-                game_data = self.controller.export_history()
-                file.write(game_data)
-            logger.info("Game history saved to %s", file_path)
-        except IOError as io_err:
-            self.show_error_dialog(f"Failed to save game history: {str(io_err)}")
+        with open(file_path, "w", encoding="utf-8") as file:
+            game_data = self.controller.export_history()
+            file.write(game_data)
+        logger.info("Game history saved to %s", file_path)
 
     def show_confirm_dialog(self, message: str, callback: Callable) -> None:
         """

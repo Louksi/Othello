@@ -113,6 +113,7 @@ class AIPlayer(Player):
             defaults to "coin_parity"
         :type heuristic: str, optional
         """
+        super().__init__()
         self.board = board
         self.depth = depth
         self.algorithm = algorithm
@@ -199,6 +200,17 @@ class GameController:
         """
         self.players[self._board.current_player].next_move()
 
+    def _check_for_blit_game_over(self):
+        if self.blitz is not None:
+            if self.blitz.is_time_up("black"):
+                self.is_game_over = True
+                self.winner = Color.WHITE
+                self.game_over_message = "Black's time is up! White wins!"
+            elif self.blitz.is_time_up("white"):
+                self.is_game_over = True
+                self.winner = Color.BLACK
+                self.game_over_message = "White's time is up! Black wins!"
+
     def play(self, x_coord: int, y_coord: int):
         """
         Make a move on the board.
@@ -216,16 +228,7 @@ class GameController:
             )
             return
 
-        if self.blitz is not None:
-            if self.blitz.is_time_up("black"):
-                self.is_game_over = True
-                self.winner = Color.WHITE
-                self.game_over_message = "Black's time is up! White wins!"
-            elif self.blitz.is_time_up("white"):
-                self.is_game_over = True
-                self.winner = Color.BLACK
-                self.game_over_message = "White's time is up! Black wins!"
-
+        self._check_for_blit_game_over()
         if not self.is_game_over:
             self._board.play(x_coord, y_coord)
 

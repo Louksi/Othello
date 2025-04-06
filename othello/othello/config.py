@@ -16,12 +16,10 @@ Configuration Options:
     - ai_time: 5/X (seconds)
 """
 
-from os import confstr
 import sys
 import logging
 
 from othello.controllers import GameController
-from othello.othello_board import OthelloBoard
 import othello.logger as log
 
 logger = logging.getLogger("Othello")
@@ -85,8 +83,9 @@ def save_board_state_history(
     """Save the board state history into a .othellorc file."""
     logger.debug("Saving board state history to filename_prefix: %s", filename_prefix)
     if filename_prefix is None:
-        while True:
+        while True:  # pylint: disable=while-used
             try:
+                # checking if file is "legal"
                 filename_prefix = input("enter save file name: ")
                 open(filename_prefix + ".sav", "w", encoding="utf-8")
                 break
