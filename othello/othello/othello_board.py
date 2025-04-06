@@ -2,14 +2,16 @@
 Everything related to the actual board of Othello.
 """
 
-# pylint: disable=locally-disabled, multiple-statements, line-too-long, import-error, no-name-in-module
-
 from __future__ import annotations
 from copy import copy
 from enum import Enum
 from string import ascii_lowercase
+import logging
 
+import othello.logger as log
 from othello.bitboard import Bitboard, Direction
+
+logger = logging.getLogger("Othello")
 
 
 class Color(Enum):
@@ -117,23 +119,32 @@ class OthelloBoard:
         :param size: The size of the Bitboard from the enum `BoardSize`
         :param type: BoardSize
         """
+        logger.debug(
+            f"Initializing OthelloBoard in othello_board.py, with size: {size.value}"
+        )
         self.size = size
         self.current_player: Color = (
             Color.BLACK if current_player is None else current_player
         )
+        logger.debug(f"   Current player set to: {self.current_player}")
         if black is not None and white is not None:
+            logger.debug("   Using provided black and white bitboards")
             if self.size.value != black.size or self.size.value != white.size:
+                error_msg = f"Provided bitboards size mismatch. Board size: {self.size.value}, Black size: {black.size}, White size: {white.size}"
+                logger.error(error_msg)
                 raise IllegalBoardSizeException(
                     black.size.value if self.size.value != black.size else white.size
                 )
             self.black = black
             self.white = white
         else:
+            logger.debug("   Creating new bitboards.")
             self.black = Bitboard(size.value)
             self.white = Bitboard(size.value)
             # we copy a mask from one of our bitboards as they are equals and immutables
             self.__init_board()
         self.mask = self.black.mask
+        logger.debug(f"Board mask initialized: {self.mask}.")
         self.__history: list[tuple[Bitboard, Bitboard, int, int, Color]] = []
         self.forced_game_over = False
 
@@ -144,7 +155,7 @@ class OthelloBoard:
         This method sets up the initial four pieces in the center of the board,
         with two black pieces and two white pieces placed diagonally from each other.
         """
-
+        logger.debug("Initializing starting board position.")
         self.white.set(self.size.value // 2 - 1, self.size.value // 2 - 1, True)
         self.white.set(self.size.value // 2, self.size.value // 2, True)
         self.black.set(self.size.value // 2 - 1, self.size.value // 2, True)
@@ -154,19 +165,80 @@ class OthelloBoard:
         """
         Force the game to be over.
         """
+        logger.debug("Game over forced by external call.")
         self.forced_game_over = True
 
     def is_game_over(self) -> bool:
         """
         Checks whether or not a board is in a game over state.
         """
-
-        move_1, move_2 = self.line_cap_move(self.current_player), self.line_cap_move(
-            ~self.current_player
+        logger.debug("Checking if game is over in othello_board.py.")
+        move_1, move_2 = (
+            self.line_cap_move(self.current_player),
+            self.line_cap_move(~self.current_player),
         )
         return self.forced_game_over or (move_1.popcount() == move_2.popcount() == 0)
 
+    def shift_along(self, bits_o, bits_p):
+        size = self.size.value
+        mask = self.black.mask
+        west_mask = self.black.west_mask
+        east_mask = self.black.east_mask
+
+        empty_bits = (~(bits_p | bits_o)) & mask
+
+        moves_bits = 0
+
+        # define all shift operations as inline functions
+        tmp = bits_o & ((bits_p >> size) & mask)
+        while tmp != 0:
+            moves_bits |= empty_bits & ((tmp >> size) & mask)
+            tmp = bits_o & ((tmp >> size) & mask)
+        tmp = bits_o & ((bits_p << size) & mask)
+        while tmp != 0:
+            moves_bits |= empty_bits & ((tmp << size) & mask)
+            tmp = bits_o & ((tmp << size) & mask)
+        tmp = bits_o & (((bits_p << 1) & west_mask) & mask)
+        while tmp != 0:
+            moves_bits |= empty_bits & (((tmp << 1) & west_mask) & mask)
+            tmp = bits_o & (((tmp << 1) & west_mask) & mask)
+        tmp = bits_o & (((bits_p >> 1) & east_mask) & mask)
+        while tmp != 0:
+            moves_bits |= empty_bits & (((tmp >> 1) & east_mask) & mask)
+            tmp = bits_o & (((tmp >> 1) & east_mask) & mask)
+        tmp = bits_o & (((bits_p >> (size - 1)) & west_mask) & mask)
+        while tmp != 0:
+            moves_bits |= empty_bits & (((tmp >> (size - 1)) & west_mask) & mask)
+            tmp = bits_o & (((tmp >> (size - 1)) & west_mask) & mask)
+        tmp = bits_o & (((bits_p >> (size + 1)) & east_mask) & mask)
+        while tmp != 0:
+            moves_bits |= empty_bits & (((tmp >> (size + 1)) & east_mask) & mask)
+            tmp = bits_o & (((tmp >> (size + 1)) & east_mask) & mask)
+        tmp = bits_o & (((bits_p << (size + 1)) & west_mask) & mask)
+        while tmp != 0:
+            moves_bits |= empty_bits & (((tmp << (size + 1)) & west_mask) & mask)
+            tmp = bits_o & (((tmp << (size + 1)) & west_mask) & mask)
+        tmp = bits_o & (((bits_p << (size - 1)) & east_mask) & mask)
+        while tmp != 0:
+            moves_bits |= empty_bits & (((tmp << (size - 1)) & east_mask) & mask)
+            tmp = bits_o & (((tmp << (size - 1)) & east_mask) & mask)
+        return moves_bits
+
     def line_cap_move(self, current_player: Color) -> Bitboard:
+        """
+        Returns a bitboard of the possibles plays for `current_player`
+        Overrides the bitboard conveniance class for performances concerns
+        :param current_player: The player trying to do the capture
+        :param type: Color
+        :returns: A Bitboard of the possible capture moves for player `current_player`
+        """
+        bits_p = self.black.bits if current_player is Color.BLACK else self.white.bits
+        bits_o = self.white.bits if current_player is Color.BLACK else self.black.bits
+
+        moves_bits = self.shift_along(bits_o, bits_p)
+        return Bitboard(self.size.value, moves_bits)
+
+    def line_cap_move_(self, current_player: Color) -> Bitboard:
         """
         Returns a bitboard of the possibles plays for `current_player`
 
@@ -183,9 +255,6 @@ class OthelloBoard:
                 moves |= self.__empty_mask() & candidates.shift(shift_dir)
                 candidates = bits_o & candidates.shift(shift_dir)
         return moves
-
-    def ready(self):
-        pass
 
     def get_turn_id(self) -> int:
         """
@@ -232,8 +301,8 @@ class OthelloBoard:
         position.set(x_coord, y_coord, True)
         cap_mask = Bitboard(self.size.value, bits=position.bits)
         for shift_dir in Direction:
-            direction_mask = Bitboard(self.size.value, bits=position.bits)
-            direction_ptr = Bitboard(self.size.value, bits=position.bits)
+            direction_mask = Bitboard(self.size.value, position.bits)
+            direction_ptr = Bitboard(self.size.value, position.bits)
 
             while True:
                 # we can while True as we always ends up falling either in the elif
@@ -268,12 +337,14 @@ class OthelloBoard:
         Changes the state of the Board, pushing the move at x_coord;y_coord if it is a legal play.
         """
         if x_coord == -1 and y_coord == -1:
+            logger.debug(f"Player {self.current_player} passes their turn.")
             self.__history.append((self.black, self.white, -1, -1, self.current_player))
         else:
             legal_moves = self.line_cap_move(self.current_player)
             move_mask = Bitboard(self.size.value)
             move_mask.set(x_coord, y_coord, True)
             if (legal_moves & move_mask).bits > 0:
+                logger.debug(f"Move ({x_coord}, {y_coord}) is legal.")
                 capture_mask = self.line_cap(x_coord, y_coord, self.current_player)
                 state_to_save = (
                     self.black,
@@ -283,6 +354,9 @@ class OthelloBoard:
                     self.current_player,
                 )
                 self.__history.append(state_to_save)
+                logger.debug(
+                    f"Move saved to history, history length: {len(self.__history)}."
+                )
                 bits_p = (
                     self.black if self.current_player is Color.BLACK else self.white
                 )
@@ -293,13 +367,23 @@ class OthelloBoard:
                 bits_o &= ~capture_mask
                 self.black = bits_p if self.current_player is Color.BLACK else bits_o
                 self.white = bits_o if self.current_player is Color.BLACK else bits_p
+                logger.debug(
+                    f"Switching current player from {self.current_player} to {~self.current_player}."
+                )
                 self.current_player = ~self.current_player
                 if self.line_cap_move(self.current_player).bits == 0:
+                    logger.debug(
+                        f"Player {self.current_player} has no legal moves and must pass."
+                    )
                     self.__history.append(
                         (self.black, self.white, -1, -1, self.current_player)
                     )
+                    logger.debug(
+                        f"Switching current player back to {~self.current_player}."
+                    )
                     self.current_player = ~self.current_player
             else:
+                logger.error("Move is illegal.")
                 raise IllegalMoveException(x_coord, y_coord, self.current_player)
 
     def get_history(self):
@@ -322,7 +406,7 @@ class OthelloBoard:
         """
         if move[2] == -1 and move[3] == -1:
             return "-1-1"
-        return f"{chr(ord('a') + move[2])}{move[3]+1}"
+        return f"{chr(ord('a') + move[2])}{move[3] + 1}"
 
     def export_board(self) -> str:
         """
@@ -331,6 +415,9 @@ class OthelloBoard:
         :returns: the board string representation
         :rtype: str
         """
+        logger.debug(
+            "Exporting board to string format in export_board form othello_board.py."
+        )
         export_str = f"# board\n{self.current_player.value}\n"
         for coord_y in range(self.size.value):
             for coord_x in range(self.size.value):
@@ -353,6 +440,7 @@ class OthelloBoard:
         :returns: the history string representation
         :rtype: str
         """
+        logger.debug("Exporting history to string format in export.")
         export_str = "# history\n"
         for move_index, move in enumerate(self.__history):
             move = self.__history[move_index]
@@ -381,11 +469,13 @@ class OthelloBoard:
         """
         Resets the state of the game to a starting one with the same size.
         """
+        logger.debug(f"Restarting game with board size {self.size.value}.")
         self.__history = []
         self.black = Bitboard(self.size.value)
         self.white = Bitboard(self.size.value)
         self.current_player = Color.BLACK
         self.__init_board()
+        logger.debug("Game successfully restarted.")
 
     def __empty_mask(self) -> Bitboard:
         """

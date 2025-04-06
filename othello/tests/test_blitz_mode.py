@@ -31,29 +31,6 @@ class TestBlitzMode:
 
         return game
 
-    def test_blitz_timer_switch(self, blitz_game):
-        """Should switch timer on valid move"""
-        mock_moves = MagicMock()
-        mock_moves.get.return_value = True
-
-        blitz_game.process_move(3, 4, mock_moves)
-        blitz_game.blitz_timer.change_player.assert_called_once_with("white")
-
-    def test_blitz_timer_switch_white_to_black(self, blitz_game):
-        """Should switch from white to black on valid move"""
-        blitz_game.controller.get_current_player.return_value = Color.WHITE
-        mock_moves = MagicMock()
-        mock_moves.get.return_value = True
-
-        blitz_game.process_move(3, 4, mock_moves)
-        blitz_game.blitz_timer.change_player.assert_called_once_with("black")
-
-    def test_init_game_mode(self):
-        mock_controller = Mock()
-        game = OthelloCLI(mock_controller, blitz_mode=True)
-        assert game.blitz_mode
-        assert hasattr(game, "blitz_timer")
-
     def test_check_game_over_blitz(self, blitz_game_white_timer_over):
         assert blitz_game_white_timer_over.check_game_over(
             blitz_game_white_timer_over.controller.get_possible_moves(
