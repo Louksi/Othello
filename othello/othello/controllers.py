@@ -331,6 +331,10 @@ class GameController:
         """
 
         self._board.restart()
+        if self.is_blitz():
+            del self.blitz
+            self.blitz = BlitzTimer(self.time_limit)
+            self.blitz.start_timer("black")
 
     def get_turn_number(self):
         """

@@ -154,6 +154,7 @@ class OthelloWindow(Gtk.ApplicationWindow):
         self.white_timer_label: Gtk.Label
         self.blitz_thread = None
         self.blitz_loser = None
+        self.current_player = Gtk.Label
         self.plays_list: ListBoxWithLength
         self.black_nb_pieces: Gtk.Label
         self.white_nb_pieces: Gtk.Label
@@ -202,6 +203,7 @@ class OthelloWindow(Gtk.ApplicationWindow):
             self.blitz_thread.daemon = True
             self.blitz_thread.start()
         self.plays_list = ListBoxWithLength()
+        self.current_player = Gtk.Label(label="Current Player: black")
         self.black_nb_pieces = Gtk.Label(label="Black has 2 pieces")
         self.white_nb_pieces = Gtk.Label(label="White has 2 pieces")
 
@@ -233,6 +235,10 @@ class OthelloWindow(Gtk.ApplicationWindow):
 
         main_grid = Gtk.Grid(column_spacing=20, row_spacing=20)
         main_box.append(main_grid)
+
+        current_player_box = Gtk.Box(spacing=20)
+        current_player_box.append(self.current_player)
+        main_grid.attach(current_player_box, 1, 0, 1, 1)
 
         if self.is_blitz:
             timer_box = Gtk.Box(spacing=10)
@@ -298,6 +304,9 @@ class OthelloWindow(Gtk.ApplicationWindow):
 
         self.drawing_area.queue_draw()
         self.update_nb_pieces()
+        self.current_player.set_label(
+            f"Current Player: {self.controller.get_current_player()}"
+        )
         self.update_play_history()
         if not self.controller.is_game_over:
             GLib.idle_add(self.controller.next_move)
