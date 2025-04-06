@@ -303,7 +303,7 @@ class OthelloCLI:
 
         self.running = True
 
-        while self.running:  # pylint: disable=while-used
+        while self.running:
             if self.check_game_over(possible_moves):
                 self.running = False
             else:

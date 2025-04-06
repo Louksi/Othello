@@ -321,9 +321,7 @@ class OthelloWindow(Gtk.ApplicationWindow):
         """
         Background thread to update timer displays and check for time-outs.
         """
-        while (
-            not self.controller.is_game_over
-        ):  # pylint: disable=while-used  # its an event loop so its ok
+        while not self.controller.is_game_over:  # its an event loop so its ok
             GLib.idle_add(self._update_timers)
             time.sleep(1)
 

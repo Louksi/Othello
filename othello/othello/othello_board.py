@@ -186,35 +186,35 @@ class OthelloBoard:
 
         # define all shift operations as inline functions
         tmp = bits_o & ((bits_p >> size) & mask)
-        while tmp:  # pylint: disable=while-used
+        while tmp:
             moves_bits |= empty_bits & ((tmp >> size) & mask)
             tmp = bits_o & ((tmp >> size) & mask)
         tmp = bits_o & ((bits_p << size) & mask)
-        while tmp:  # pylint: disable=while-used
+        while tmp:
             moves_bits |= empty_bits & ((tmp << size) & mask)
             tmp = bits_o & ((tmp << size) & mask)
         tmp = bits_o & (((bits_p << 1) & west_mask) & mask)
-        while tmp:  # pylint: disable=while-used
+        while tmp:
             moves_bits |= empty_bits & (((tmp << 1) & west_mask) & mask)
             tmp = bits_o & (((tmp << 1) & west_mask) & mask)
         tmp = bits_o & (((bits_p >> 1) & east_mask) & mask)
-        while tmp:  # pylint: disable=while-used
+        while tmp:
             moves_bits |= empty_bits & (((tmp >> 1) & east_mask) & mask)
             tmp = bits_o & (((tmp >> 1) & east_mask) & mask)
         tmp = bits_o & (((bits_p >> (size - 1)) & west_mask) & mask)
-        while tmp:  # pylint: disable=while-used
+        while tmp:
             moves_bits |= empty_bits & (((tmp >> (size - 1)) & west_mask) & mask)
             tmp = bits_o & (((tmp >> (size - 1)) & west_mask) & mask)
         tmp = bits_o & (((bits_p >> (size + 1)) & east_mask) & mask)
-        while tmp:  # pylint: disable=while-used
+        while tmp:
             moves_bits |= empty_bits & (((tmp >> (size + 1)) & east_mask) & mask)
             tmp = bits_o & (((tmp >> (size + 1)) & east_mask) & mask)
         tmp = bits_o & (((bits_p << (size + 1)) & west_mask) & mask)
-        while tmp:  # pylint: disable=while-used
+        while tmp:
             moves_bits |= empty_bits & (((tmp << (size + 1)) & west_mask) & mask)
             tmp = bits_o & (((tmp << (size + 1)) & west_mask) & mask)
         tmp = bits_o & (((bits_p << (size - 1)) & east_mask) & mask)
-        while tmp:  # pylint: disable=while-used
+        while tmp:
             moves_bits |= empty_bits & (((tmp << (size - 1)) & east_mask) & mask)
             tmp = bits_o & (((tmp << (size - 1)) & east_mask) & mask)
         return moves_bits
@@ -244,7 +244,7 @@ class OthelloBoard:
         moves = Bitboard(self.size.value)
         for shift_dir in Direction:
             candidates = bits_o & (bits_p.shift(shift_dir))
-            while candidates.bits:  # pylint: disable=while-used
+            while candidates.bits:
                 moves |= self.__empty_mask() & candidates.shift(shift_dir)
                 candidates = bits_o & candidates.shift(shift_dir)
         return moves
@@ -269,7 +269,7 @@ class OthelloBoard:
         if not self.__history:
             return None
         last_play, last_play_idx = self.__history[-1], 0
-        while last_play[2] == -1 and last_play[3] == -1:  # pylint: disable=while-used
+        while last_play[2] == -1 and last_play[3] == -1:
             last_play_idx += 1
             last_play = self.__history[-last_play_idx]
         return last_play
@@ -294,7 +294,7 @@ class OthelloBoard:
             direction_mask = Bitboard(self.size.value, position.bits)
             direction_ptr = Bitboard(self.size.value, position.bits)
 
-            while True:  # pylint: disable=while-used
+            while True:
                 # we can while True as we always ends up falling either in the elif
                 # or the else condition
                 direction_ptr = direction_ptr.shift(shift_dir)

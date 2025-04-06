@@ -148,18 +148,6 @@ def test_logging_config_no_argument():
         logging_config()
 
 
-def test_log_error_nonstring_context_message():
-    """
-    Test that the context argument must be either a string or None.
-    Testing with an integer and a boolean.
-    """
-    with pytest.raises(TypeError):
-        log_error_message(error="Valid error", context=123)
-
-    with pytest.raises(TypeError):
-        log_error_message(error="Valid error", context=True)
-
-
 def test_log_error_message_missing_argument():
     """
     Test that the function log_error_message should be given at least an error string as argument.

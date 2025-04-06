@@ -38,12 +38,10 @@ def log_error_message(error: str | Any, context: str | None = None) -> None:
       error: a string of the error message to be logged
       context: a string describing the context of the error, can be None if no context is given
     """
-    if context is not None and not isinstance(context, str):
-        raise TypeError()
 
     logger = logging.getLogger("Othello")
     if context is not None:
-        ctxt = "Context: %s" % context
+        ctxt = f"Context: {context}"
         logger.error(ctxt)
-    err = "Error: %s" % error
+    err = f"Error: {error}"
     logger.error(err, exc_info=True)

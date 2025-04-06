@@ -163,7 +163,7 @@ class Bitboard:
         """
         summed = 0
         remaining_bits = self.bits
-        while remaining_bits > 0:  # pylint: disable=while-used
+        while remaining_bits > 0:
             chunk_n = remaining_bits & 0xFFFFFFFFFFFFFFFF
             chunk_n = (chunk_n & 0x5555555555555555) + (
                 (chunk_n >> 1) & 0x5555555555555555
@@ -195,7 +195,7 @@ class Bitboard:
         """
         positions = []
         bits_copy = self.bits
-        while bits_copy > 0:  # pylint: disable=while-used
+        while bits_copy > 0:
             last_hot_bit = bits_copy & -bits_copy
             position_1d = (last_hot_bit).bit_length() - 1
             positions.append((position_1d % self.size, position_1d // self.size))

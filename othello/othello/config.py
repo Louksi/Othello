@@ -83,7 +83,7 @@ def save_board_state_history(
     """Save the board state history into a .othellorc file."""
     logger.debug("Saving board state history to filename_prefix: %s", filename_prefix)
     if filename_prefix is None:
-        while True:  # pylint: disable=while-used
+        while True:
             try:
                 # checking if file is "legal"
                 filename_prefix = input("enter save file name: ")

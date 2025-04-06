@@ -161,7 +161,7 @@ class BoardParser:
         line_regex_compiled = re.compile(line_regex)
 
         computed_board = OthelloBoard(board.size)
-        while not self.__eof():  # pylint: disable=while-used
+        while not self.__eof():
             self.__parse_history_turn(computed_board, line_regex_compiled)
             self.__skip_newlines()
         logger.debug("   History parsing complete.")
@@ -177,7 +177,7 @@ class BoardParser:
         """
         logger.debug("Parsing one turn")
         line = str()
-        while not self.__eol():  # pylint: disable=while-used
+        while not self.__eol():
             line += self.__current()
             self.__next_char()
 
@@ -307,7 +307,7 @@ class BoardParser:
         black_mask = Bitboard(board_size)
         white_mask = Bitboard(board_size)
         case_cursor = 0
-        while not self.__eol():  # pylint: disable=while-used
+        while not self.__eol():
             peek_value = self.__current()
             if peek_value in self.__case_values:
                 if peek_value == Color.BLACK.value:
@@ -347,7 +347,7 @@ class BoardParser:
         """
         board_size = 0
         peek_cursor = 0
-        while not self.__eol(peek_cursor):  # pylint: disable=while-used
+        while not self.__eol(peek_cursor):
             peek_value = self.__peek(peek_cursor)
             if peek_value in self.__case_values:
                 board_size += 1
@@ -379,9 +379,7 @@ class BoardParser:
         until it finds a non-space character.
         It is used to skip the spaces between cases in the board representation.
         """
-        while (
-            not self.__eol() and self.__current() == self.empty_char
-        ):  # pylint: disable=while-used
+        while not self.__eol() and self.__current() == self.empty_char:
             self.__next_char()
 
     def __skip_newlines(self):
@@ -394,7 +392,7 @@ class BoardParser:
         skips all the spaces at the beginning of the line.
         """
         self.__skip_spaces()
-        while not self.__eof() and self.__eol():  # pylint: disable=while-used
+        while not self.__eof() and self.__eol():
             self.__next_line()
             self.__x = 0
             self.__skip_spaces()
