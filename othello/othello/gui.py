@@ -4,10 +4,12 @@ Graphic interface to play the Othello game, inherits from __main__.py
 
 from gi import require_version
 
+import othello
+
 require_version("Gtk", "4.0")
 require_version("Adw", "1")
 
-from gi.repository import Gtk, GLib, Adw
+from gi.repository import Gtk, GLib, Adw, Pango
 from othello.controllers import GameController
 import cairo
 import time
@@ -46,6 +48,8 @@ class ListBoxWithLength(Gtk.ListBox):
         """
         super().__init__()
         self.length = 0
+        self.set_selection_mode(Gtk.SelectionMode.NONE)
+        self.set_size_request(160, -1)
 
     def prepend(self, child: Gtk.Widget, *args, **kwargs) -> None:
         """
@@ -187,6 +191,17 @@ class OthelloWindow(Gtk.ApplicationWindow):
         self.connect_signals()
         self.controller.next_move()
 
+    def create_ascii_art_label(self):
+        label = Gtk.Label()
+        label.set_margin_top(10)
+        label.set_margin_bottom(10)
+        label.set_halign(Gtk.Align.CENTER)
+        label.set_markup(
+            "<span font_desc='monospace'>%s</span>" % othello.__ascii_art__
+        )
+
+        return label
+
     def initialize_ui_components(self):
         """
         Initialize UI components like buttons, labels, and the drawing area.
@@ -232,6 +247,7 @@ class OthelloWindow(Gtk.ApplicationWindow):
         main_box.set_halign(Gtk.Align.CENTER)
         main_box.set_valign(Gtk.Align.CENTER)
         self.set_child(main_box)
+        main_box.append(self.create_ascii_art_label())
 
         main_grid = Gtk.Grid(column_spacing=20, row_spacing=20)
         main_box.append(main_grid)

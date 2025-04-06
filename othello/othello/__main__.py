@@ -4,6 +4,7 @@ Entry point for the othello executable.
 
 import logging
 
+import othello
 from othello.board_parser import BoardParser
 import othello.parser as parser
 import othello.logger as log
@@ -109,6 +110,7 @@ def main():
         gui = OthelloGUI(controller)
         gui.run()
     else:
+        print(othello.__ascii_art__)
         logger.debug("Starting command line user interface.")
         cli = OthelloCLI(controller, controller.is_blitz())
         cli.play()
