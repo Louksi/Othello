@@ -71,39 +71,40 @@ def run_match(black_config, white_config, board_size=8, num_games=10):
             white_config["heuristic"].value,
         ]
 
-    try:
-        result = subprocess.run(cmd, capture_output=True, text=True)
-        output = result.stdout
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True)
+            output = result.stdout
 
-        # Parse results
-        time_matches = time_pattern.findall(output)
-        score_match = score_pattern.search(output)
-        move_match = move_pattern.search(output)
+            # Parse results
+            time_matches = time_pattern.findall(output)
+            score_match = score_pattern.search(output)
+            move_match = move_pattern.search(output)
 
-        if score_match and time_matches and move_match:
-            black_score = int(score_match.group(1))
-            white_score = int(score_match.group(2))
-            total_moves = int(move_match.group(1))
+            if score_match and time_matches and move_match:
+                black_score = int(score_match.group(1))
+                white_score = int(score_match.group(2))
+                total_moves = int(move_match.group(1))
 
-            # Split times between players (alternating moves)
-            black_times.extend(
-                [float(t) for i, t in enumerate(time_matches) if i % 2 == 0]
-            )
-            white_times.extend(
-                [float(t) for i, t in enumerate(time_matches) if i % 2 == 1]
-            )
+                # Split times between players (alternating moves)
+                black_times.extend(
+                    [float(t) for i, t in enumerate(time_matches) if i % 2 == 0]
+                )
+                white_times.extend(
+                    [float(t) for i, t in enumerate(time_matches) if i % 2 == 1]
+                )
 
-            if black_score > white_score:
-                results["black_wins"] += 1
-            elif white_score > black_score:
-                results["white_wins"] += 1
-            else:
-                results["draws"] += 1
+                if black_score > white_score:
+                    results["black_wins"] += 1
+                elif white_score > black_score:
+                    results["white_wins"] += 1
+                else:
+                    results["draws"] += 1
 
-            results["total_moves"] += total_moves
+                results["total_moves"] += total_moves
 
-    except Exception as e:
-        print(f"Error running game {game+1}: {e}")
+        except Exception as e:
+            print(f"Error running game {game+1}: {e}")
+            continue
 
     # Calculate averages
     if black_times:
@@ -164,32 +165,36 @@ def run_heuristic_benchmark():
 
 def plot_heuristic_results(df):
     """Visualize heuristic benchmark results"""
-    plt.figure(figsize=(12, 8))
+    try:
+        plt.figure(figsize=(12, 8))
 
-    # Win rate comparison
-    win_rates = df.groupby("black_heuristic")["win_rate"].mean().sort_values()
-    win_rates.plot(kind="bar", color="skyblue")
-    plt.title("Win Rate by Heuristic (as Black)")
-    plt.ylabel("Win Rate")
-    plt.xticks(rotation=45)
-    plt.tight_layout()
-    plt.savefig("heuristic_win_rates.png")
-    plt.close()
+        # Win rate comparison
+        win_rates = df.groupby("black_heuristic")["win_rate"].mean().sort_values()
+        win_rates.plot(kind="bar", color="skyblue")
+        plt.title("Win Rate by Heuristic (as Black)")
+        plt.ylabel("Win Rate")
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        plt.savefig("heuristic_win_rates.png")
+        plt.close()
 
-    # Time comparison
-    plt.figure(figsize=(12, 8))
-    time_data = df[["black_heuristic", "black_avg_time"]].rename(
-        columns={"black_heuristic": "heuristic", "black_avg_time": "avg_time"}
-    )
-    time_data.groupby("heuristic")["avg_time"].mean().sort_values().plot(
-        kind="bar", color="lightgreen"
-    )
-    plt.title("Average Move Time by Heuristic")
-    plt.ylabel("Time (seconds)")
-    plt.xticks(rotation=45)
-    plt.tight_layout()
-    plt.savefig("heuristic_times.png")
-    plt.close()
+        # Time comparison
+        plt.figure(figsize=(12, 8))
+        time_data = df[["black_heuristic", "black_avg_time"]].rename(
+            columns={"black_heuristic": "heuristic", "black_avg_time": "avg_time"}
+        )
+        time_data.groupby("heuristic")["avg_time"].mean().sort_values().plot(
+            kind="bar", color="lightgreen"
+        )
+        plt.title("Average Move Time by Heuristic")
+        plt.ylabel("Time (seconds)")
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        plt.savefig("heuristic_times.png")
+        plt.close()
+
+    except Exception as e:
+        print(f"Error generating plots: {e}")
 
 
 def run_algorithm_benchmark():
@@ -271,10 +276,8 @@ def plot_algorithm_results(df):
 
 
 if __name__ == "__main__":
-    # Run all benchmarks
+    print("Starting heuristic benchmark...")
     run_heuristic_benchmark()
+    print("Heuristic benchmark complete. Starting algorithm benchmark...")
     run_algorithm_benchmark()
-
-    print(
-        "Benchmarking complete! Results saved to CSV files and visualizations generated."
-    )
+    print("All benchmarks complete!")
