@@ -1,21 +1,18 @@
 """Controllers for the Othello game."""
 
 from __future__ import annotations
-from random import choice
-from abc import ABC, abstractmethod
+
 
 import logging
+from random import choice
 
 from othello.ai_features import find_best_move
 from othello.othello_board import (
-    BoardSize,
     Color,
-    GameOverException,
-    IllegalMoveException,
     OthelloBoard,
 )
+from othello.blitz_timer import BlitzTimer
 from othello.parser import DEFAULT_BLITZ_TIME
-import othello.logger as log
 
 logger = logging.getLogger("Othello")
 
@@ -55,7 +52,6 @@ class Player:
         Base method for determining the next move.
         Implemented by subclasses.
         """
-        pass
 
 
 class HumanPlayer(Player):
@@ -71,10 +67,9 @@ class HumanPlayer(Player):
 
         :raises Exception: if the controller is not defined.
         """
-        if self.controller is None:
-            raise Exception("controller not defined")
-        if self.controller.human_play_callback is not None:
-            self.controller.human_play_callback()
+        if self.controller is not None:
+            if self.controller.human_play_callback is not None:
+                self.controller.human_play_callback()
 
 
 class RandomPlayer(Player):
@@ -85,21 +80,12 @@ class RandomPlayer(Player):
     def next_move(self):
         """
         Choose a random legal move and play it on the board.
-
-        :raises Exception: If controller or color is not defined
-        :raises GameOverException: If the game is over
         """
-        if self.controller is None:
-            raise Exception("controller not defined")
-        if self.color is None:
-            raise Exception("color is not defined")
-        move = choice(
-            self.controller.get_possible_moves(self.color).hot_bits_coordinates()
-        )
-        try:
+        if self.controller is not None and self.color is not None:
+            move = choice(
+                self.controller.get_possible_moves(self.color).hot_bits_coordinates()
+            )
             self.controller.play(move[0], move[1])
-        except GameOverException:
-            raise
 
 
 class AIPlayer(Player):
@@ -123,9 +109,11 @@ class AIPlayer(Player):
         :type depth: int, optional
         :param algorithm: The search algorithm to use, defaults to "minimax"
         :type algorithm: str, optional
-        :param heuristic: The heuristic function to evaluate board positions, defaults to "coin_parity"
+        :param heuristic: The heuristic function to evaluate board positions,
+            defaults to "coin_parity"
         :type heuristic: str, optional
         """
+        super().__init__()
         self.board = board
         self.depth = depth
         self.algorithm = algorithm
@@ -138,75 +126,11 @@ class AIPlayer(Player):
 
         :raises Exception: if the controller is not defined
         """
-        if self.controller is None:
-            raise Exception("controller not defined")
-        move = find_best_move(
-            self.board, self.depth, self.color, self.algorithm, self.heuristic
-        )
-        self.controller.play(move[0], move[1])
-
-
-class Player(ABC):
-    def __init__(self):
-        self.controller = None
-        self.color = None
-
-    def attach(self, controller: GameController):
-        self.controller = controller
-
-    def set_color(self, color: Color):
-        self.color = color
-
-    @abstractmethod
-    def next_move(self):
-        if self.controller is None:
-            raise Exception("controller not defined")
-
-
-class HumanPlayer(Player):
-    def next_move(self):
-        super().next_move()
-        if self.controller.human_play_callback is not None:
-            self.controller.human_play_callback()
-
-
-class RandomPlayer(Player):
-    def next_move(self):
-        super().next_move()
-        if self.color is None:
-            raise Exception("color is not defined")
-        move = choice(
-            self.controller.get_possible_moves(self.color).hot_bits_coordinates()
-        )
-        self.controller.play(move[0], move[1])
-
-
-class AIPlayer(Player):
-    def __init__(
-        self,
-        board: OthelloBoard,
-        depth: int = 3,
-        algorithm: str = "minimax",
-        heuristic: str = "coin_parity",
-        benchmark: bool = False,
-    ):
-        self.board = board
-        self.depth = depth
-        self.algorithm = algorithm
-        self.heuristic = heuristic
-        self.benchmark = benchmark
-
-    def next_move(self):
-        super().next_move()
-        move = find_best_move(
-            self.board,
-            self.depth,
-            self.color,
-            self.algorithm,
-            self.heuristic,
-            self.benchmark,
-        )
-        self.controller.play(move[0], move[1])
+        if self.controller is not None:
+            move = find_best_move(
+                self.board, self.depth, self.color, self.algorithm, self.heuristic
+            )
+            self.controller.play(move[0], move[1])
 
 
 class GameController:
@@ -224,7 +148,7 @@ class GameController:
         black_player,
         white_player,
         blitz_mode=False,
-        time_limit=None,
+        time_limit=0,
     ):
         """
         Initialize the game controller.
@@ -238,21 +162,54 @@ class GameController:
         self.size = board.size
         self.first_player_human = True
         self.post_play_callback = None
-        self.is_blitz = blitz_mode
+        self.blitz = None
+        if blitz_mode:
+            self.blitz = BlitzTimer(time_limit)
+            self.blitz.start_timer("black")
         self.time_limit = time_limit if time_limit is not None else DEFAULT_BLITZ_TIME
-        black_player.attach(self)
         self.human_play_callback = None
         self.post_play_callback = None
+        black_player.attach(self)
         black_player.set_color(Color.BLACK)
         white_player.attach(self)
         white_player.set_color(Color.WHITE)
         self.players = {Color.BLACK: black_player, Color.WHITE: white_player}
+        self.is_game_over = False
+        self.game_over_message = ""
+        self.winner: Color | None
+        self.logger = logging.getLogger("Othello")
+
+    def is_blitz(self) -> bool:
+        """
+        Checks if the game is in blitz mode
+        :returns: True if it is the case
+        """
+        return self.blitz is not None
+
+    def display_time_player(self, p_color: Color) -> str | None:
+        """
+        Returns the remaining time if available, else None
+        """
+        if self.blitz is not None:
+            return self.blitz.display_time_player(p_color)
+        return None
 
     def next_move(self):
         """
         Call the next_move method of the player whose turn it currently is.
         """
         self.players[self._board.current_player].next_move()
+
+    def _check_for_blit_game_over(self):
+        if self.blitz is not None:
+            if self.blitz.is_time_up("black"):
+                self.is_game_over = True
+                self.winner = Color.WHITE
+                self.game_over_message = "Black's time is up! White wins!"
+            elif self.blitz.is_time_up("white"):
+                self.is_game_over = True
+                self.winner = Color.BLACK
+                self.game_over_message = "White's time is up! Black wins!"
 
     def play(self, x_coord: int, y_coord: int):
         """
@@ -265,9 +222,50 @@ class GameController:
         :param x_coord: The x coordinate of the move (0 indexed)
         :param y_coord: The y coordinate of the move (0 indexed)
         """
-        self._board.play(x_coord, y_coord)
+        if self.is_game_over:
+            self.logger.debug(
+                "Tried to play (%d:%d) in a game over game", x_coord, y_coord
+            )
+            return
+
+        self._check_for_blit_game_over()
+        if not self.is_game_over:
+            self._board.play(x_coord, y_coord)
+
+        if self._board.is_game_over():
+            self.is_game_over = True
+            black_score = self.popcount(Color.BLACK)
+            white_score = self.popcount(Color.WHITE)
+            self.logger.debug(
+                "Final score - Black: %s, White: %s", black_score, white_score
+            )
+
+            if black_score > white_score:
+                self.logger.debug("Black wins.")
+                self.game_over_message = "Black wins!"
+                self.winner = Color.BLACK
+            elif white_score > black_score:
+                self.logger.debug("White wins.")
+                self.game_over_message = "White wins!"
+                self.winner = Color.WHITE
+            else:
+                self.logger.debug("The game is a tie.")
+                self.game_over_message = "The game is a tie!"
+                self.winner = None
+
         if self.post_play_callback is not None:
             self.post_play_callback()
+        if self.blitz is not None:
+            current = "black" if self.get_current_player() == Color.BLACK else "white"
+            self.blitz.change_player(current)
+
+    def display_time(self):
+        """
+        Return displayable time, mostly formatted for CLI and debug
+        """
+        if self.blitz is not None:
+            return self.blitz.display_time()
+        return None
 
     def get_possible_moves(self, player: Color):
         """
@@ -331,6 +329,10 @@ class GameController:
         """
 
         self._board.restart()
+        if self.is_blitz():
+            del self.blitz
+            self.blitz = BlitzTimer(self.time_limit)
+            self.blitz.start_timer("black")
 
     def get_turn_number(self):
         """
@@ -344,20 +346,6 @@ class GameController:
         :rtype: int
         """
         return self._board.get_turn_id()
-
-    def is_game_over(self):
-        """
-        Check whether the game is in a game over state.
-
-        The game is in a game over state when either player has no valid moves
-        available, or the board is completely full. When the game is in a game
-        over state, a winner can be determined by counting the number of pieces
-        on the board of each color.
-
-        :return: True if the game is in a game over state, False otherwise.
-        :rtype: bool
-        """
-        return self._board.is_game_over()
 
     def get_current_player(self):
         """
@@ -452,81 +440,3 @@ class GameController:
         :rtype: str
         """
         return str(self._board)
-
-
-class RandomPlayerGameController(GameController):
-    def __init__(self, board: OthelloBoard, random_player_color: Color):
-        super().__init__(board)
-        logger.debug("   Controller for Random Player.")
-        self._random_player_color = random_player_color
-        self.first_player_human = random_player_color is not Color.BLACK
-
-    def ready(self):
-        if self._random_player_color is Color.BLACK:
-            logger.debug("Random player is ready to play.")
-            self._play()
-
-    def _play(self):
-        move = choice(
-            self.get_possible_moves(self._random_player_color).hot_bits_coordinates()
-        )
-        self.play(move[0], move[1])
-
-    def play(self, x_coord: int, y_coord: int):
-        self._board.play(x_coord, y_coord)
-        if self.post_play_callback is not None:
-            self.post_play_callback()
-        if self._board.current_player is self._random_player_color:
-            self._play()
-
-
-class AIPlayerGameController(GameController):
-    def __init__(
-        self,
-        board: OthelloBoard,
-        ai_color: Color = Color.BLACK,
-        depth: int = 3,
-        algorithm: str = "minimax",
-        heuristic: str = "coin_parity",
-        random_player: bool = False,
-    ):
-        super().__init__(board)
-        logger.debug("   Controller for AI Player.")
-
-        if isinstance(ai_color, str):
-            if ai_color == "X":
-                self.ai_color = Color.BLACK
-            elif ai_color == "O":
-                self.ai_color = Color.WHITE
-            else:
-                self.ai_color = ai_color
-        elif not isinstance(ai_color, Color):
-            log.log_error_message(
-                ValueError, "Invalid ai_color type: {type(ai_color)}."
-            )
-            raise ValueError(
-                f"Invalid ai_color type: {type(ai_color)}. Must be a string or Color enum."
-            )
-
-        self.depth = depth
-        self.algorithm = algorithm
-        self.heuristic = heuristic
-        self.random_player = random_player
-
-    def ready(self):
-        if self.ai_color is self._board.current_player:
-            logger.debug("AI player is ready to play.")
-            self._play()
-
-    def _play(self):
-        move = find_best_move(
-            self._board, self.depth, self.ai_color, self.algorithm, self.heuristic
-        )
-        self.play(move[0], move[1])
-
-    def play(self, x_coord: int, y_coord: int):
-        self._board.play(x_coord, y_coord)
-        if self.post_play_callback is not None:
-            self.post_play_callback()
-        if self._board.current_player is self.ai_color:
-            self._play()

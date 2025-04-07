@@ -80,7 +80,7 @@ def test_print_help(capsys):
 def test_print_rules(capsys, monkeypatch):
     monkeypatch.setattr("builtins.input", lambda: "")
     cp = CommandParser(8)
-    cp.print_rules()
+    CommandParser.print_rules()
     captured = capsys.readouterr()
     assert "Othello/Reversi Rules" in captured.out
     assert "====================" in captured.out

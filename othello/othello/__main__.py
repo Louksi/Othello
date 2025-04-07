@@ -4,8 +4,9 @@ Entry point for the othello executable.
 
 import logging
 
+import othello
 from othello.board_parser import BoardParser
-import othello.parser as parser
+from othello import parser
 import othello.logger as log
 from othello.gui import OthelloGUI
 from othello.cli import OthelloCLI
@@ -36,9 +37,6 @@ def main():
 
     Args:
         None
-
-    Returns:
-        None
     """
     mode, config = parser.parse_args()
 
@@ -55,21 +53,19 @@ def main():
     display_config(config)
 
     controller = None
-    size = BoardSize.from_value(config["size"])
 
     board = None
 
     # first we try to retrieve a save from given filename if it exists
-    filename = config["filename"]
-    if filename is None:
-        board = OthelloBoard(size)
+    if (filename := config["filename"]) is None:
+        board = OthelloBoard(BoardSize.from_value(config["size"]))
     else:
         try:
-            with open(filename, "r") as file:
+            with open(filename, "r", encoding="utf-8") as file:
                 file_content = file.read()
             board = BoardParser(file_content).parse()
         except FileNotFoundError:
-            context = "File not found: %s" % filename
+            context = f"File not found: {filename}"
             log.log_error_message(FileNotFoundError, context=context)
             raise
         except Exception as err:
@@ -83,7 +79,6 @@ def main():
             config["ai_depth"],
             config["ai_mode"],
             config["ai_heuristic"],
-            config["benchmark"],
         )
         if mode == parser.GameMode.AI.value and config["ai_color"] == "X"
         else (
@@ -99,7 +94,6 @@ def main():
             config["ai_depth"],
             config["ai_mode"],
             config["ai_heuristic"],
-            config["benchmark"],
         )
         if mode == parser.GameMode.AI.value and config["ai_color"] == "O"
         else (
@@ -113,17 +107,11 @@ def main():
     logger.debug(f"   White player is of class {white_player.__class__}.")
 
     # then we setup the game controller depenging of the gamemode given
-    if mode == parser.GameMode.BLITZ.value:
-        controller = GameController(
-            board, black_player, white_player, True, config["blitz_time"]
-        )
-    elif mode == parser.GameMode.CONTEST.value:
-        log.log_error_message(
-            "#todo#", context="The contest mode is not implemented yet."
-        )
-        raise Exception("//todo")
-    else:
-        controller = GameController(board, black_player, white_player)
+    controller = (
+        GameController(board, black_player, white_player, True, config["blitz_time"])
+        if mode == parser.GameMode.BLITZ.value
+        else GameController(board, black_player, white_player)
+    )
 
     # finally, we run either in gui or in cli
     if config["gui"]:
@@ -131,8 +119,9 @@ def main():
         gui = OthelloGUI(controller)
         gui.run()
     else:
-        logger.debug("Starting command-line interface.")
-        cli = OthelloCLI(controller, controller.is_blitz, config["blitz_time"])
+        print(othello.__ascii_art__)
+        logger.debug("Starting command line user interface.")
+        cli = OthelloCLI(controller, controller.is_blitz())
         cli.play()
 
 

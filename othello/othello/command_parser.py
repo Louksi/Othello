@@ -7,8 +7,6 @@ from typing import Literal
 import argparse
 import logging
 
-import othello.logger as log
-
 logger = logging.getLogger("Othello")
 
 
@@ -18,8 +16,6 @@ class CommandParserException(Exception):
     """
 
     def __init__(self, bad_str: str) -> None:
-        context = "unrecognized string: %s" % bad_str
-        log.log_error_message(CommandParserException, context=context)
         super().__init__(f"unrecognized string {bad_str}")
 
 
@@ -148,7 +144,8 @@ class CommandParser:
         print("  restart - Restart the game")
         print("\nCoordinate format: [column][row] (e.g., a1, b2)")
 
-    def print_rules(self):
+    @staticmethod
+    def print_rules():
         """
         Display the rules of Othello/Reversi
         """
@@ -206,6 +203,7 @@ class CommandParser:
         """
         logger.debug("Entering parse_str from command_parser.py.")
         if (matches := self.command_regex.fullmatch(command_str)) is None:
+            logger.debug("   Unrecognized string.")
             raise CommandParserException(command_str)
 
         if (match_result := matches.group(1)) in COMMAND_MAP:
@@ -215,6 +213,7 @@ class CommandParser:
         col_raw = play_matches.group(2)
         line_raw = play_matches.group(3)
         if col_raw is None or line_raw is None:
+            logger.debug("   Unrecognized string.")
             raise CommandParserException(command_str)
         move_x_coord = ord(col_raw) - ord("a")
         move_y_coord = int(line_raw) - 1
