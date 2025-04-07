@@ -9,8 +9,19 @@
 \usepackage{hyperref}
 \usepackage{float}
 \usepackage{appendix}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
 \usepackage[backend=biber]{biblatex}
 \geometry{top=2cm, bottom=2cm, left=2cm, right=2cm}
+
+\definecolor{CornflowerBlue}{RGB}{100,149,237}  % For functional needs
+\definecolor{RoyalBlue}{RGB}{65,105,225}   % For non-functional needs
+\definecolor{MediumAquamarine}{RGB}{102,205,170} % For validation strategy
+
 
 \addbibresource{bibliography.bib}
 
@@ -19,19 +30,19 @@
 \begin{titlepage}
     \centering
     \vspace*{1cm}
-    {\huge\bfseries Jeu de plateau: Othello \newline}
+    {\huge\bfseries Jeu de plateau: Othello}
     \vspace{3cm}
 
-    {Matis Duval, Rémy Heuret, Lucas Marques, Gabriel Tardiou \newline}
+    {Matis Duval, Rémy Heuret, Lucas Marques, Gabriel Tardiou}
     \vspace{2cm}
 
-    {\scshape\small Université de Bordeaux \newline}
+    {\scshape\small Université de Bordeaux\\}
     \vspace{1cm}
-    {\scshape\small Projet de Programmation, Master 1 \newline}
+    {\scshape\small Projet de Programmation, Master 1}
     \vspace{1cm}
 
     \vfill
-    {\large Avril 2025 \newline}
+    {\large Avril 2025}
 \end{titlepage}
 
 \newpage
@@ -185,11 +196,588 @@ Games Geek.\newline
 \appendix
 \section{Liste des besoins étendus}
 
+
+% For a functional need - border in CornflowerBlue
+\noindent
+\setlength{\arrayrulewidth}{1.5pt}
+\renewcommand{\arraystretch}{1.5}
+\arrayrulecolor{CornflowerBlue}
+\begin{tabularx}{\textwidth}{|X|}
+\hline
+\textbf{F.xx NOM DU BESOIN} \\
+\hline
+Besoin fonctionnel\\
+\hline
+Terminé le DATE\\
+Par NOM \\
+\hline
+Explication du\\
+besoin \\
+\arrayrulecolor{MediumAquamarine}\hline
+\arrayrulecolor{CornflowerBlue}
+Stratégie de validation \\
+\arrayrulecolor{MediumAquamarine}\hline
+\arrayrulecolor{CornflowerBlue}
+Dépendances \\
+\hline
+\end{tabularx}
+
+\vspace{1cm}
+
+% For a non-functional need (RoyalBlue)
+\noindent
+\setlength{\arrayrulewidth}{1.5pt}
+\renewcommand{\arraystretch}{1.5}
+\arrayrulecolor{RoyalBlue}
+\begin{tabularx}{\textwidth}{|X|}
+\hline
+\textbf{F.xx NOM DU BESOIN} \\
+\hline
+Besoin non fonctionnel\\
+\hline
+Terminé le DATE\\
+Par NOM \\
+\hline
+Explication du\\
+besoin \\
+\arrayrulecolor{MediumAquamarine}\hline
+\arrayrulecolor{RoyalBlue}
+Stratégie de validation \\
+\arrayrulecolor{MediumAquamarine}\hline
+\arrayrulecolor{RoyalBlue}
+Dépendances \\
+\hline
+\end{tabularx}
+
+\vspace{1cm}
+
+
+\newpage
+
+\noindent
+\setlength{\arrayrulewidth}{1.5pt}
+\renewcommand{\arraystretch}{1.5}
+\arrayrulecolor{RoyalBlue}
+\begin{tabularx}{\textwidth}{|X|}
+\hline
+\textbf{F.1 Langage de programmation} \\
+\hline
+Besoin non fonctionnel\\
+\hline
+Terminé le 06/02\\
+Par Lucas \\
+\hline
+Développer le logiciel en langage Python 3.7+.\\
+\hline
+\end{tabularx}
+
+\vspace{1cm}
+
+\noindent
+\setlength{\arrayrulewidth}{1.5pt}
+\renewcommand{\arraystretch}{1.5}
+\arrayrulecolor{RoyalBlue}
+\begin{tabularx}{\textwidth}{|X|}
+\hline
+\textbf{F.2 - Style de codage} \\
+\hline
+Besoin non fonctionnel\\
+\hline
+Terminé le 04/02\\
+Par Lucas \\
+\hline
+Le code du programme suit le coding style du PEP8.\\
+L’utilisation de pre-commit hooks permet de s’assurer du respect de ce style de codage.\\
+\hline
+\end{tabularx}
+
+\vspace{1cm}
+
+\noindent
+\setlength{\arrayrulewidth}{1.5pt}
+\renewcommand{\arraystretch}{1.5}
+\arrayrulecolor{RoyalBlue}
+\begin{tabularx}{\textwidth}{|X|}
+\hline
+\textbf{F.3 - Langue par défaut du code} \\
+\hline
+Besoin non fonctionnel\\
+\hline
+Terminé le 02/02\\
+Par Matis, Rémy, Lucas, Gabriel \\
+\hline
+Le code, la documentation ainsi que les fichiers annexes sont écrits et commentés intégralement en langue anglaise.\\
+\hline
+\end{tabularx}
+
+\vspace{1cm}
+
+\noindent
+\setlength{\arrayrulewidth}{1.5pt}
+\renewcommand{\arraystretch}{1.5}
+\arrayrulecolor{RoyalBlue}
+\begin{tabularx}{\textwidth}{|X|}
+\hline
+\textbf{F.4 - Système cible
+} \\
+\hline
+Besoin non fonctionnel\\
+\hline
+Terminé le 06/02\\
+Par Lucas Zammit \\
+\hline
+Développement du logiciel sous une distribution Linux.\\
+L’intégration de Python rend compliqué voir impossible l’installation de modules
+python sur l’environnement par défaut.\\
+Sur les systèmes Debian récents, il est donc nécessaire de passer par un environnement virtuel.\\
+\arrayrulecolor{MediumAquamarine}\hline
+\arrayrulecolor{RoyalBlue}
+Tester sous une distribution Linux Debian, et une distribution Ubuntu. \\
+\hline
+\end{tabularx}
+
+\vspace{1cm}
+
+\noindent
+\setlength{\arrayrulewidth}{1.5pt}
+\renewcommand{\arraystretch}{1.5}
+\arrayrulecolor{RoyalBlue}
+\begin{tabularx}{\textwidth}{|X|}
+\hline
+\textbf{F.5 - Documentation} \\
+\hline
+Besoin non fonctionnel\\
+\hline
+Terminé le DATE\\
+Par Matis, Rémy, Lucas, Gabriel \\
+\hline
+Une documentation Sphinx automatisée permet de rendre compte des différentes fonctions, leurs attributs et leur utilité pour chaque module.\\
+Le code est documenté à l’aide de docstrings et commentaires.\\
+Un manuel utilisateur, ainsi qu’un manuel utilisateur pour les développeurs sont disponibles. Ils proposent des explications pour l’installation et l’utilisation du logiciel d’un point de vue utilisateur, et en proposant plus de précisions pour les développeurs.\\
+Une option d’aide est présente en dehors d’une partie, afin d’indiquer à l’utilisateur comment lancer une partie et quelles options sont à sa disposition.\\
+En cours de partie, une option d’aide et une présentation des règles du jeu est également disponible.\\
+\hline
+\end{tabularx}
+
+\vspace{1cm}
+
+\noindent
+\setlength{\arrayrulewidth}{1.5pt}
+\renewcommand{\arraystretch}{1.5}
+\arrayrulecolor{RoyalBlue}
+\begin{tabularx}{\textwidth}{|X|}
+\hline
+\textbf{F.6 - Tests} \\
+\hline
+Besoin non fonctionnel\\
+\hline
+Terminé le DATE\\
+Par Matis, Rémy, Lucas, Gabriel \\
+\hline
+Les fonctionnalités du logiciel sont testées automatiquement. Il est possible de les lancer avec la commande \texttt{pytest} à la racine du projet ou dans le dossier othello/.\\
+L’automatisation des tests est intégrée à la pipeline CI gitlab.\\
+Ces tests couvrent au minimum 80\% du code écrit.\\
+\hline
+\end{tabularx}
+
+\vspace{1cm}
+\noindent
+\setlength{\arrayrulewidth}{1.5pt}
+\renewcommand{\arraystretch}{1.5}
+\arrayrulecolor{RoyalBlue}
+\begin{tabularx}{\textwidth}{|X|}
+\hline
+\textbf{F.7 - Bugs} \\
+\hline
+Besoin non fonctionnel\\
+\hline
+Terminé le DATE\\
+Par Matis, Rémy, Lucas, Gabriel \\
+\hline
+L’implémentation des fonctionnalités du logiciel seront robustes - dans la mesure du possible - aux éventuelles mauvaises entrées de l’utilisateur, ou à d’autres cas amenant à des bugs.\\
+\arrayrulecolor{MediumAquamarine}\hline
+\arrayrulecolor{RoyalBlue}
+Afin de pallier d'éventuels bugs menant à un crash du logiciel, les fonctionnalités sont testées le plus possible, et les erreurs d’entrées ou d’arguments seront traitées et renverront une erreur compréhensible à l’utilisateur.\\
+\hline
+\end{tabularx}
+
+\vspace{1cm}
+
+\noindent
+\setlength{\arrayrulewidth}{1.5pt}
+\renewcommand{\arraystretch}{1.5}
+\arrayrulecolor{RoyalBlue}
+\begin{tabularx}{\textwidth}{|X|}
+\hline
+\textbf{F.8 - Performances} \\
+\hline
+Besoin non fonctionnel\\
+\hline
+Terminé le DATE\\
+Par NOM \\
+\hline
+Explication du\\
+besoin \\
+\arrayrulecolor{MediumAquamarine}\hline
+\arrayrulecolor{RoyalBlue}
+Stratégie de validation \\
+\arrayrulecolor{MediumAquamarine}\hline
+\arrayrulecolor{RoyalBlue}
+Dépendances \\
+\hline
+\end{tabularx}
+
+\vspace{1cm}
+
+\noindent
+\setlength{\arrayrulewidth}{1.5pt}
+\renewcommand{\arraystretch}{1.5}
+\arrayrulecolor{RoyalBlue}
+\begin{tabularx}{\textwidth}{|X|}
+\hline
+\textbf{F.9 - Build-system} \\
+\hline
+Besoin non fonctionnel\\
+\hline
+Terminé le 04/02\\
+Par Rémy \\
+\hline
+Le build-system est basé sur pyproject.toml et septuptools.\\
+\hline
+\end{tabularx}
+
+\vspace{1cm}
+
+\noindent
+\setlength{\arrayrulewidth}{1.5pt}
+\renewcommand{\arraystretch}{1.5}
+\arrayrulecolor{RoyalBlue}
+\begin{tabularx}{\textwidth}{|X|}
+\hline
+\textbf{F.10 - Framework de tests} \\
+\hline
+Besoin non fonctionnel\\
+\hline
+Terminé le 04/02\\
+Par Matis et Lucas \\
+\hline
+Mise en place de la pipeline CI/CD dans git.
+Avant chaque commit, les tests seront lancés par la pipeline.\\
+Utilisation du framework de tests Pytest et de Coverage.\\
+\hline
+\end{tabularx}
+
+\vspace{1cm}
+
+\noindent
+\setlength{\arrayrulewidth}{1.5pt}
+\renewcommand{\arraystretch}{1.5}
+\arrayrulecolor{CornflowerBlue}
+\begin{tabularx}{\textwidth}{|X|}
+\hline
+\textbf{F.11 - Gestion des options} \\
+\hline
+Besoin fonctionnel\\
+\hline
+Terminé le 18/02\\
+Par Gabriel \\
+\hline
+Les options en lignes de commandes pour le lancement d’une partie sont gérées par le module argparse qui construit un objet contenant les arguments donnés par l’utilisateur.\\
+Les arguments passés au programme prennent systématiquement la priorité sur les
+paramètres définis dans le fichier de configuration othello, qui lui-même aura la priorité
+sur les paramètres par défaut.\\
+
+Les fonctions principales implémentées sont les suivantes :\\
+\texttt{create\_parser() -> ArgumentParser}, qui initialise et configure le parseur d’arguments ;\\
+\texttt{parse\_args() -> tuple[str, dict[str, Any]]}, qui parse les arguments, et gère les potentielles erreurs d’entrée : si l’utilisateur a entré de mauvais arguments, ou une option non reconnue ; et\\
+\texttt{parse\_error(parser: ArgumentParser, message: str) -> None}, qui affiche des messages d’erreurs dans la console, en utilisant la sortie d’erreur standard.\\
+
+\arrayrulecolor{MediumAquamarine}\hline
+\arrayrulecolor{CornflowerBlue}
+Validation du parseur avec une configuration par défaut, avec un fichier de configuration, et avec les différentes options disponibles.\\
+Validation de la gestion d’erreurs avec des configurations invalides : option non existante ou dont la valeur donnée n’est pas acceptable, incompatibilité des modes de jeu.\\
+\arrayrulecolor{MediumAquamarine}\hline
+\arrayrulecolor{CornflowerBlue}
+Nécessite la définition d’un fichier de configuration (F.40), afin de connaître toutes les options que le parseur doit proposer à l’utilisateur pour le lancement d’une partie.\\
+Nécessaire pour lancer le jeu (F.15), ainsi que les différents modes de jeu et l’affichage de messages à l’utilisateur (besoins F.16 à F.24).\\
+\hline
+\end{tabularx}
+
+\vspace{1cm}
+
+\noindent
+\setlength{\arrayrulewidth}{1.5pt}
+\renewcommand{\arraystretch}{1.5}
+\arrayrulecolor{RoyalBlue}
+\begin{tabularx}{\textwidth}{|X|}
+\hline
+\textbf{F.12 - Bibliothèque graphique} \\
+\hline
+Besoin non fonctionnel\\
+\hline
+Terminé le 27/02\\
+Par Lucas \\
+\hline
+Utilisation de la bibliothèque graphique PyGObject.\\
+Utilisation de la version 4.0 de Gtk.\\
+\hline
+\arrayrulecolor{RoyalBlue}
+Nécessaire pour l’implémentation de l’interface graphique (F.26).\\
+\hline
+\end{tabularx}
+
+\vspace{1cm}
+
+\noindent
+\setlength{\arrayrulewidth}{1.5pt}
+\renewcommand{\arraystretch}{1.5}
+\arrayrulecolor{RoyalBlue}
+\begin{tabularx}{\textwidth}{|X|}
+\hline
+\textbf{F.14 - Nom du programme} \\
+\hline
+Besoin non fonctionnel\\
+\hline
+Terminé le 09/02\\
+Par Lucas \\
+\hline
+Le logiciel pourra être lancé avec l’exécutable ‘othello’.\\
+Taper ‘othello’ dans l’invite de commande permet de lancer une partie en mode normal, joueur contre joueur, sur un plateau de huit cases.\\
+Il sera nécessaire de lancer le programme depuis un environnement virtuel.\\
+\hline
+\end{tabularx}
+
+\vspace{1cm}
+
+\noindent
+\setlength{\arrayrulewidth}{1.5pt}
+\renewcommand{\arraystretch}{1.5}
+\arrayrulecolor{CornflowerBlue}
+\begin{tabularx}{\textwidth}{|X|}
+\hline
+\textbf{F.15 - Usage général} \\
+\hline
+Besoin fonctionnel\\
+\hline
+Terminé le 18/02\\
+Par Matis et Lucas \\
+\hline
+Lancement du programme principal pour jouer une partie d’Othello avec la commande suivante :\\
+\texttt{othello [OPTIONS] [FILENAME]}\\
+Pour cela, nous aurons besoin d’une initialisation de la partie.\\
+D’abord, récupérer les options données par l’utilisateur, et en récupérer une configuration pour la partie.\\
+Récupérer une partie précédente depuis un fichier si précisé.\\
+Suivant le mode de jeu, lancer la boucle de jeu correspondante.\\
+Et afficher le jeu en interface graphique ou en lignes de commandes.\\
+\hline
+Nécessite de lancer le programme avec le nom de l’exécutable (F.14).\\
+Nécessite l’implémentation du parser (F.11), et des boucles de jeu pour un mode normal, blitz (F.21) et IA (F.24).\\
+Ainsi que l’implémentation de la CLI (F.25) et de la GUI (F.26).\\
+\hline
+\end{tabularx}
+
+\vspace{1cm}
+
+\noindent
+\setlength{\arrayrulewidth}{1.5pt}
+\renewcommand{\arraystretch}{1.5}
+\arrayrulecolor{CornflowerBlue}
+\begin{tabularx}{\textwidth}{|X|}
+\hline
+\textbf{F.16 - Aide en ligne de commande} \\
+\hline
+Besoin fonctionnel\\
+\hline
+Terminé le 11/02 et 10/03\\
+Par Gabriel, et Matis et Lucas\\
+\hline
+Affichage de l’aide pour lancer le programme avec les options \texttt{-h} ou \texttt{--help}.\\
+Construction de l’aide du lancement du programme avec le parseur d’argument directement : utilisation de l’argument “help=’'” de argparse.\\
+
+Affichage de l’aide et des règles du jeu durant la partie avec les options \texttt{?} et \texttt{r} respectivement.\\
+Lorsque l’utilisateur entre une commande non reconnue en cours de partie, l’aide et des exemples de commandes sont affichés à la suite de l’entrée de l’utilisateur.\\
+\arrayrulecolor{MediumAquamarine}\hline
+\arrayrulecolor{CornflowerBlue}
+Validation en vérifiant que les deux options pour afficher l’aide en dehors d’une partie affichent bien le message d’aide pour chaque option disponible.\\
+Vérification que ces deux options font terminer le programme avec \texttt{EXIT\_SUCCESS}.\\
+Validation en vérifiant que les messages d’aide et de règles sont bien affichés dans leur intégralité lors d’un appel à ces commandes pendant une partie.\
+Vérification qu’après l’affichage de ces messages, la partie continue, en attendant toujours une commande de la part du même joueur.\\
+\arrayrulecolor{MediumAquamarine}\hline
+\arrayrulecolor{CornflowerBlue}
+Nécessite une implémentation du parseur d’arguments incluant des messages d’aide personnalisés (F.11).\\
+Nécessaire pour avoir une interface en ligne de commande complète (F.25).\\
+\hline
+\end{tabularx}
+
+\vspace{1cm}
+
+\noindent
+\setlength{\arrayrulewidth}{1.5pt}
+\renewcommand{\arraystretch}{1.5}
+\arrayrulecolor{CornflowerBlue}
+\begin{tabularx}{\textwidth}{|X|}
+\hline
+\textbf{F.17 - Version} \\
+\hline
+Besoin fonctionnel\\
+\hline
+Terminé le 11/02\\
+Par Gabriel \\
+\hline
+Affichage de la version actuelle du logiciel avec les options \texttt{-v} ou \texttt{--version}.\\
+\arrayrulecolor{MediumAquamarine}\hline
+\arrayrulecolor{CornflowerBlue}
+Validation en vérifiant que les deux options permettent bien d’afficher la version correcte.
+Vérification que ces deux options font terminer le programme avec \texttt{EXIT\_SUCCESS}.\\
+\arrayrulecolor{MediumAquamarine}\hline
+\arrayrulecolor{CornflowerBlue}
+Nécessite la définition de la version courante dans le fichier d’initialisation du logiciel.\\
+\hline
+\end{tabularx}
+
+\vspace{1cm}
+
+\noindent
+\setlength{\arrayrulewidth}{1.5pt}
+\renewcommand{\arraystretch}{1.5}
+\arrayrulecolor{CornflowerBlue}
+\begin{tabularx}{\textwidth}{|X|}
+\hline
+\textbf{F.19 - Mode debug} \\
+\hline
+Besoin fonctionnel\\
+\hline
+Terminé le 27/02\\
+Par Gabriel \\
+\hline
+Activation du mode Debug avec les options \texttt{-d} ou \texttt{--debug} lors du lancement du programme.\\
+Au cours de la partie, des messages de debug sont écrits dans un fichier “othello.log”.\\
+Ces messages préviennent, entre autres, de l’état du jeu courant, des fonctions appelées, des entrées de l’utilisateur et de leur traitement, ainsi que des potentielles erreurs rencontrées, avec un contexte et un traçage de l’erreur.\\
+
+Utilisation du module logging pour construire le logger, puis écriture de messages de debug pour pouvoir suivre les appels de fonctions et les erreurs en cours de partie.\\
+Les fonctions principales implémentées sont les suivantes :\\
+\texttt{logging\_config() -> None} qui configure le logger, en précisant le format d’affichage des messages, ainsi que le nom du fichier dans lequel écrire les messages de debug.\\
+\texttt{log\_error\_message() -> None} qui affiche des messages d’erreurs customisés, avec un contexte affiché s'il est fourni, et un traçage de l’erreur relevée.\\
+\arrayrulecolor{MediumAquamarine}\hline
+\arrayrulecolor{CornflowerBlue}
+Validation en vérifiant que le logger est bien nommé “Othello”, et que l’on utilise toujours la même instance du logger pour tous les messages.\\
+Vérification que si le mode Debug n’est pas activé par l’utilisateur, le logger ne s’initialise pas.\\
+Validation en vérifiant que tous types de messages : informations de debug, erreurs avec et sans contexte soient bien écrits dans le fichier .log.\\
+\arrayrulecolor{MediumAquamarine}\hline
+\arrayrulecolor{CornflowerBlue}
+Nécessaire pour avoir un affichage de messages pertinents pour un utilisateur versé dans la programmation (F.31).\\
+\hline
+\end{tabularx}
+
+\vspace{1cm}
+
+\noindent
+\setlength{\arrayrulewidth}{1.5pt}
+\renewcommand{\arraystretch}{1.5}
+\arrayrulecolor{CornflowerBlue}
+\begin{tabularx}{\textwidth}{|X|}
+\hline
+\textbf{F.20 - Taille du plateau} \\
+\hline
+Besoin fonctionnel\\
+\hline
+Terminé le 12/02\\
+Par Lucas \\
+\hline
+Possibilité de jouer sur un Othellier de 6×6, 8×8, 10×10, ou 12×12 cases.\\
+Représentations des différentes tailles de plateau avec les bitboards.\\
+\arrayrulecolor{MediumAquamarine}\hline
+\arrayrulecolor{CornflowerBlue}
+Stratégie de validation \\
+\arrayrulecolor{MediumAquamarine}\hline
+\arrayrulecolor{CornflowerBlue}
+Nécessite le début de l’implémentation des bitboards (F.42).\\
+Nécessaire pour pouvoir jouer une partie : le plateau de base étant en 8 par 8 cases (F.15).\\
+\hline
+\end{tabularx}
+
+\vspace{1cm}
+
+\noindent
+\setlength{\arrayrulewidth}{1.5pt}
+\renewcommand{\arraystretch}{1.5}
+\arrayrulecolor{CornflowerBlue}
+\begin{tabularx}{\textwidth}{|X|}
+\hline
+\textbf{F.21 - Mode blitz} \\
+\hline
+Besoin fonctionnel\\
+\hline
+Terminé le 20/02\\
+Par Matis \\
+\hline
+Les options \texttt{-b} ou \texttt{--blitz} permettent d’activer le mode blitz.\\
+Mise en place de la boucle de jeu pour le mode blitz : changement des joueurs, gestion du temps au cours de la partie, et passage en texte des valeurs des timers.\\
+
+Les fonctions principales implémentées sont les suivantes :\\
+\texttt{change\_player(player: str) -> None} qui est utilisée pour mettre en oeuvre la rotation des joueurs.\\
+\texttt{is\_time\_up(player: str) -> bool} qui renvoie l’état d’un timer, s’il reste encore du temps ou qu’il s’est totalement écoulé.\\
+
+\arrayrulecolor{MediumAquamarine}\hline
+\arrayrulecolor{CornflowerBlue}
+Validation en vérifiant que le changement de joueur pause le timer du joueur courant, démarre le timer du nouveau joueur, et change le joueur courant pour le nouveau joueur.\\
+Vérification que lorsque l’un des timer arrive à zéro, la fonction <is\_time\_up> renvoie Vrai, et Faux sinon.\\
+\arrayrulecolor{MediumAquamarine}\hline
+\arrayrulecolor{CornflowerBlue}
+Nécessite l’implémentation des timers pour le mode blitz (F.22).\\
+Nécessaire pour l’implémentation d’un jeu fonctionnel plus complet (F.15).\\
+Nécessaire pour l’affichage du plateau (en CLI et GUI) (F.25, F.26, et F.27), ainsi que pour déterminer une fin de partie par faute de temps (F.36).\\
+\hline
+\end{tabularx}
+
+\vspace{1cm}
+
+\noindent
+\setlength{\arrayrulewidth}{1.5pt}
+\renewcommand{\arraystretch}{1.5}
+\arrayrulecolor{CornflowerBlue}
+\begin{tabularx}{\textwidth}{|X|}
+\hline
+\textbf{F.22 - Durée du blitz} \\
+\hline
+Besoin fonctionnel\\
+\hline
+Terminé le 12/02\\
+Par Gabriel \\
+\hline
+Implémentation d’un timer pour le mode blitz.\\
+Ajouter un temps \texttt{-t TIME} ou \texttt{--time TIME} permet d’imposer un temps en minutes, choisi par l’utilisateur, limitant la durée de la partie en mode blitz. Par défaut, le temps limite est fixé à 30 minutes par joueur.\\
+Si le mode blitz n’est pas actif, cette option n’est pas considérée.\\
+
+Les fonctions principales implémentées sont les suivantes:\\
+\texttt{init(time\_limit: int) -> None} qui initialise les timers des deux joueurs à la valeur de time\_limit.\\
+\texttt{start\_timer(player: str) -> None} qui démarre le timer du joueur spécifié, et indique que le joueur spécifié est le joueur courant.\\
+\texttt{pause\_timer() -> None} qui stoppe le timer du joueur courant et update son temps restant.\\
+\texttt{get\_remaining\_time(player: str) -> float} qui actualise le temps du joueur spécifié et le renvoie en secondes.\\
+Les timers ne sont pas initialisés s’ils existent déjà. Il n’est pas possible de mettre un timer en pause s’il n’est pas en train de tourner dans un premier temps. Et le temps ne peut pas prendre de valeur négative, il est bloqué à zéro au minimum.\\
+\arrayrulecolor{MediumAquamarine}\hline
+\arrayrulecolor{CornflowerBlue}
+Vérification des potentielles erreurs d’initialisation et de timer négatif.
+Validation en vérifiant que les timers sont bien initialisés avec la valeur de \texttt{time\_limit} donnée, et que le joueur courant est fixé au joueur aux pions noirs.\\
+Vérification que lorsque l’on actualise le timer, si la valeur est négative, on fixe le temps à zéro.\\
+\arrayrulecolor{MediumAquamarine}\hline
+\arrayrulecolor{CornflowerBlue}
+Nécessaire pour l’implémentation du mode Blitz (F.21).\\
+\hline
+\end{tabularx}
+
+\vspace{1cm}
+
+
+\newpage
+
 \section{Liste des besoins non réalisés}
 
 \newpage
 
 \section{Agenda rétrospectif}
+
+
 Nous avons décidé d’ajouter en annexe un agenda rétrospectif afin de voir à
 quel point nous nous sommes écartés de l’agenda prévisionnel construit au tout
 début du projet. En effet, nous avions une planification bancale à l’origine.
@@ -208,46 +796,38 @@ respecte pas le premier agenda que nous vous avions soumis.\newline
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.7\textwidth]{example-image}
+    \includegraphics[width=0.9\textwidth]{images/AR_week_01.png}
     \caption{Exemple d'insertion d'image}
-    \title{fig:example-image}
+    \title{fig:AR_week_0.png}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.7\textwidth]{example-image}
+    \includegraphics[width=0.9\textwidth]{images/AR_week_02.png}
     \caption{Exemple d'insertion d'image}
-    \title{fig:example-image}
+    \title{fig:AR_week_0.png}
+
+    \includegraphics[width=0.9\textwidth]{images/AR_week_03.png}
+    \caption{Exemple d'insertion d'image}
+    \title{fig:AR_week_0.png}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.7\textwidth]{example-image}
+    \includegraphics[width=0.9\textwidth]{images/AR_week_04.png}
     \caption{Exemple d'insertion d'image}
-    \title{fig:example-image}
+    \title{fig:AR_week_0.png}
+
+    \includegraphics[width=0.9\textwidth]{images/AR_week_05.png}
+    \caption{Exemple d'insertion d'image}
+    \title{fig:AR_week_0.png}
+
+    \includegraphics[width=0.9\textwidth]{images/AR_week_06.png}
+    \caption{Exemple d'insertion d'image}
+    \title{fig:AR_week_0.png}
 \end{figure}
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.7\textwidth]{example-image}
-    \caption{Exemple d'insertion d'image}
-    \title{fig:example-image}
-\end{figure}
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.7\textwidth]{example-image}
-    \caption{Exemple d'insertion d'image}
-    \title{fig:example-image}
-\end{figure}
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.7\textwidth]{example-image}
-    \caption{Exemple d'insertion d'image}
-    \title{fig:example-image}
-\end{figure}
-
+\newpage
 \newpage
 
 % Example of how to insert code
@@ -278,3 +858,6 @@ Ceci est un exemple de citation \citation{Othello1980}.
 
 \end{document}
 
+% \begin{lstlisting}[language=Python, caption=Déclaration de la fonction create_parser]
+%     create_parser() -> ArgumentParser
+% \end{lstlisting}
