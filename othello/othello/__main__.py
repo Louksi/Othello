@@ -73,35 +73,73 @@ def main():
             raise
 
     # then we setup black and white, specifying if they are AI players or not
-    black_player = (
-        AIPlayer(
-            board,
-            config["ai_depth"],
-            config["ai_mode"],
-            config["ai_heuristic"],
-        )
-        if mode == parser.GameMode.AI.value and config["ai_color"] == "X"
-        else (
-            RandomPlayer()
-            if config["benchmark"] == True and config["ai_color"] == "0"
+    if config["benchmark"]:
+        # In benchmark mode, we can have different configurations for each player
+        if config["ai_color"] == "B":  # Both players with separate configs
+            black_player = AIPlayer(
+                board,
+                config["ai_depth"],
+                config["ai_mode"],
+                config["ai_heuristic"],
+            )
+            white_player = AIPlayer(
+                board,
+                config["white_ai_depth"],
+                config["white_ai_mode"],
+                config["white_ai_heuristic"],
+            )
+        elif config["ai_color"] == "A":  # Both players with same config
+            black_player = AIPlayer(
+                board,
+                config["ai_depth"],
+                config["ai_mode"],
+                config["ai_heuristic"],
+            )
+            white_player = AIPlayer(
+                board,
+                config["ai_depth"],
+                config["ai_mode"],
+                config["ai_heuristic"],
+            )
+        elif config["ai_color"] == "X":  # AI as black, random as white
+            black_player = AIPlayer(
+                board,
+                config["ai_depth"],
+                config["ai_mode"],
+                config["ai_heuristic"],
+            )
+            white_player = RandomPlayer()
+        elif config["ai_color"] == "O":  # AI as white, random as black
+            black_player = RandomPlayer()
+            white_player = AIPlayer(
+                board,
+                config["ai_depth"],
+                config["ai_mode"],
+                config["ai_heuristic"],
+            )
+    else:
+        black_player = (
+            AIPlayer(
+                board,
+                config["ai_depth"],
+                config["ai_mode"],
+                config["ai_heuristic"],
+            )
+            if mode == parser.GameMode.AI.value and config["ai_color"] == "X"
             else HumanPlayer()
         )
-    )
+        white_player = (
+            AIPlayer(
+                board,
+                config["ai_depth"],
+                config["ai_mode"],
+                config["ai_heuristic"],
+            )
+            if mode == parser.GameMode.AI.value and config["ai_color"] == "O"
+            else HumanPlayer()
+        )
 
-    white_player = (
-        AIPlayer(
-            board,
-            config["ai_depth"],
-            config["ai_mode"],
-            config["ai_heuristic"],
-        )
-        if mode == parser.GameMode.AI.value and config["ai_color"] == "O"
-        else (
-            RandomPlayer()
-            if config["benchmark"] == True and config["ai_color"] == "X"
-            else HumanPlayer()
-        )
-    )
+    # [Rest of the main function remains the same...]
 
     logger.debug(f"   Black player is of class {black_player.__class__}.")
     logger.debug(f"   White player is of class {white_player.__class__}.")

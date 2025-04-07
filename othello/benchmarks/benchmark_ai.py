@@ -54,7 +54,7 @@ def run_match(black_config, white_config, board_size=8, num_games=10):
             "othello",
             "--benchmark",
             "-a",
-            "A",  # Both players are AI
+            "B",  # Both players with separate configs
             "-s",
             str(board_size),
             "--ai-depth",
@@ -63,52 +63,47 @@ def run_match(black_config, white_config, board_size=8, num_games=10):
             black_config["mode"].value,
             "--ai-heuristic",
             black_config["heuristic"].value,
-            "--ai-color",
-            "X",  # Black is first config
-            "--ai-depth",
-            str(white_config["depth"]),  # White config
-            "--ai-mode",
+            "--white-ai-depth",
+            str(white_config["depth"]),
+            "--white-ai-mode",
             white_config["mode"].value,
-            "--ai-heuristic",
+            "--white-ai-heuristic",
             white_config["heuristic"].value,
-            "--ai-color",
-            "O",  # White is second config
         ]
 
-        try:
-            result = subprocess.run(cmd, capture_output=True, text=True)
-            output = result.stdout
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        output = result.stdout
 
-            # Parse results
-            time_matches = time_pattern.findall(output)
-            score_match = score_pattern.search(output)
-            move_match = move_pattern.search(output)
+        # Parse results
+        time_matches = time_pattern.findall(output)
+        score_match = score_pattern.search(output)
+        move_match = move_pattern.search(output)
 
-            if score_match and time_matches and move_match:
-                black_score = int(score_match.group(1))
-                white_score = int(score_match.group(2))
-                total_moves = int(move_match.group(1))
+        if score_match and time_matches and move_match:
+            black_score = int(score_match.group(1))
+            white_score = int(score_match.group(2))
+            total_moves = int(move_match.group(1))
 
-                # Split times between players (alternating moves)
-                black_times.extend(
-                    [float(t) for i, t in enumerate(time_matches) if i % 2 == 0]
-                )
-                white_times.extend(
-                    [float(t) for i, t in enumerate(time_matches) if i % 2 == 1]
-                )
+            # Split times between players (alternating moves)
+            black_times.extend(
+                [float(t) for i, t in enumerate(time_matches) if i % 2 == 0]
+            )
+            white_times.extend(
+                [float(t) for i, t in enumerate(time_matches) if i % 2 == 1]
+            )
 
-                if black_score > white_score:
-                    results["black_wins"] += 1
-                elif white_score > black_score:
-                    results["white_wins"] += 1
-                else:
-                    results["draws"] += 1
+            if black_score > white_score:
+                results["black_wins"] += 1
+            elif white_score > black_score:
+                results["white_wins"] += 1
+            else:
+                results["draws"] += 1
 
-                results["total_moves"] += total_moves
+            results["total_moves"] += total_moves
 
-        except Exception as e:
-            print(f"Error running game {game+1}: {e}")
-            continue
+    except Exception as e:
+        print(f"Error running game {game+1}: {e}")
 
     # Calculate averages
     if black_times:
