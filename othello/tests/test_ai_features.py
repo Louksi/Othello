@@ -245,6 +245,54 @@ def test_minimax_ab_basic_evaluation(board_start_pos):
     )
 
 
+def test_minimax_ab_no_moves(board_6_empty):
+    board_copy_minimax = deepcopy(board_6_empty)
+    assert minimax(board_copy_minimax, 1, Color.BLACK, corners_captured_heuristic) == 0
+    board_copy_alphabeta = deepcopy(board_6_empty)
+    assert (
+        alphabeta(
+            board_copy_alphabeta,
+            1,
+            float("-inf"),
+            float("inf"),
+            Color.BLACK,
+            corners_captured_heuristic,
+        )
+        == 0
+    )
+
+
+def test_minimax_ab_min_player(board_start_pos):
+    board_copy_minimax = deepcopy(board_start_pos)
+    assert minimax(board_copy_minimax, 1, Color.WHITE, corners_captured_heuristic) == 0
+    board_copy_alphabeta = deepcopy(board_start_pos)
+    assert (
+        alphabeta(
+            board_copy_alphabeta,
+            1,
+            float("-inf"),
+            float("inf"),
+            Color.WHITE,
+            corners_captured_heuristic,
+        )
+        == 0
+    )
+
+
+def test_ab_beta_eq_alpha(board_start_pos):
+    assert (
+        alphabeta(
+            board_start_pos,
+            1,
+            0,
+            0,
+            Color.WHITE,
+            corners_captured_heuristic,
+        )
+        == 0
+    )
+
+
 # endregion Minimax/Alphabeta
 
 # region Find Best Move
@@ -260,9 +308,29 @@ def test_1_move_possible(board_6_one_move_possible):
     ) == (5, 5)
 
 
+def test_mobility(board_6_one_move_possible):
+    """Tests that the function returns the only possible move."""
+    assert find_best_move(
+        board_6_one_move_possible, 1, Color.WHITE, "minimax", "mobility"
+    ) == (5, 5)
+    assert find_best_move(
+        board_6_one_move_possible, 1, Color.WHITE, "alphabeta", "mobility"
+    ) == (5, 5)
+
+
+def test_all_in_one(board_6_one_move_possible):
+    """Tests that the function returns the only possible move."""
+    assert find_best_move(
+        board_6_one_move_possible, 1, Color.WHITE, "minimax", "all_in_one"
+    ) == (5, 5)
+    assert find_best_move(
+        board_6_one_move_possible, 1, Color.WHITE, "alphabeta", "all_in_one"
+    ) == (5, 5)
+
+
 def test_best_moves_corners_and_parity(board_6_test_best_moves):
     assert find_best_move(
-        board_6_test_best_moves, 1, Color.WHITE, "minimax", "corners_captured"
+        board_6_test_best_moves, 1, Color.WHITE, "minimax", "all_in_one"
     ) == (0, 0)
     assert find_best_move(
         board_6_test_best_moves, 1, Color.WHITE, "alphabeta", "corners_captured"

@@ -119,9 +119,9 @@ def alphabeta(
     if not depth or board.is_game_over():
         return heuristic(board, max_player)
 
-    if (
+    if not (
         valid_moves := board.line_cap_move(board.current_player).hot_bits_coordinates()
-    ) == []:
+    ):
         return minimax(board, depth - 1, max_player, heuristic)
 
     logger.debug("   Valid moves at depth %d: %s.", depth, valid_moves)
