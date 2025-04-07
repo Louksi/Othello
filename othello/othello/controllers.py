@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import logging
 from random import choice
+import time
 
 from othello.ai_features import find_best_move
 from othello.othello_board import (
@@ -99,6 +100,7 @@ class AIPlayer(Player):
         depth: int = 3,
         algorithm: str = "minimax",
         heuristic: str = "coin_parity",
+        benchmark: bool = False,
     ):
         """
         Initialize an AI player.
@@ -118,6 +120,7 @@ class AIPlayer(Player):
         self.depth = depth
         self.algorithm = algorithm
         self.heuristic = heuristic
+        self.benchmark = benchmark
 
     def next_move(self):
         """
@@ -126,11 +129,19 @@ class AIPlayer(Player):
 
         :raises Exception: if the controller is not defined
         """
+        if self.benchmark:
+            start_time = time.time()  # Start timer
+
         if self.controller is not None:
             move = find_best_move(
                 self.board, self.depth, self.color, self.algorithm, self.heuristic
             )
             self.controller.play(move[0], move[1])
+
+        if self.benchmark:
+            end_time = time.time()  # End timer
+            execution_time = end_time - start_time
+            print(f"Execution time: {execution_time:.4f} seconds")
 
 
 class GameController:

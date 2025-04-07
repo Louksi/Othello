@@ -81,12 +81,14 @@ def main():
                 config["ai_depth"],
                 config["ai_mode"],
                 config["ai_heuristic"],
+                benchmark=True,
             )
             white_player = AIPlayer(
                 board,
                 config["white_ai_depth"],
                 config["white_ai_mode"],
                 config["white_ai_heuristic"],
+                benchmark=True,
             )
         elif config["ai_color"] == "A":  # Both players with same config
             black_player = AIPlayer(
@@ -94,12 +96,14 @@ def main():
                 config["ai_depth"],
                 config["ai_mode"],
                 config["ai_heuristic"],
+                benchmark=True,
             )
             white_player = AIPlayer(
                 board,
                 config["ai_depth"],
                 config["ai_mode"],
                 config["ai_heuristic"],
+                benchmark=True,
             )
         elif config["ai_color"] == "X":  # AI as black, random as white
             black_player = AIPlayer(
@@ -107,6 +111,7 @@ def main():
                 config["ai_depth"],
                 config["ai_mode"],
                 config["ai_heuristic"],
+                benchmark=True,
             )
             white_player = RandomPlayer()
         elif config["ai_color"] == "O":  # AI as white, random as black
@@ -116,6 +121,7 @@ def main():
                 config["ai_depth"],
                 config["ai_mode"],
                 config["ai_heuristic"],
+                benchmark=True,
             )
     else:
         black_player = (
@@ -124,6 +130,7 @@ def main():
                 config["ai_depth"],
                 config["ai_mode"],
                 config["ai_heuristic"],
+                benchmark=True,
             )
             if mode == parser.GameMode.AI.value and config["ai_color"] == "X"
             else HumanPlayer()
@@ -134,6 +141,7 @@ def main():
                 config["ai_depth"],
                 config["ai_mode"],
                 config["ai_heuristic"],
+                benchmark=True,
             )
             if mode == parser.GameMode.AI.value and config["ai_color"] == "O"
             else HumanPlayer()
