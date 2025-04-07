@@ -169,23 +169,6 @@ def alphabeta(
     return evaluation
 
 
-def create_hash():
-    """
-    Generate an hash for use in zobrist zobrist_table
-    """
-    zobrist_table = [
-        [[random.getrandbits(64) for _ in range(2)] for _ in range(8)] for _ in range(8)
-    ]
-    hash_value = 0
-    for r in range(8):
-        for c in range(8):
-            if board[r][c] == "B":
-                hash_value ^= zobrist_table[r][c][0]
-            elif board[r][c] == "W":
-                hash_value ^= zobrist_table[r][c][1]
-    return hash_value
-
-
 def find_best_move(
     board: OthelloBoard,
     depth: int = 3,
