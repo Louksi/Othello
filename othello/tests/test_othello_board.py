@@ -7,7 +7,6 @@ from othello.othello_board import (
     CannotPopException,
     Color,
     OthelloBoard,
-    GameOverException,
     IllegalMoveException,
 )
 

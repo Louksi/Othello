@@ -5,6 +5,9 @@ from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Literal
 import argparse
+import logging
+
+logger = logging.getLogger("Othello")
 
 
 class CommandParserException(Exception):
@@ -73,6 +76,9 @@ class CommandParser:
     """
 
     def __init__(self, board_size: int):
+        logger.debug(
+            "Initializing parser for user commands during a game in command_parser.py."
+        )
         # Fix to include the last column
         str_board_max_column = chr(ord("a") + board_size - 1)
         str_board_max_line = board_size
@@ -123,6 +129,7 @@ class CommandParser:
         """
         Display help information using argparse.
         """
+        logger.debug("Displaying help information from command_parser.py.")
         print("\nOthello Game Help")
         print("=================")
         self.help_parser.print_help()
@@ -137,10 +144,12 @@ class CommandParser:
         print("  restart - Restart the game")
         print("\nCoordinate format: [column][row] (e.g., a1, b2)")
 
-    def print_rules(self):
+    @staticmethod
+    def print_rules():
         """
         Display the rules of Othello/Reversi
         """
+        logger.debug("Displaying Othello rules from command_parser.py.")
         print("\nOthello/Reversi Rules")
         print("====================")
         print("Objective:")
@@ -192,8 +201,9 @@ class CommandParser:
         :return: A constructed command tuple.
         :raises CommandParserException: if the string is invalid.
         """
-
+        logger.debug("Entering parse_str from command_parser.py.")
         if (matches := self.command_regex.fullmatch(command_str)) is None:
+            logger.debug("   Unrecognized string.")
             raise CommandParserException(command_str)
 
         if (match_result := matches.group(1)) in COMMAND_MAP:
@@ -203,6 +213,7 @@ class CommandParser:
         col_raw = play_matches.group(2)
         line_raw = play_matches.group(3)
         if col_raw is None or line_raw is None:
+            logger.debug("   Unrecognized string.")
             raise CommandParserException(command_str)
         move_x_coord = ord(col_raw) - ord("a")
         move_y_coord = int(line_raw) - 1

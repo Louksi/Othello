@@ -16,8 +16,8 @@ pre-commit:
   stage: pre-commit
   tags:
     - Debian
-#    - Docker
-    - shell
+    - Docker
+#    - shell
   rules:
     - if: '$PRE_COMMIT_SKIP_BRANCH_PIPELINE && $CI_COMMIT_BRANCH'
       when: never
@@ -151,8 +151,9 @@ test-job:
     - python --version ; pip --version
     - pip install pycairo
     - pip install pytest pytest-cov
+    - pip install meson-python
     - cd othello
-    - pip install PyGObject --no-build-isolation --no-deps || echo "Failed to install PyGObject, continuing anyway"
+    - pip install "PyGObject==3.50.0" --no-build-isolation --no-deps || echo "Failed to install PyGObject, continuing anyway"
     - pip install ./ --no-deps
   script:
     - python -m pytest

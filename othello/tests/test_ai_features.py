@@ -1,7 +1,7 @@
 import pytest
 from copy import deepcopy
 
-from othello.othello_board import OthelloBoard, BoardSize, Color, GameOverException
+from othello.othello_board import OthelloBoard, BoardSize, Color
 from othello.ai_features import (
     all_in_one_heuristic,
     corners_captured_heuristic,

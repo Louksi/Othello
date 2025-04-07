@@ -3,8 +3,6 @@ Implementation of the blitz timer that's used to give both players
 a maximum time for all their plays (individually).
 """
 
-# pylint: disable=locally-disabled, multiple-statements, line-too-long, import-error, no-name-in-module
-
 from time import time
 import logging
 
@@ -25,13 +23,16 @@ class BlitzTimer:
         Args:
             time_limit (int): The time limit, in minutes.
         """
-        logger.debug("Initializing BlitzTimer with time_limit: %d minutes.", time_limit)
+        logger.debug(
+            "Initializing BlitzTimer with time_limit: %d minutes in blitz_timer.py.",
+            time_limit,
+        )
         self.start_time = None
         self.total_time = time_limit * 60  # Convert minutes to seconds
         self.remaining_time = {"black": self.total_time, "white": self.total_time}
         self.current_player = None
         logger.debug(
-            "BlitzTimer initialized with %d seconds per player.", self.total_time
+            "   BlitzTimer initialized with %d seconds per player.", self.total_time
         )
 
     def start_timer(self, player: str) -> None:
@@ -71,7 +72,11 @@ class BlitzTimer:
         Args:
             player (str): Either 'black' or 'white'.
         """
-        logger.debug("Changing player from %s to %s.", self.current_player, player)
+        logger.debug(
+            "Changing player from %s to %s in blitz_timer.py.",
+            self.current_player,
+            player,
+        )
         self.pause_timer()
         self.start_timer(player)
 
@@ -98,7 +103,7 @@ class BlitzTimer:
             )
         else:
             logger.debug(
-                "Returning cached remaining time " "for %s: %.2fs.",
+                "Returning cached remaining time for %s: %.2fs.",
                 player,
                 self.remaining_time[player],
             )
@@ -114,6 +119,7 @@ class BlitzTimer:
         Returns:
             bool: True if the player's time is up, False otherwise.
         """
+        logger.debug("Checking if time is up for player: %s.", player)
         return self.get_remaining_time(player) <= 0
 
     def time_player(self, player: Color) -> tuple:
@@ -152,7 +158,7 @@ class BlitzTimer:
         Returns:
             str: Time formatted as "Black Time: MM:SS\\nWhite Time: MM:SS".
         """
-        logger.debug("Displaying time for both players.")
+        logger.debug("Displaying time for both players in blitz_timer.py.")
         black_time = self.display_time_player(Color.BLACK)
         white_time = self.display_time_player(Color.WHITE)
 

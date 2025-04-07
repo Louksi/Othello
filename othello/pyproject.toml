@@ -38,4 +38,5 @@ testpaths = [
 [tool.pylint]
 disable = [
     "C0199",
+    "C0305"
 ]

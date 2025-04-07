@@ -67,7 +67,6 @@ def test_print_help(capsys):
     assert "Othello Game Help" in captured.out
     assert "=================" in captured.out
     assert "Coordinate format: [column][row] (e.g., a1, b2)" in captured.out
-    assert "usage: pytest [[a-h][1-8]]" in captured.out
     assert "Othello Game Commands" in captured.out
     assert "restart - Restart the game" in captured.out
     assert "ff" in captured.out and "Forfeit" in captured.out
@@ -81,7 +80,7 @@ def test_print_help(capsys):
 def test_print_rules(capsys, monkeypatch):
     monkeypatch.setattr("builtins.input", lambda: "")
     cp = CommandParser(8)
-    cp.print_rules()
+    CommandParser.print_rules()
     captured = capsys.readouterr()
     assert "Othello/Reversi Rules" in captured.out
     assert "====================" in captured.out

@@ -1,34 +1,27 @@
+"""implementation of AI algorithms used for AIPlayer"""
+
+from collections.abc import Callable
 import random
 from copy import deepcopy
+import logging
 
 from othello.othello_board import OthelloBoard, Color
 
+logger = logging.getLogger("Othello")
 
-def get_player_at(board: OthelloBoard, x: int, y: int) -> Color:
-    """
-    Determine the player occupying a specific position on the Othello board.
 
-    This function checks the given coordinates on the board to see if they are
-    occupied by a black or white piece, returning the corresponding player
-    color. If the position is not occupied by either player, it returns empty.
-
-    :param board: The Othello board to check.
-    :type board: OthelloBoard
-    :param x: The x coordinate of the position to check (0 indexed).
-    :type x: int
-    :param y: The y coordinate of the position to check (0 indexed).
-    :type y: int
-    :return: The color of the player occupying the position, or empty if none.
-    :rtype: Color
-    """
-    if board.black.get(x, y):
+def get_player_at(board: OthelloBoard, x_coord: int, y_coord: int) -> Color:
+    """Helper function to determine which player occupies a given board position."""
+    if board.black.get(x_coord, y_coord):
         return Color.BLACK
-    if board.white.get(x, y):
+    if board.white.get(x_coord, y_coord):
         return Color.WHITE
     return Color.EMPTY
 
 
-def minimax(board: OthelloBoard, depth: int, max_player: Color, heuristic) -> int:
+def minimax(
+    board: OthelloBoard, depth: int, max_player: Color, heuristic: Callable
+) -> float:
     """
     Evaluate the best move for the current player using the Minimax algorithm.
 
@@ -42,39 +35,55 @@ def minimax(board: OthelloBoard, depth: int, max_player: Color, heuristic) -> in
     :type depth: int
     :param max_player: The color of the player to maximize the score for.
     :type max_player: Color
-    :param heuristic: A function to evaluate the score of a board state.
-    :return: The best move for the current player, based on the heuristic score.
-    :rtype: int
+    :param heuristic: The heuristic used
+    :return: The heuristic value of the best move found from the current board state.
     """
-    if depth == 0 or board.is_game_over():
+    logger.debug(
+        "Starting minimax evaluation with depth: %d, player: %s.",
+        depth,
+        max_player.name,
+    )
+
+    if not depth or board.is_game_over():
         return heuristic(board, max_player)
 
-    valid_moves = board.line_cap_move(board.current_player).hot_bits_coordinates()
-
-    if valid_moves == []:
+    if not (
+        valid_moves := board.line_cap_move(board.current_player).hot_bits_coordinates()
+    ):
         return minimax(board, depth - 1, max_player, heuristic)
 
+    logger.debug("   Valid moves at depth %d: %s.", depth, valid_moves)
     if max_player == board.current_player:
-        eval = float("-inf")
+        evaluation = float("-inf")
         for move_x, move_y in valid_moves:
             board.play(move_x, move_y)
-            eval_score = minimax(board, depth - 1, max_player, heuristic)
-            eval = max(eval, eval_score)
+            evaluation_score = minimax(board, depth - 1, max_player, heuristic)
+            evaluation = max(evaluation, evaluation_score)
             board.pop()
     else:
-        eval = float("inf")
+        evaluation = float("inf")
         for move_x, move_y in valid_moves:
             board.play(move_x, move_y)
-            eval_score = minimax(board, depth - 1, max_player, heuristic)
-            eval = min(eval, eval_score)
+            evaluation_score = minimax(board, depth - 1, max_player, heuristic)
+            evaluation = min(evaluation, evaluation_score)
             board.pop()
 
-    return eval
+    logger.debug(
+        "   Minimax evaluationuation at depth %d returning score: %d.",
+        depth,
+        evaluation,
+    )
+    return evaluation
 
 
 def alphabeta(
-    board: OthelloBoard, depth: int, alpha: int, beta: int, max_player: Color, heuristic
-) -> int:
+    board: OthelloBoard,
+    depth: int,
+    alpha: int,
+    beta: int,
+    max_player: Color,
+    heuristic: Callable,
+) -> float:
     """
     Evaluate the best move for the current player using the Alpha-Beta Pruning algorithm.
 
@@ -95,40 +104,86 @@ def alphabeta(
     :type beta: int
     :param max_player: The color of the player to maximize the score for.
     :type max_player: Color
-    :param heuristic: A function to evaluate the score of a board state.
-    :return: The best move for the current player, based on the heuristic score.
+    :param heuristic: The heuristic used
+    :return: The heuristic value of the best move found from the current board state.
     :rtype: int
     """
-    if depth == 0 or board.is_game_over():
+    logger.debug(
+        "Starting alphabeta evaluation with depth: %d, player: %s, alpha: %f, beta: %f.",
+        depth,
+        max_player.name,
+        alpha,
+        beta,
+    )
+
+    if not depth or board.is_game_over():
         return heuristic(board, max_player)
 
-    valid_moves = board.line_cap_move(board.current_player).hot_bits_coordinates()
+    if (
+        valid_moves := board.line_cap_move(board.current_player).hot_bits_coordinates()
+    ) == []:
+        return minimax(board, depth - 1, max_player, heuristic)
 
-    if valid_moves == []:
-        return alphabeta(board, depth - 1, alpha, beta, max_player, heuristic)
-
+    logger.debug("   Valid moves at depth %d: %s.", depth, valid_moves)
     if max_player == board.current_player:
-        eval = float("-inf")
+        evaluation = float("-inf")
         for move_x, move_y in valid_moves:
             board.play(move_x, move_y)
-            eval_score = alphabeta(board, depth - 1, alpha, beta, max_player, heuristic)
-            eval = max(eval, eval_score)
+            evaluation_score = alphabeta(
+                board, depth - 1, alpha, beta, max_player, heuristic
+            )
+            evaluation = max(evaluation, evaluation_score)
             board.pop()
-            alpha = max(alpha, eval)
+            alpha = int(max(alpha, evaluation))
             if beta <= alpha:
+                logger.debug(
+                    "   Alpha-Beta pruning occurred at depth %d (alpha: %f, beta: %f).",
+                    depth,
+                    alpha,
+                    beta,
+                )
                 break
     else:
-        eval = float("inf")
+        evaluation = float("inf")
         for move_x, move_y in valid_moves:
             board.play(move_x, move_y)
-            eval_score = alphabeta(board, depth - 1, alpha, beta, max_player, heuristic)
-            eval = min(eval, eval_score)
+            evaluation_score = alphabeta(
+                board, depth - 1, alpha, beta, max_player, heuristic
+            )
+            evaluation = min(evaluation, evaluation_score)
             board.pop()
-            beta = min(beta, eval)
-            if beta <= alpha:
+            if (beta := int(min(beta, evaluation))) <= alpha:
+                logger.debug(
+                    "   Alpha-Beta pruning occurred at depth %d (alpha: %f, beta: %f).",
+                    depth,
+                    alpha,
+                    beta,
+                )
                 break
 
-    return eval
+    logger.debug(
+        "   Alphabeta evaluationuation at depth %d returning score: %d.",
+        depth,
+        evaluation,
+    )
+    return evaluation
+
+
+def create_hash():
+    """
+    Generate an hash for use in zobrist zobrist_table
+    """
+    zobrist_table = [
+        [[random.getrandbits(64) for _ in range(2)] for _ in range(8)] for _ in range(8)
+    ]
+    hash_value = 0
+    for r in range(8):
+        for c in range(8):
+            if board[r][c] == "B":
+                hash_value ^= zobrist_table[r][c][0]
+            elif board[r][c] == "W":
+                hash_value ^= zobrist_table[r][c][1]
+    return hash_value
 
 
 def find_best_move(
@@ -152,13 +207,23 @@ def find_best_move(
     :type depth: int
     :param max_player: The color of the player to maximize the score for.
     :type max_player: Color
-    :param search_algo: The search algorithm to use ("minimax" or "alphabeta").
+    :param maximizing: A Boolean indicating whether the current step is maximizing or
+        minimizing the score.
+    :type maximizing: bool
+    :param search_algo: The search algorithm to use, either "minimax" or "alphabeta".
     :type search_algo: str
     :param heuristic: The heuristic function to evaluate board states.
     :type heuristic: str
     :return: The coordinates of the best move for the current player.
     :rtype: tuple[int, int]
     """
+    logger.debug(
+        "Finding best move using %s search at depth %d for %s player.",
+        search_algo,
+        depth,
+        max_player.name,
+    )
+
     if depth == 0 or board.is_game_over():
         return (-1, -1)
 
@@ -172,11 +237,11 @@ def find_best_move(
         heuristic_function = all_in_one_heuristic
 
     valid_moves = board.line_cap_move(board.current_player).hot_bits_coordinates()
+    logger.debug("   Evaluating %d possible moves: %s.", len(valid_moves), valid_moves)
 
     best_move = (-1, -1)
     best_score = float("-inf") if max_player == board.current_player else float("inf")
     for move_x, move_y in valid_moves:
-
         new_board = deepcopy(board)
 
         new_board.play(move_x, move_y)
@@ -191,7 +256,7 @@ def find_best_move(
                 max_player,
                 heuristic_function,
             )
-
+        logger.debug("   Move (%d, %d) evaluated with score: %f", move_x, move_y, score)
         if score > best_score:
             best_score = score
             best_move = (move_x, move_y)
@@ -213,7 +278,9 @@ def random_move(board: OthelloBoard) -> tuple[int, int]:
     :rtype: tuple[int, int]
     """
     valid_moves = board.line_cap_move(board.current_player).hot_bits_coordinates()
-
+    logger.debug(
+        "Selecting random move from %d options: %s", len(valid_moves), valid_moves
+    )
     return random.choice(valid_moves)
 
 
@@ -233,6 +300,7 @@ def corners_captured_heuristic(board: OthelloBoard, max_player: Color) -> int:
     :return: An integer score representing the corner occupation advantage.
     :rtype: int
     """
+    logger.debug("Calculating %s heuristic for %s", "corners_captured", max_player.name)
     corners = [
         (0, 0),
         (board.size.value - 1, 0),
@@ -245,7 +313,7 @@ def corners_captured_heuristic(board: OthelloBoard, max_player: Color) -> int:
         1 for x, y in corners if get_player_at(board, x, y) == ~max_player
     )
 
-    if max_corners + min_corners != 0:
+    if max_corners + min_corners:
         return int(100 * (max_corners - min_corners) / (max_corners + min_corners))
     return 0
 
@@ -268,6 +336,8 @@ def coin_parity_heuristic(board: OthelloBoard, max_player: Color) -> int:
     :return: An integer score representing the coin parity advantage.
     :rtype: int
     """
+    logger.debug("Calculating %s heuristic for %s", "coin_parity", max_player.name)
+
     black_count = board.black.popcount()
     white_count = board.white.popcount()
 
@@ -296,10 +366,12 @@ def mobility_heuristic(board: OthelloBoard, max_player: Color) -> int:
     :return: An integer score representing the mobility advantage.
     :rtype: int
     """
+    logger.debug("Calculating %s heuristic for %s", "mobility", max_player.name)
+
     black_move_count = board.line_cap_move(board.black).popcount()
     white_move_count = board.line_cap_move(board.white).popcount()
 
-    if (black_move_count + white_move_count) != 0:
+    if black_move_count + white_move_count:
         if max_player == Color.BLACK:
             return int(
                 100
@@ -318,21 +390,9 @@ def mobility_heuristic(board: OthelloBoard, max_player: Color) -> int:
 
 def all_in_one_heuristic(board: OthelloBoard, max_player: Color) -> int:
     """
-    Calculate a composite heuristic score evaluating the Othello board state.
-
-    This heuristic combines multiple aspects of the game: corners captured,
-    mobility, and coin parity, to provide a comprehensive score reflecting
-    the advantage of the max player. Each aspect is assigned a weight to
-    indicate its relative importance. The final score is the weighted sum
-    of the individual heuristic scores.
-
-    :param board: The current state of the Othello board.
-    :type board: OthelloBoard
-    :param max_player: The color of the player for whom the score is maximized.
-    :type max_player: Color
-    :return: An integer score representing the overall advantage.
-    :rtype: int
+    Performs all the heuristics at once
     """
+    logger.debug("Calculating %s heuristic for %s", "all_in_one", max_player.name)
     w_corners = 10
     w_mobility = 4
     w_coins = 1
