@@ -16,12 +16,10 @@ Configuration Options:
     - ai_time: 5/X (seconds)
 """
 
-from os import confstr
 import sys
 import logging
 
 from othello.controllers import GameController
-from othello.othello_board import OthelloBoard
 import othello.logger as log
 
 logger = logging.getLogger("Othello")
@@ -41,7 +39,7 @@ def save_config(config: dict, filename_prefix: str = "current_config") -> None:
             for key, value in config.items()
         )
     except Exception as err:
-        logger.error("Failed to format configuration: %s", err)
+        log.log_error_message(err, "Failed to format configuration.")
         raise
 
     try:
@@ -73,7 +71,7 @@ def load_config(filename_prefix: str = "current_config") -> dict:
                 key, value = line.strip().split(SEPARATOR, 1)
                 config[key] = value
     except ValueError as err:
-        logger.error("Invalid configuration format: %s", err)
+        log.log_error_message(err, "Invalid configuration format.")
         raise
 
     return config
@@ -87,6 +85,7 @@ def save_board_state_history(
     if filename_prefix is None:
         while True:
             try:
+                # checking if file is "legal"
                 filename_prefix = input("enter save file name: ")
                 open(filename_prefix + ".sav", "w", encoding="utf-8")
                 break

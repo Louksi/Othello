@@ -3,9 +3,8 @@ Logger used for debug mode.
 Uses logging to display debug messages and error messages.
 """
 
-# pylint: disable=locally-disabled, multiple-statements, line-too-long, import-error, no-name-in-module
-
 import logging
+from typing import Any
 
 
 def logging_config(debug: bool) -> None:
@@ -31,7 +30,7 @@ def logging_config(debug: bool) -> None:
         )
 
 
-def log_error_message(error: str, context: str | None = None) -> None:
+def log_error_message(error: str | Any, context: str | None = None) -> None:
     """
     Log an error message with a given context.
 
@@ -39,10 +38,10 @@ def log_error_message(error: str, context: str | None = None) -> None:
       error: a string of the error message to be logged
       context: a string describing the context of the error, can be None if no context is given
     """
-    if context is not None and not isinstance(context, str):
-        raise TypeError()
 
     logger = logging.getLogger("Othello")
     if context is not None:
-        logger.error(f"Context: {context}")
-    logger.error(f"Error: {error}", exc_info=True)
+        ctxt = f"Context: {context}"
+        logger.error(ctxt)
+    err = f"Error: {error}"
+    logger.error(err, exc_info=True)

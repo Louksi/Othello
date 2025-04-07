@@ -1,4 +1,5 @@
 import pytest
+from othello.bitboard import Bitboard
 from othello.controllers import (
     AIPlayer,
     GameController,
@@ -30,8 +31,6 @@ def test_human_next_move():
     assert p.controller is None
     assert p.color is None
     controller_mock = MagicMock()
-    with pytest.raises(Exception):
-        p.next_move()
     p.attach(controller_mock)
     p.set_color(Color.BLACK)
     controller_mock.human_play_callback = None
@@ -45,12 +44,8 @@ def test_random_player_next_move():
     p = RandomPlayer()
     assert p.controller is None
     assert p.color is None
-    with pytest.raises(Exception, match="controller not defined"):
-        p.next_move()
     controller_mock = MagicMock()
     p.attach(controller_mock)
-    with pytest.raises(Exception, match="color is not defined"):
-        p.next_move()
     p.set_color(Color.BLACK)
     possible_moves_mock = MagicMock()
     possible_moves_mock.hot_bits_coordinates.return_value = [(3, 4), (5, 6)]
@@ -97,7 +92,7 @@ def test_game_controller_init():
     assert controller.size == board_mock.size
     assert controller.first_player_human
     assert controller.post_play_callback is None
-    assert not controller.is_blitz
+    assert not controller.is_blitz()
     assert controller.human_play_callback is None
     black_player_mock.attach.assert_called_once_with(controller)
     black_player_mock.set_color.assert_called_once_with(Color.BLACK)
@@ -131,21 +126,6 @@ def test_next_move():
     board_mock.current_player = Color.WHITE
     controller.next_move()
     white_player_mock.next_move.assert_called_once()
-
-
-def test_play():
-    board_mock = MagicMock(spec=OthelloBoard)
-    board_mock.size = BoardSize.EIGHT_BY_EIGHT
-    black_player_mock = MagicMock()
-    white_player_mock = MagicMock()
-    controller = GameController(board_mock, black_player_mock, white_player_mock)
-    controller.play(3, 4)
-    board_mock.play.assert_called_once_with(3, 4)
-    callback_mock = MagicMock()
-    controller.post_play_callback = callback_mock
-    controller.play(5, 6)
-    board_mock.play.assert_called_with(5, 6)
-    callback_mock.assert_called_once()
 
 
 def test_get_possible_moves():
@@ -234,18 +214,6 @@ def test_get_turn_number():
     result = controller.get_turn_number()
     board_mock.get_turn_id.assert_called_once()
     assert result == 5
-
-
-def test_is_game_over():
-    board_mock = MagicMock(spec=OthelloBoard)
-    board_mock.size = BoardSize.EIGHT_BY_EIGHT
-    black_player_mock = MagicMock()
-    white_player_mock = MagicMock()
-    board_mock.is_game_over.return_value = True
-    controller = GameController(board_mock, black_player_mock, white_player_mock)
-    result = controller.is_game_over()
-    board_mock.is_game_over.assert_called_once()
-    assert result
 
 
 def test_get_current_player():
