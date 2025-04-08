@@ -188,6 +188,70 @@ encore Board Games Geek sur lequels des joueurs peuvent se rencontrer, discuter 
 
 \section{Architecture du projet}
 
+Nous avons décidé d’adopter une architecture MVC. Ici, nous commencerons par rappeler brièvement ce que cela implique et comment cela se traduit dans notre implémentation, avant de détailler le cycle de vie de notre application.\\
+
+\textbf{Le Modèle}\\
+
+Notre application repose sur notre implémentation de \texttt{Bitboard}. En effet, le jeu d’Othello se prête particulièrement bien à l’utilisation des \texttt{bitboards} étant donné que l’on peut représenter un état du jeu avec seulement deux \texttt{bitboards}, un par couleur de joueur.\\
+Celle-ci n’est pas spécifique au jeu d’Othello, mais constitue une implémentation classique de \texttt{bitboards} tirant parti des particularités du langage \texttt{Python}, telles que l’utilisation par défaut d’entiers de taille arbitraire et la surcharge d’opérateurs.\\
+Pour des raisons de performance, certains attributs -- comme les masques utilisés -- sont calculés une fois pour toutes, car leur génération dynamique à chaque instanciation d’un \texttt{bitboard} serait excessivement coûteuse.\\
+
+Ces \texttt{bitboards} sont directement utilisés par notre modèle, \texttt{OthelloBoard}, qui gère l’intégralité de l’état d’un plateau de jeu. Lors de son initialisation, il reçoit une taille issue de l’énumération \texttt{BoardSize}, qui nous permet également de retrouver un \texttt{BoardSize} en fonction d’un entier, si celui-ci est une taille de board valide (6, 8, 10 ou 12).\\
+Ce modèle gère ainsi non seulement les deux \texttt{bitboards} de pions (un pour les noirs, un pour les blancs), mais aussi l’implémentation des deux algorithmes principaux nécessaires au jeu~:\\
+\texttt{line\_cap\_move}~: qui génère un \texttt{bitboard} représentant les coups possibles pour un joueur donné à partir de l’état actuel du jeu.\\
+\texttt{line\_cap}~: qui génère un \texttt{bitboard} des pions capturés à partir d’un coup (légal) et d’un joueur.\\
+
+Ces algorithmes n’induisent aucune mutation sur le \texttt{bitboard} courant. Initialement, ils s’appuyaient sur la génération de nombreux \texttt{bitboards} intermédiaires – ce qui permettait, grâce à la surcharge d’opérateurs, d’exprimer élégamment les algorithmes.\\
+Toutefois, lors d’un \textit{profiling} visant à réduire la lenteur de l’exploration des arbres de jeu pour l’IA, nous avons constaté un goulot d’étranglement dû à la création excessive de ces objets intermédiaires.\\
+C’est pourquoi nous avons décidé de remplacer la boucle de \texttt{line\_cap\_move} par une version déroulée, et d’optimiser la création ainsi que la copie des \texttt{bitboards}.\\
+
+Pour jouer un coup, c’est-à-dire pour appliquer une mutation sur l’état du plateau, il faut passer par la fonction \texttt{play()}. Celle-ci reçoit des coordonnées et, si le coup est possible, le joue pour le joueur courant.\\
+En plus de mettre à jour le plateau, la fonction se charge de changer le joueur courant, tout en vérifiant si le nouveau joueur courant dispose d’un coup jouable. Si ce n’est pas le cas, elle enregistre dans l’historique l’impossibilité pour le nouveau joueur de jouer et rétablit le joueur initial.\\
+
+Si le joueur initial n’a toujours pas de coup à jouer, le plateau se trouve en état de « game over ». Même si cela n’implique rien, nous lancions auparavant une exception, mais celle-ci n’était finalement pas utile puisque vérifiable à tout moment via \texttt{is\_game\_over()}, ce qui est plus simple que d’attendre une exception.\\
+
+\newpage
+
+Par ailleurs, \texttt{OthelloBoard} conserve l’historique des coups joués, permettant, grâce à\\
+\texttt{get\_last\_play()}, de retrouver le dernier coup effectué ou, avec \texttt{pop()}, de retirer ce dernier coup s'il existe. Cette fonctionnalité a été ajoutée pour faciliter l’exploration des arbres de jeu dans le cadre de l’implémentation des joueurs IA, afin d’éviter de cloner l’état avant chaque mutation.\\
+
+Nous obtenons ainsi une modélisation évolutive d’un plateau d’Othello, respectant les règles de placement de pions, sans pour autant implémenter d’autres fonctionnalités de base.\\
+
+\textbf{Le Contrôleur}\\
+
+Passons maintenant au contrôleur. \texttt{GameController} se construit à partir d’un \texttt{OthelloBoard} déjà configuré et de deux joueurs (objets issus d’une classe dérivée de \texttt{Player}). Il reçoit également les paramètres du mode blitz : un booléen et un entier indiquant le temps total de jeu si ce mode est activé.\\
+Lors de son instanciation, il crée les deux joueurs en leur assignant la couleur adéquate (le joueur noir étant créé en premier, le joueur blanc en second). Il s’enregistre aussi auprès de chaque joueur afin que ceux-ci puissent appeler la fonction \texttt{play()} du contrôleur lors de leur action.\\
+
+La méthode \texttt{play()} prend deux coordonnées, \texttt{x\_coord} et \texttt{y\_coord}, et exécute les étapes suivantes~:
+- Vérifier que la partie est toujours en cours en consultant l’attribut \texttt{game\_over} (ce dernier est mis à \texttt{True} dès que la fin de partie est détectée).\\
+- S’assurer que, dans le mode blitz, le timer du joueur courant n’a pas atteint zéro (sinon, le joueur perd).\\
+- Jouer le coup sur le \texttt{OthelloBoard}.\\
+- Appeler, le cas échéant, un callback \texttt{post\_play\_callback()} (par exemple, pour actualiser l’affichage dans la CLI).\\
+- Changer le joueur courant pour la gestion du timer de blitz.\\
+
+Cette méthode est invoquée par les vues lorsqu’un joueur humain est en capacité de jouer.\\
+
+\textbf{Les Joueurs}\\
+
+La classe \texttt{Player} représente un joueur et lui associe un contrôleur et une couleur – indispensable pour utiliser des méthodes comme \texttt{line\_cap\_move()}.\\
+Le contrôleur permet quant à lui d’accéder à \texttt{line\_cap\_move} et de jouer le coup. Pour un joueur humain, la méthode \texttt{call\_human\_callback()} est appelée lorsqu’il doit jouer.\\
+Dans les faits, cela n’est utilisé que pour le CLI, la GUI se reposant sur \texttt{current\_player\_is\_human()} du contrôleur pour savoir si le joueur courant est un humain, méthode appelée à chaque clic sur le board.\\
+
+\textbf{Les Vues}\\
+
+Les vues sont chargées de l’affichage : soit en mode texte dans la CLI, soit via une fenêtre GTK4 dans la GUI, et elles gèrent également la boucle de jeu. \\
+Bien que le contrôleur détermine l’état de la partie (par exemple, en bloquant l’action en cas de « game over »), ce sont les vues qui envoient les actions. La principale différence réside dans la gestion des entrées : en CLI, l’utilisateur est sollicité de manière bloquante, tandis qu’en GUI, c’est le clic de l’utilisateur qui déclenche l’action.\\
+À chaque clic, la vue vérifie si le contrôleur attend un coup de la part d’un joueur humain et, si c’est le cas, le joue. \\
+De plus, dans le cas de la GUI, la boucle de jeu est gérée par GTK via des callbacks, contrairement à la CLI où le contrôleur appelle directement la méthode \texttt{next\_move()} dans sa boucle de jeu.\\
+
+\textbf{Cycle de Vie de l’Application}\\
+
+Le point d’entrée de l’application est \texttt{\_\_main\_\_.py}. Celui-ci commence par récupérer un objet de configuration (\texttt{Config}) via \texttt{argparse}.\\
+Si un nom de fichier est fourni, il tente de charger cet état dans un \texttt{OthelloBoard}, sinon, il initialise un \texttt{OthelloBoard} avec la taille indiquée en argument ou par défaut.\\
+Ensuite, les deux joueurs (noir et blanc) sont créés, en tenant compte de la présence ou non d’un joueur IA.\\
+Le contrôleur est ensuite initialisé en fonction du mode blitz, puis transmis à la vue adéquate, laquelle lance la boucle de jeu (pour la CLI) ou le démarrage de GTK (pour la GUI).\\
+
+
 \newpage
 
 \section{Performances et limitations}
