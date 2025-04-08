@@ -1,7 +1,6 @@
 \documentclass[a4paper,12pt]{article}
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
 \usepackage[french]{babel}
+\usepackage{hyperref}
 \usepackage{csquotes}
 \usepackage{geometry}
 \usepackage{graphicx}
@@ -54,12 +53,13 @@
 
 Le jeu d’Othello que l’on connaît aujourd’hui est une version modifiée du jeu
 Reversi, créé autour de 1880, supposément par Lewis Waterman ou John W.
-Mollett. Reversi lui-même étant une variante du jeu Annexation créé en 1870 par
-J. W. Mollett – la seule différence étant le plateau de jeu: une croix de 10
-par 4 pour Annexation, et un carré de 8 par 8 pour Reversi. Ces deux personnes
-d’origine anglaise se disputent l’invention du jeu, et ont créé deux versions
-différentes : Reversi Waterman\footnote{Image prise sur le site de la
-    Fédération Française d’Othello.
+Mollett.\cite{FFOthelloHistoire} Reversi lui-même étant une variante du jeu
+Annexation créé en 1870 par J. W. Mollett – la seule différence étant le
+plateau de jeu: une croix de 10 par 4 pour
+Annexation\cite{TameTheBoardGameAnnexation}, et un carré de 8 par 8 pour
+Reversi. Ces deux personnes d’origine anglaise se disputent l’invention du jeu,
+et ont créé deux versions différentes : Reversi Waterman\footnote{Image prise
+    sur le site de la Fédération Française d’Othello.
     \url{https://www.ffothello.org/images/histoire/jeux-anciens/reversi_waterman-1880.jpg}}
 et Reversi Mollett\footnote{Image prise sur le site de la Fédération Française
     d’Othello.
@@ -96,8 +96,8 @@ d’Othello diffèrent légèrement de celles de Reversi. Désormais, on fixe la
 position initiale des pions, et il est possible de prendre des pions à son
 adversaire lorsque celui-ci passe son tour.\newline En France, le jeu se
 popularise à partir de la fin des années 1970, et la Fédération Française
-d’Othello (FFO) est créée en 1983\footnote{Image prise sur le site de la
-    Fédération Française d’Othello.
+d’Othello (FFO) est créée en 1983\cite{FFOthelloTournois}\footnote{Image prise
+    sur le site de la Fédération Française d’Othello.
     \url{https://www.ffothello.org/images/histoire/jeux-modernes/othelloroyal.jpg}}.\newline
 
 \begin{figure}[h]
@@ -109,41 +109,42 @@ d’Othello (FFO) est créée en 1983\footnote{Image prise sur le site de la
 \end{figure}
 
 Afin d’établir des stratégies, les joueurs doivent avoir en tête certains
-concepts clés. Tout d’abord, il faut se rappeler que le nombre de pièces de
-chaque joueur peut changer rapidement au cours de la partie. Il est important
-de placer des pierres stables, qui ne pourront pas être capturées.\newline
-Ensuite, placer ses pions dans les coins garantit souvent les pièces autour
-comme stables. Le joueur essaiera de ne pas jouer dans les cases proches des
-coins pour ne pas les donner à son adversaire.\newline Il faut essayer de
-réduire le plus possible les options de son adversaire, tout en essayant
-d’avoir beaucoup de choix de son côté.\newline Calculer le nombre de cases
-restant permet de se projeter sur la fin de partie, et de qui des deux joueurs
-va placer le dernier pion. Comme le résultat est calculé à partir du dernier
-état du jeu, jouer en dernier peut faire une différence. On peut calculer ses
-prochains coups en conséquence, essayer de faire passer son tour à son
-adversaire, ou l’inciter à jouer sur certaines cases.\newline
+concepts clés.\cite{FFOthelloStrategie}\cite{FFOthelloOuvertures} Tout d’abord,
+il faut se rappeler que le nombre de pièces de chaque joueur peut changer
+rapidement au cours de la partie. Il est important de placer des pierres
+stables, qui ne pourront pas être capturées.\newline Ensuite, placer ses pions
+dans les coins garantit souvent les pièces autour comme stables. Le joueur
+essaiera de ne pas jouer dans les cases proches des coins pour ne pas les
+donner à son adversaire.\newline Il faut essayer de réduire le plus possible
+les options de son adversaire, tout en essayant d’avoir beaucoup de choix de
+son côté.\newline Calculer le nombre de cases restant permet de se projeter sur
+la fin de partie, et de qui des deux joueurs va placer le dernier pion. Comme
+le résultat est calculé à partir du dernier état du jeu, jouer en dernier peut
+faire une différence. On peut calculer ses prochains coups en conséquence,
+essayer de faire passer son tour à son adversaire, ou l’inciter à jouer sur
+certaines cases.\newline
 
 Les règles en tournoi, spécifiquement, pour les championnats du monde d’Othello
 (World Othello Championships – WOC) sont décrites dans le document World
 Othello Championships Rules, publié en septembre 2019 par la Fédération
-Mondiale d’Othello (World Othello Federation – WOF).\newline Les championnats
-du monde se tiennent annuellement, et déterminent le champion des catégories
-Individuels, Femmes, et Jeunes.\newline La compétition se tient sur trois
-jours. Pendant les deux premiers jours, le rang est déterminé par des matchs à
-temps limité, en rondes Suisses ou Robin, puis les demi-finales et la finale se
-tiennent le troisième jour.\newline Seulement les équipes des nations membres
-de la WOF peuvent participer.\newline Les règles sont très spécifiques quant à
-l’éligibilité des joueurs, le compte des scores, et l’organisation du tournoi.
-Les procédures pour l’édition des listes de classement, ou en cas de matériel
-défectueux, d’égalité y sont également décrites très précisément.\newline Le
-site de la Fédération Mondiale d’Othello tient à jour un calendrier
-\footnote{Calendrier international des tournois d'Othello, régulièrement mis à
-    jour par la Fédération Mondiale d'Othello.
+Mondiale d’Othello (World Othello Federation – WOF).\cite{WOCRules2023}\newline
+Les championnats du monde se tiennent annuellement, et déterminent le champion
+des catégories Individuels, Femmes, et Jeunes.\newline La compétition se tient
+sur trois jours. Pendant les deux premiers jours, le rang est déterminé par des
+matchs à temps limité, en rondes Suisses ou Robin, puis les demi-finales et la
+finale se tiennent le troisième jour.\newline Seulement les équipes des nations
+membres de la WOF peuvent participer.\newline Les règles sont très spécifiques
+quant à l’éligibilité des joueurs, le compte des scores, et l’organisation du
+tournoi. Les procédures pour l’édition des listes de classement, ou en cas de
+matériel défectueux, d’égalité y sont également décrites très
+précisément.\newline Le site de la Fédération Mondiale d’Othello tient à jour
+un calendrier \footnote{Calendrier international des tournois d'Othello,
+    régulièrement mis à jour par la Fédération Mondiale d'Othello.
     \url{https://www.worldothello.org/calendar}} des prochains tournois
-organisés.\newline Des championnats européens se tiendront le 31 mai et 1er
-juin de cette année, à Prague en République Tchèque.\newline Le prochain
-championnat du monde aura lieu à Ankara en Turquie, en novembre 2025, et
-réunira plus de 84 pays.\newline
+organisés.\cite{WOFCalendar}\cite{WOCTournaments}\newline Des championnats
+européens se tiendront le 31 mai et 1er juin de cette année, à Prague en
+République Tchèque.\newline Le prochain championnat du monde aura lieu à Ankara
+en Turquie, en novembre 2025, et réunira plus de 84 pays.\newline
 
 Le jeu d’Othello est relativement populaire, on en trouve fréquemment en clubs
 de jeux de société ou jeux de plateau.\newline
@@ -151,25 +152,25 @@ de jeux de société ou jeux de plateau.\newline
 Il est également possible de jouer en ligne sur des sites, recommandés par la
 FFO \footnote{Guide des plateformes en ligne pour jouer à Othello, recommandé
     par la Fédération Française d'Othello.
-    \url{https://www.ffothello.org/communaute/jouer-sur-internet/}}. Les plus
-populaires cités sont PlayOK \footnote{Site PlayOK offrant la possibilité de
-    jouer au Reversi en ligne contre des adversaires du monde entier, avec système
-    de classement. \url{https://www.playok.com/fr/reversi/}}, qui propose des
-parties en ligne ; et eOthello \footnote{Plateforme eOthello permettant de
-    jouer gratuitement à Othello en différé. \url{https://www.eothello.com/}} pour
-jouer plusieurs parties en différé, avec 72 heures de temps limite par
-coup.\newline
+    \url{https://www.ffothello.org/communaute/jouer-sur-internet/}}.\cite{FFOthelloJouerInternet}
+Les plus populaires cités sont PlayOK\cite{PlayOKReversi} \footnote{Site PlayOK
+    offrant la possibilité de jouer au Reversi en ligne contre des adversaires du
+    monde entier, avec système de classement.
+    \url{https://www.playok.com/fr/reversi/}}, qui propose des parties en ligne ;
+et eOthello \footnote{Plateforme eOthello permettant de jouer gratuitement à
+    Othello en différé. \url{https://www.eothello.com/}} pour jouer plusieurs
+parties en différé, avec 72 heures de temps limite par coup.\newline
 
-Le site PlayPager \footnote{Plateforme PlayPager permettant de jouer
-    gratuitement à Othello/Reversi en ligne contre l'ordinateur ou d'autres
-    joueurs. \url{https://playpager.com/othello-reversi/}} permet de jouer à deux
-joueurs ou contre une intelligence artificielle sur un plateau en 8 par
-8.\newline La Fédération Française d’Othello propose également de se mettre en
-relation avec des joueurs via une liste de diffusion.\newline Il existe aussi
-des serveurs discord tels que Othello Academy \footnote{Serveur Discord
-    "Othello Academy" regroupant une communauté active de joueurs, des tutoriels et
-    des tournois amicaux. \url{https://discord.me/othelloacademy}}, ou encore Board
-Games Geek.\newline
+Le site PlayPager\cite{PlayPagerOthello} \footnote{Plateforme PlayPager
+    permettant de jouer gratuitement à Othello/Reversi en ligne contre l'ordinateur
+    ou d'autres joueurs. \url{https://playpager.com/othello-reversi/}} permet de
+jouer à deux joueurs ou contre une intelligence artificielle sur un plateau en
+8 par 8.\newline La Fédération Française d’Othello propose également de se
+mettre en relation avec des joueurs via une liste de diffusion.\newline Il
+existe aussi des serveurs discord tels que Othello Academy \footnote{Serveur
+    Discord "Othello Academy" regroupant une communauté active de joueurs, des
+    tutoriels et des tournois amicaux. \url{https://discord.me/othelloacademy}}, ou
+encore Board Games Geek.\newline
 
 \newpage
 
@@ -189,9 +190,6 @@ Games Geek.\newline
 
 \newpage
 
-\section{Bibliographie}
-
-\newpage
 \appendix
 \section{Liste des besoins étendus}
 
@@ -1410,7 +1408,7 @@ Games Geek.\newline
     Par Lucas                                                                                    \\
     \hline
     Affichage de l’historique des quinze derniers coups joués dans la partie au format suivant : \\
-    \texttt{[joueur] has placed a piece at [case]}                                               \\
+    \texttt{[player] has placed a piece at [cell]}                                               \\
     L’historique sur la GUI sera affiché sur la droite du plateau.                               \\
     \hline
     Nécessaire pour l’affichage d’une partie en cours pour la GUI (F.48, et F.26 par extension). \\
@@ -1478,33 +1476,10 @@ respecte pas le premier agenda que nous vous avions soumis.\newline
 \end{figure}
 
 \newpage
+
+\section{Bibliographie}
+
 \newpage
-
-% Example of how to insert code
-\begin{lstlisting}[language=C, caption=Exemple d'insertion de code]
-    // Voici un exemple de code en C
-    #include <stdio.h>
-
-    int main() {
-        printf("Hello, Othello!\n");
-        return 0;
-    }
-\end{lstlisting}
-
-% Example of how to insert an image
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.7\textwidth]{example-image}
-    \caption{Exemple d'insertion d'image}
-    \title{fig:example-image}
-\end{figure}
-
-% Example of a footnote
-Voici un exemple de texte avec une note de bas de page\footnote{Ceci est un
-    exemple de note de bas de page.}.
-
-% Example of citation
-Ceci est un exemple de citation \citation{Othello1980}.
 
 \end{document}
 
