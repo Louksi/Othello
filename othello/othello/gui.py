@@ -99,11 +99,11 @@ class OthelloGUI(Gtk.Application):
 
     PLAYS_IN_HISTORY = 15
 
-    def __init__(self, board: GameController):
+    def __init__(self, controller: GameController):
         """
         Initialize the Othello GUI application.
 
-        :param board: The Othello game board
+        :param controller: The Othello game controller
         :param time_limit: Optional time limit for blitz mode
         """
         logger.debug(
@@ -112,8 +112,8 @@ class OthelloGUI(Gtk.Application):
         )
         super().__init__(application_id="fr.ubx.othello")
         GLib.set_application_name("othello")
-        self.board = board
-        logger.debug("Game initialized with board:\n%s", self.board)
+        self.controller = controller
+        logger.debug("Game initialized with controller:\n%s", self.controller)
 
     def do_activate(self, *args: Any, **kwargs: Any) -> None:
         """
@@ -121,7 +121,7 @@ class OthelloGUI(Gtk.Application):
         Creates and presents the main application window.
         """
         logger.debug("Entering do_activate function from gui.py.")
-        window = OthelloWindow(self, self.board)
+        window = OthelloWindow(self, self.controller)
         window.present()
 
 
@@ -131,12 +131,12 @@ class OthelloWindow(Gtk.ApplicationWindow):
     Contains the game board, controls, and displays game state.
     """
 
-    def __init__(self, application: Gtk.Application, board: GameController):
+    def __init__(self, application: Gtk.Application, controller: GameController):
         """
         Initialize the Othello game window.
 
         :param application: The parent application
-        :param board: The Othello game board
+        :param controller: The Othello game controller
         """
         logger.debug("Entering initialization function for game window from gui.py.")
         super().__init__(application=application, title="Othello")
@@ -145,9 +145,9 @@ class OthelloWindow(Gtk.ApplicationWindow):
         self.over = False
         self.over_message = None
 
-        self.controller: GameController = board
+        self.controller: GameController = controller
         self.is_blitz = self.controller.is_blitz()
-        self.grid_size = board.size.value
+        self.grid_size = controller.size.value
         self.cell_size = 50
 
         self.drawing_area: Gtk.DrawingArea = Gtk.DrawingArea()
@@ -166,20 +166,26 @@ class OthelloWindow(Gtk.ApplicationWindow):
 
         self.logger = logging.getLogger("Othello")
 
-        board.post_play_callback = self.__update_game_state
+        controller.post_play_callback = self.__update_game_state
 
-        self.__init_game(board)
+        self.__init_game(controller)
+        self.load_history()
 
-    def __init_game(self, board: GameController) -> None:
+    def load_history(self):
+        history = self.controller.get_history()
+        for history_entry in history[: -OthelloGUI.PLAYS_IN_HISTORY]:
+            self._add_to_history(history_entry)
+
+    def __init_game(self, controller: GameController) -> None:
         """
         Initialize the game components and UI.
 
-        :param board: The Othello game board
+        :param controller: The Othello game controller
         """
         logger.debug("Initializing game components and UI")
-        self.controller = board
+        self.controller = controller
         self.is_blitz = self.controller.is_blitz()
-        self.grid_size = board.size.value
+        self.grid_size = controller.size.value
 
         self._initialize_ui_components()
         self._create_layout()
@@ -340,9 +346,11 @@ class OthelloWindow(Gtk.ApplicationWindow):
         """Update the play history list with the latest move."""
         if (last_play := self.controller.get_last_play()) is None:
             return
+        self._add_to_history(last_play)
+
+    def _add_to_history(self, play):
         new_move = Gtk.Label(
-            label=f"{last_play[4]} placed a piece at "
-            f"{chr(ord('A') + last_play[2])}{last_play[3] + 1}"
+            label=f"{play[4]} placed a piece at {chr(ord('A') + play[2])}{play[3] + 1}"
         )
         self.plays_list.prepend(new_move)
         if len(self.plays_list) > OthelloGUI.PLAYS_IN_HISTORY:
