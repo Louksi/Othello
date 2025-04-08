@@ -14,14 +14,13 @@
 \usepackage{array}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[backend=biber]{biblatex}
+\usepackage[numbers]{natbib}
 \geometry{top=2cm, bottom=2cm, left=2cm, right=2cm}
 
 \definecolor{CornflowerBlue}{RGB}{100,149,237}  % For functional needs
 \definecolor{RoyalBlue}{RGB}{65,105,225}   % For non-functional needs
 \definecolor{MediumAquamarine}{RGB}{102,205,170} % For validation strategy
 
-\addbibresource{bibliography.bib}
 
 \begin{document}
 
@@ -1479,7 +1478,8 @@ respecte pas le premier agenda que nous vous avions soumis.\newline
 
 \section{Bibliographie}
 
-\newpage
+\bibliographystyle{plainnat}
+\bibliography{bibliography}
 
 \end{document}
 
