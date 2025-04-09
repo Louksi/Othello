@@ -123,10 +123,10 @@ def run_experiment1(num_games=200):
         if i < num_games // 2:
             game_result = run_game(
                 white_ai_mode="ab",
-                white_ai_depth=6,
+                white_ai_depth=4,
                 white_ai_heuristic="corners_captured",
                 black_ai_mode="minimax",
-                black_ai_depth=6,
+                black_ai_depth=4,
                 black_ai_heuristic="corners_captured",
                 board_size=6,
             )
@@ -134,10 +134,10 @@ def run_experiment1(num_games=200):
         else:
             game_result = run_game(
                 white_ai_mode="minimax",
-                white_ai_depth=6,
+                white_ai_depth=4,
                 white_ai_heuristic="corners_captured",
                 black_ai_mode="ab",
-                black_ai_depth=6,
+                black_ai_depth=4,
                 black_ai_heuristic="corners_captured",
                 board_size=6,
             )

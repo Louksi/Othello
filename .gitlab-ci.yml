@@ -149,12 +149,13 @@ test-job:
     - source venv/bin/activate
     - python -m pip install --upgrade pip
     - python --version ; pip --version
+    - pip install "ninja==1.8.2"
     - pip install pycairo
     - pip install pytest pytest-cov
     - pip install meson-python
     - cd othello
     - pip install "PyGObject==3.50.0" --no-build-isolation --no-deps || echo "Failed to install PyGObject, continuing anyway"
-    - pip install ./ --no-deps
+    - pip install ./
   script:
     - python -m pytest
   coverage: '/TOTAL.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
