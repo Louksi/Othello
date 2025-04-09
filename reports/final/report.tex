@@ -15,12 +15,12 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[numbers]{natbib}
+\usepackage{placeins} % for \FloatBarrier because of the images in Agenda Rétrospectif
 \geometry{top=2cm, bottom=2cm, left=2cm, right=2cm}
 
 \definecolor{CornflowerBlue}{RGB}{100,149,237}  % For functional needs
 \definecolor{RoyalBlue}{RGB}{65,105,225}   % For non-functional needs
 \definecolor{MediumAquamarine}{RGB}{102,205,170} % For validation strategy
-
 
 \begin{document}
 
@@ -80,24 +80,23 @@ et Reversi Mollett\footnote{Image prise sur le site de la Fédération Français
 
 Ce jeu de plateau était très apprécié vers la fin du 19\up{ème} siècle, surtout
 en Angleterre. Un article sur le jeu parut en 1888 dans un magazine spécialisé
-dans les jeux de dames.\\
-On retrouve des éditions aux États-Unis, ainsi
-qu’en Europe Centrale, et des livres de stratégie sont créés.\\
-Le jeu Reversi perd de sa popularité au 20\up{ème} siècle, jusqu’en 1971, où un
-Japonais du nom de Goro Hasegawa réinvente et redistribue le jeu sous un autre
-nom : Othello. Le père de Goro Hasegawa, un professeur de littérature anglaise,
-lui propose le nom d’Othello en référence à la pièce de W. Shakespeare, en
-raison de ses nombreux retournements de situation.\\
-Le jeu devient rapidement populaire, et la première compétition est organisée en 1973, soit
-deux ans après la commercialisation du jeu.\\
-Dès 1976, Othello est arrivé en Angleterre et aux États-Unis, et les premiers championnats du monde
-d’Othello se tiennent en 1977, et reviennent tous les ans.\\
-Les règles d’Othello diffèrent légèrement de celles de Reversi. Désormais, on fixe la
-position initiale des pions, et il est possible de prendre des pions (non placés sur le plateau) à son
-adversaire lorsque celui-ci passe son tour.\\
-En France, le jeu se popularise à partir de la fin des années 1970, et la Fédération Française
-d’Othello (FFO) est créée en 1983\cite{FFOthelloTournois}\footnote{Image prise
-    sur le site de la Fédération Française d’Othello.
+dans les jeux de dames.\\ On retrouve des éditions aux États-Unis, ainsi qu’en
+Europe Centrale, et des livres de stratégie sont créés.\\ Le jeu Reversi perd
+de sa popularité au 20\up{ème} siècle, jusqu’en 1971, où un Japonais du nom de
+Goro Hasegawa réinvente et redistribue le jeu sous un autre nom : Othello. Le
+père de Goro Hasegawa, un professeur de littérature anglaise, lui propose le
+nom d’Othello en référence à la pièce de W. Shakespeare, en raison de ses
+nombreux retournements de situation.\\ Le jeu devient rapidement populaire, et
+la première compétition est organisée en 1973, soit deux ans après la
+commercialisation du jeu.\\ Dès 1976, Othello est arrivé en Angleterre et aux
+États-Unis, et les premiers championnats du monde d’Othello se tiennent en
+1977, et reviennent tous les ans.\\ Les règles d’Othello diffèrent légèrement
+de celles de Reversi. Désormais, on fixe la position initiale des pions, et il
+est possible de prendre des pions (non placés sur le plateau) à son adversaire
+lorsque celui-ci passe son tour.\\ En France, le jeu se popularise à partir de
+la fin des années 1970, et la Fédération Française d’Othello (FFO) est créée en
+1983\cite{FFOthelloTournois}\footnote{Image prise sur le site de la Fédération
+    Française d’Othello.
     \url{https://www.ffothello.org/images/histoire/jeux-modernes/othelloroyal.jpg}}.\\
 
 \begin{figure}[h]
@@ -112,52 +111,43 @@ Afin d’établir des stratégies, les joueurs doivent avoir en tête certains
 concepts clés.\cite{FFOthelloStrategie}\cite{FFOthelloOuvertures} Tout d’abord,
 il faut se rappeler que le nombre de pièces de chaque joueur peut changer
 rapidement au cours de la partie. Il est important de placer des pierres
-stables, qui ne pourront pas être capturées.\\
-Ensuite, placer ses pions
-dans les coins garantit souvent les pièces autour comme stables. Le joueur
-essaiera de ne pas jouer dans les cases proches des coins pour ne pas les
-donner à son adversaire.\\
-Il faut tenter de réduire le plus possible
-les options de son adversaire, tout en essayant d’avoir beaucoup de choix de
-son côté.\\
-Calculer le nombre de cases restantes permet de se projeter sur
-la fin de partie, et de qui des deux joueurs va placer le dernier pion. Comme
-le résultat est calculé à partir du dernier état du jeu, jouer en dernier peut
-faire une différence. On peut calculer ses prochains coups en conséquence,
-essayer de faire passer son tour à son adversaire, ou l’inciter à jouer sur
-certaines cases.\\
+stables, qui ne pourront pas être capturées.\\ Ensuite, placer ses pions dans
+les coins garantit souvent les pièces autour comme stables. Le joueur essaiera
+de ne pas jouer dans les cases proches des coins pour ne pas les donner à son
+adversaire.\\ Il faut tenter de réduire le plus possible les options de son
+adversaire, tout en essayant d’avoir beaucoup de choix de son côté.\\ Calculer
+le nombre de cases restantes permet de se projeter sur la fin de partie, et de
+qui des deux joueurs va placer le dernier pion. Comme le résultat est calculé à
+partir du dernier état du jeu, jouer en dernier peut faire une différence. On
+peut calculer ses prochains coups en conséquence, essayer de faire passer son
+tour à son adversaire, ou l’inciter à jouer sur certaines cases.\\
 
 Les règles en tournoi, spécifiquement, pour les championnats du monde d’Othello
 (World Othello Championships – WOC) sont décrites dans le document World
 Othello Championships Rules, publié en septembre 2019 par la Fédération
-Mondiale d’Othello (World Othello Federation – WOF).\cite{WOCRules2023}\\
-Les championnats du monde se tiennent annuellement, et déterminent le champion
-des catégories Individuels, Femmes, et Jeunes.\\
-La compétition se tient
-sur trois jours. Pendant les deux premiers jours, le rang est déterminé par des
-matchs à temps limité, en rondes Suisses ou Robin, puis les demi-finales et la
-finale se tiennent le troisième jour.\\
-Seulement les équipes des nations
-membres de la WOF peuvent participer.\\
-Les règles sont très spécifiques
-quant à l’éligibilité des joueurs, le compte des scores, et l’organisation du
-tournoi. Les procédures pour l’édition des listes de classement, ou en cas de
-matériel défectueux, d’égalité y sont également décrites très
-précisément.\\
-Le site de la Fédération Mondiale d’Othello tient à jour
-un calendrier \footnote{Calendrier international des tournois d'Othello,
-    régulièrement mis à jour par la Fédération Mondiale d'Othello.
+Mondiale d’Othello (World Othello Federation – WOF).\cite{WOCRules2023}\\ Les
+championnats du monde se tiennent annuellement, et déterminent le champion des
+catégories Individuels, Femmes, et Jeunes.\\ La compétition se tient sur trois
+jours. Pendant les deux premiers jours, le rang est déterminé par des matchs à
+temps limité, en rondes Suisses ou Robin, puis les demi-finales et la finale se
+tiennent le troisième jour.\\ Seulement les équipes des nations membres de la
+WOF peuvent participer.\\ Les règles sont très spécifiques quant à
+l’éligibilité des joueurs, le compte des scores, et l’organisation du tournoi.
+Les procédures pour l’édition des listes de classement, ou en cas de matériel
+défectueux, d’égalité y sont également décrites très précisément.\\ Le site de
+la Fédération Mondiale d’Othello tient à jour un calendrier
+\footnote{Calendrier international des tournois d'Othello, régulièrement mis à
+    jour par la Fédération Mondiale d'Othello.
     \url{https://www.worldothello.org/calendar}} des prochains tournois
-organisés.\cite{WOFCalendar}\cite{WOCTournaments}\\
-Des championnats européens se tiendront le 31 mai et 1er juin de cette année, à Prague en
-République Tchèque.\\
-Le prochain championnat du monde aura lieu à Ankara en Turquie, en novembre 2025, et réunira plus de 84 pays.\\
+organisés.\cite{WOFCalendar}\cite{WOCTournaments}\\ Des championnats européens
+se tiendront le 31 mai et 1er juin de cette année, à Prague en République
+Tchèque.\\ Le prochain championnat du monde aura lieu à Ankara en Turquie, en
+novembre 2025, et réunira plus de 84 pays.\\
 
 Le jeu d’Othello est relativement populaire, on en trouve fréquemment en clubs
-de jeux de société ou jeux de plateau.\\
-Il est également possible de jouer en ligne sur des sites, recommandés par la
-FFO \footnote{Guide des plateformes en ligne pour jouer à Othello, recommandé
-    par la Fédération Française d'Othello.
+de jeux de société ou jeux de plateau.\\ Il est également possible de jouer en
+ligne sur des sites, recommandés par la FFO \footnote{Guide des plateformes en
+    ligne pour jouer à Othello, recommandé par la Fédération Française d'Othello.
     \url{https://www.ffothello.org/communaute/jouer-sur-internet/}}.\cite{FFOthelloJouerInternet}
 Les plus populaires cités sont PlayOK\cite{PlayOKReversi} \footnote{Site PlayOK
     offrant la possibilité de jouer au Reversi en ligne contre des adversaires du
@@ -165,18 +155,17 @@ Les plus populaires cités sont PlayOK\cite{PlayOKReversi} \footnote{Site PlayOK
     \url{https://www.playok.com/fr/reversi/}}, qui propose des parties en ligne ;
 et eOthello \footnote{Plateforme eOthello permettant de jouer gratuitement à
     Othello en différé. \url{https://www.eothello.com/}} pour jouer plusieurs
-parties en différé, avec 72 heures de temps limite par coup.\\
-Le site PlayPager\cite{PlayPagerOthello} \footnote{Plateforme PlayPager
-    permettant de jouer gratuitement à Othello/Reversi en ligne contre l'ordinateur
-    ou d'autres joueurs. \url{https://playpager.com/othello-reversi/}} permet de
-jouer à deux joueurs ou contre une intelligence artificielle sur un plateau en
-8 par 8.\\
-La Fédération Française d’Othello propose également de se mettre en relation avec des joueurs via une liste de diffusion.\\
-Il existe aussi des serveurs discord tels que Othello Academy \footnote{Serveur
-    Discord "Othello Academy" regroupant une communauté active de joueurs, des
-    tutoriels et des tournois amicaux. \url{https://discord.me/othelloacademy}}, ou
-encore Board Games Geek sur lequels des joueurs peuvent se rencontrer, discuter du jeu et de stratégie.\\
-
+parties en différé, avec 72 heures de temps limite par coup.\\ Le site
+PlayPager\cite{PlayPagerOthello} \footnote{Plateforme PlayPager permettant de
+    jouer gratuitement à Othello/Reversi en ligne contre l'ordinateur ou d'autres
+    joueurs. \url{https://playpager.com/othello-reversi/}} permet de jouer à deux
+joueurs ou contre une intelligence artificielle sur un plateau en 8 par 8.\\ La
+Fédération Française d’Othello propose également de se mettre en relation avec
+des joueurs via une liste de diffusion.\\ Il existe aussi des serveurs discord
+tels que Othello Academy \footnote{Serveur Discord "Othello Academy" regroupant
+    une communauté active de joueurs, des tutoriels et des tournois amicaux.
+    \url{https://discord.me/othelloacademy}}, ou encore Board Games Geek sur
+lequels des joueurs peuvent se rencontrer, discuter du jeu et de stratégie.\\
 
 \newpage
 
@@ -188,69 +177,136 @@ encore Board Games Geek sur lequels des joueurs peuvent se rencontrer, discuter 
 
 \section{Architecture du projet}
 
-Nous avons décidé d’adopter une architecture MVC. Ici, nous commencerons par rappeler brièvement ce que cela implique et comment cela se traduit dans notre implémentation, avant de détailler le cycle de vie de notre application.\\
+Nous avons décidé d’adopter une architecture MVC. Ici, nous commencerons par
+rappeler brièvement ce que cela implique et comment cela se traduit dans notre
+implémentation, avant de détailler le cycle de vie de notre application.\\
 
 \textbf{Le Modèle}\\
 
-Notre application repose sur notre implémentation de \texttt{Bitboard}. En effet, le jeu d’Othello se prête particulièrement bien à l’utilisation des \texttt{bitboards} étant donné que l’on peut représenter un état du jeu avec seulement deux \texttt{bitboards}, un par couleur de joueur.\\
-Celle-ci n’est pas spécifique au jeu d’Othello, mais constitue une implémentation classique de \texttt{bitboards} tirant parti des particularités du langage \texttt{Python}, telles que l’utilisation par défaut d’entiers de taille arbitraire et la surcharge d’opérateurs.\\
-Pour des raisons de performance, certains attributs -- comme les masques utilisés -- sont calculés une fois pour toutes, car leur génération dynamique à chaque instanciation d’un \texttt{bitboard} serait excessivement coûteuse.\\
+Notre application repose sur notre implémentation de \texttt{Bitboard}. En
+effet, le jeu d’Othello se prête particulièrement bien à l’utilisation des
+\texttt{bitboards} étant donné que l’on peut représenter un état du jeu avec
+seulement deux \texttt{bitboards}, un par couleur de joueur.\\ Celle-ci n’est
+pas spécifique au jeu d’Othello, mais constitue une implémentation classique de
+\texttt{bitboards} tirant parti des particularités du langage \texttt{Python},
+telles que l’utilisation par défaut d’entiers de taille arbitraire et la
+surcharge d’opérateurs.\\ Pour des raisons de performance, certains attributs
+-- comme les masques utilisés -- sont calculés une fois pour toutes, car leur
+génération dynamique à chaque instanciation d’un \texttt{bitboard} serait
+excessivement coûteuse.\\
 
-Ces \texttt{bitboards} sont directement utilisés par notre modèle, \texttt{OthelloBoard}, qui gère l’intégralité de l’état d’un plateau de jeu. Lors de son initialisation, il reçoit une taille issue de l’énumération \texttt{BoardSize}, qui nous permet également de retrouver un \texttt{BoardSize} en fonction d’un entier, si celui-ci est une taille de board valide (6, 8, 10 ou 12).\\
-Ce modèle gère ainsi non seulement les deux \texttt{bitboards} de pions (un pour les noirs, un pour les blancs), mais aussi l’implémentation des deux algorithmes principaux nécessaires au jeu~:\\
-\texttt{line\_cap\_move}~: qui génère un \texttt{bitboard} représentant les coups possibles pour un joueur donné à partir de l’état actuel du jeu.\\
-\texttt{line\_cap}~: qui génère un \texttt{bitboard} des pions capturés à partir d’un coup (légal) et d’un joueur.\\
+Ces \texttt{bitboards} sont directement utilisés par notre modèle,
+\texttt{OthelloBoard}, qui gère l’intégralité de l’état d’un plateau de jeu.
+Lors de son initialisation, il reçoit une taille issue de l’énumération
+\texttt{BoardSize}, qui nous permet également de retrouver un
+\texttt{BoardSize} en fonction d’un entier, si celui-ci est une taille de board
+valide (6, 8, 10 ou 12).\\ Ce modèle gère ainsi non seulement les deux
+\texttt{bitboards} de pions (un pour les noirs, un pour les blancs), mais aussi
+l’implémentation des deux algorithmes principaux nécessaires au jeu~:\\
+\texttt{line\_cap\_move}~: qui génère un \texttt{bitboard} représentant les
+coups possibles pour un joueur donné à partir de l’état actuel du jeu.\\
+\texttt{line\_cap}~: qui génère un \texttt{bitboard} des pions capturés à
+partir d’un coup (légal) et d’un joueur.\\
 
-Ces algorithmes n’induisent aucune mutation sur le \texttt{bitboard} courant. Initialement, ils s’appuyaient sur la génération de nombreux \texttt{bitboards} intermédiaires – ce qui permettait, grâce à la surcharge d’opérateurs, d’exprimer élégamment les algorithmes.\\
-Toutefois, lors d’un \textit{profiling} visant à réduire la lenteur de l’exploration des arbres de jeu pour l’IA, nous avons constaté un goulot d’étranglement dû à la création excessive de ces objets intermédiaires.\\
-C’est pourquoi nous avons décidé de remplacer la boucle de \texttt{line\_cap\_move} par une version déroulée, et d’optimiser la création ainsi que la copie des \texttt{bitboards}.\\
+Ces algorithmes n’induisent aucune mutation sur le \texttt{bitboard} courant.
+Initialement, ils s’appuyaient sur la génération de nombreux \texttt{bitboards}
+intermédiaires – ce qui permettait, grâce à la surcharge d’opérateurs,
+d’exprimer élégamment les algorithmes.\\ Toutefois, lors d’un
+\textit{profiling} visant à réduire la lenteur de l’exploration des arbres de
+jeu pour l’IA, nous avons constaté un goulot d’étranglement dû à la création
+excessive de ces objets intermédiaires.\\ C’est pourquoi nous avons décidé de
+remplacer la boucle de \texttt{line\_cap\_move} par une version déroulée, et
+d’optimiser la création ainsi que la copie des \texttt{bitboards}.\\
 
-Pour jouer un coup, c’est-à-dire pour appliquer une mutation sur l’état du plateau, il faut passer par la fonction \texttt{play()}. Celle-ci reçoit des coordonnées et, si le coup est possible, le joue pour le joueur courant.\\
-En plus de mettre à jour le plateau, la fonction se charge de changer le joueur courant, tout en vérifiant si le nouveau joueur courant dispose d’un coup jouable. Si ce n’est pas le cas, elle enregistre dans l’historique l’impossibilité pour le nouveau joueur de jouer et rétablit le joueur initial.\\
+Pour jouer un coup, c’est-à-dire pour appliquer une mutation sur l’état du
+plateau, il faut passer par la fonction \texttt{play()}. Celle-ci reçoit des
+coordonnées et, si le coup est possible, le joue pour le joueur courant.\\ En
+plus de mettre à jour le plateau, la fonction se charge de changer le joueur
+courant, tout en vérifiant si le nouveau joueur courant dispose d’un coup
+jouable. Si ce n’est pas le cas, elle enregistre dans l’historique
+l’impossibilité pour le nouveau joueur de jouer et rétablit le joueur
+initial.\\
 
-Si le joueur initial n’a toujours pas de coup à jouer, le plateau se trouve en état de « game over ». Même si cela n’implique rien, nous lancions auparavant une exception, mais celle-ci n’était finalement pas utile puisque vérifiable à tout moment via \texttt{is\_game\_over()}, ce qui est plus simple que d’attendre une exception.\\
+Si le joueur initial n’a toujours pas de coup à jouer, le plateau se trouve en
+état de « game over ». Même si cela n’implique rien, nous lancions auparavant
+une exception, mais celle-ci n’était finalement pas utile puisque vérifiable à
+tout moment via \texttt{is\_game\_over()}, ce qui est plus simple que
+d’attendre une exception.\\
 
 \newpage
 
-Par ailleurs, \texttt{OthelloBoard} conserve l’historique des coups joués, permettant, grâce à\\
-\texttt{get\_last\_play()}, de retrouver le dernier coup effectué ou, avec \texttt{pop()}, de retirer ce dernier coup s'il existe. Cette fonctionnalité a été ajoutée pour faciliter l’exploration des arbres de jeu dans le cadre de l’implémentation des joueurs IA, afin d’éviter de cloner l’état avant chaque mutation.\\
+Par ailleurs, \texttt{OthelloBoard} conserve l’historique des coups joués,
+permettant, grâce à\\ \texttt{get\_last\_play()}, de retrouver le dernier coup
+effectué ou, avec \texttt{pop()}, de retirer ce dernier coup s'il existe. Cette
+fonctionnalité a été ajoutée pour faciliter l’exploration des arbres de jeu
+dans le cadre de l’implémentation des joueurs IA, afin d’éviter de cloner
+l’état avant chaque mutation.\\
 
-Nous obtenons ainsi une modélisation évolutive d’un plateau d’Othello, respectant les règles de placement de pions, sans pour autant implémenter d’autres fonctionnalités de base.\\
+Nous obtenons ainsi une modélisation évolutive d’un plateau d’Othello,
+respectant les règles de placement de pions, sans pour autant implémenter
+d’autres fonctionnalités de base.\\
 
 \textbf{Le Contrôleur}\\
 
-Passons maintenant au contrôleur. \texttt{GameController} se construit à partir d’un \texttt{OthelloBoard} déjà configuré et de deux joueurs (objets issus d’une classe dérivée de \texttt{Player}). Il reçoit également les paramètres du mode blitz : un booléen et un entier indiquant le temps total de jeu si ce mode est activé.\\
-Lors de son instanciation, il crée les deux joueurs en leur assignant la couleur adéquate (le joueur noir étant créé en premier, le joueur blanc en second). Il s’enregistre aussi auprès de chaque joueur afin que ceux-ci puissent appeler la fonction \texttt{play()} du contrôleur lors de leur action.\\
+Passons maintenant au contrôleur. \texttt{GameController} se construit à partir
+d’un \texttt{OthelloBoard} déjà configuré et de deux joueurs (objets issus
+d’une classe dérivée de \texttt{Player}). Il reçoit également les paramètres du
+mode blitz : un booléen et un entier indiquant le temps total de jeu si ce mode
+est activé.\\ Lors de son instanciation, il crée les deux joueurs en leur
+assignant la couleur adéquate (le joueur noir étant créé en premier, le joueur
+blanc en second). Il s’enregistre aussi auprès de chaque joueur afin que
+ceux-ci puissent appeler la fonction \texttt{play()} du contrôleur lors de leur
+action.\\
 
-La méthode \texttt{play()} prend deux coordonnées, \texttt{x\_coord} et \texttt{y\_coord}, et exécute les étapes suivantes~:
-- Vérifier que la partie est toujours en cours en consultant l’attribut \texttt{game\_over} (ce dernier est mis à \texttt{True} dès que la fin de partie est détectée).\\
-- S’assurer que, dans le mode blitz, le timer du joueur courant n’a pas atteint zéro (sinon, le joueur perd).\\
-- Jouer le coup sur le \texttt{OthelloBoard}.\\
-- Appeler, le cas échéant, un callback \texttt{post\_play\_callback()} (par exemple, pour actualiser l’affichage dans la CLI).\\
-- Changer le joueur courant pour la gestion du timer de blitz.\\
+La méthode \texttt{play()} prend deux coordonnées, \texttt{x\_coord} et
+\texttt{y\_coord}, et exécute les étapes suivantes~: - Vérifier que la partie
+est toujours en cours en consultant l’attribut \texttt{game\_over} (ce dernier
+est mis à \texttt{True} dès que la fin de partie est détectée).\\ - S’assurer
+que, dans le mode blitz, le timer du joueur courant n’a pas atteint zéro
+(sinon, le joueur perd).\\ - Jouer le coup sur le \texttt{OthelloBoard}.\\ -
+Appeler, le cas échéant, un callback \texttt{post\_play\_callback()} (par
+exemple, pour actualiser l’affichage dans la CLI).\\ - Changer le joueur
+courant pour la gestion du timer de blitz.\\
 
-Cette méthode est invoquée par les vues lorsqu’un joueur humain est en capacité de jouer.\\
+Cette méthode est invoquée par les vues lorsqu’un joueur humain est en capacité
+de jouer.\\
 
 \textbf{Les Joueurs}\\
 
-La classe \texttt{Player} représente un joueur et lui associe un contrôleur et une couleur – indispensable pour utiliser des méthodes comme \texttt{line\_cap\_move()}.\\
-Le contrôleur permet quant à lui d’accéder à \texttt{line\_cap\_move} et de jouer le coup. Pour un joueur humain, la méthode \texttt{call\_human\_callback()} est appelée lorsqu’il doit jouer.\\
-Dans les faits, cela n’est utilisé que pour le CLI, la GUI se reposant sur \texttt{current\_player\_is\_human()} du contrôleur pour savoir si le joueur courant est un humain, méthode appelée à chaque clic sur le board.\\
+La classe \texttt{Player} représente un joueur et lui associe un contrôleur et
+une couleur – indispensable pour utiliser des méthodes comme
+\texttt{line\_cap\_move()}.\\ Le contrôleur permet quant à lui d’accéder à
+\texttt{line\_cap\_move} et de jouer le coup. Pour un joueur humain, la méthode
+\texttt{call\_human\_callback()} est appelée lorsqu’il doit jouer.\\ Dans les
+faits, cela n’est utilisé que pour le CLI, la GUI se reposant sur
+\texttt{current\_player\_is\_human()} du contrôleur pour savoir si le joueur
+courant est un humain, méthode appelée à chaque clic sur le board.\\
 
 \textbf{Les Vues}\\
 
-Les vues sont chargées de l’affichage : soit en mode texte dans la CLI, soit via une fenêtre GTK4 dans la GUI, et elles gèrent également la boucle de jeu. \\
-Bien que le contrôleur détermine l’état de la partie (par exemple, en bloquant l’action en cas de « game over »), ce sont les vues qui envoient les actions. La principale différence réside dans la gestion des entrées : en CLI, l’utilisateur est sollicité de manière bloquante, tandis qu’en GUI, c’est le clic de l’utilisateur qui déclenche l’action.\\
-À chaque clic, la vue vérifie si le contrôleur attend un coup de la part d’un joueur humain et, si c’est le cas, le joue. \\
-De plus, dans le cas de la GUI, la boucle de jeu est gérée par GTK via des callbacks, contrairement à la CLI où le contrôleur appelle directement la méthode \texttt{next\_move()} dans sa boucle de jeu.\\
+Les vues sont chargées de l’affichage : soit en mode texte dans la CLI, soit
+via une fenêtre GTK4 dans la GUI, et elles gèrent également la boucle de jeu.
+\\ Bien que le contrôleur détermine l’état de la partie (par exemple, en
+bloquant l’action en cas de « game over »), ce sont les vues qui envoient les
+actions. La principale différence réside dans la gestion des entrées : en CLI,
+l’utilisateur est sollicité de manière bloquante, tandis qu’en GUI, c’est le
+clic de l’utilisateur qui déclenche l’action.\\ À chaque clic, la vue vérifie
+si le contrôleur attend un coup de la part d’un joueur humain et, si c’est le
+cas, le joue. \\ De plus, dans le cas de la GUI, la boucle de jeu est gérée par
+GTK via des callbacks, contrairement à la CLI où le contrôleur appelle
+directement la méthode \texttt{next\_move()} dans sa boucle de jeu.\\
 
 \textbf{Cycle de Vie de l’Application}\\
 
-Le point d’entrée de l’application est \texttt{\_\_main\_\_.py}. Celui-ci commence par récupérer un objet de configuration (\texttt{Config}) via \texttt{argparse}.\\
-Si un nom de fichier est fourni, il tente de charger cet état dans un \texttt{OthelloBoard}, sinon, il initialise un \texttt{OthelloBoard} avec la taille indiquée en argument ou par défaut.\\
-Ensuite, les deux joueurs (noir et blanc) sont créés, en tenant compte de la présence ou non d’un joueur IA.\\
-Le contrôleur est ensuite initialisé en fonction du mode blitz, puis transmis à la vue adéquate, laquelle lance la boucle de jeu (pour la CLI) ou le démarrage de GTK (pour la GUI).\\
-
+Le point d’entrée de l’application est \texttt{\_\_main\_\_.py}. Celui-ci
+commence par récupérer un objet de configuration (\texttt{Config}) via
+\texttt{argparse}.\\ Si un nom de fichier est fourni, il tente de charger cet
+état dans un \texttt{OthelloBoard}, sinon, il initialise un
+\texttt{OthelloBoard} avec la taille indiquée en argument ou par défaut.\\
+Ensuite, les deux joueurs (noir et blanc) sont créés, en tenant compte de la
+présence ou non d’un joueur IA.\\ Le contrôleur est ensuite initialisé en
+fonction du mode blitz, puis transmis à la vue adéquate, laquelle lance la
+boucle de jeu (pour la CLI) ou le démarrage de GTK (pour la GUI).\\
 
 \newpage
 
@@ -1492,29 +1548,62 @@ Le contrôleur est ensuite initialisé en fonction du mode blitz, puis transmis 
 
 \section{Liste des besoins non réalisés}
 
-Au début du projet, il semblait peu probable que nous réussissions à réaliser tous les besoins du cahier des charges dans les temps.\\
-Nous avons donc écarté certains besoins qui nous paraissaient trop chronophages ou trop spécifiques, et dont l’absence n'empêcherait pas le bon fonctionnement de notre logiciel.\\
-Nous avons alors supprimé l’internationalisation (F.13), notre logiciel étant uniquement en langue anglaise, ainsi que le mode verbose (F.18).\\
-Nous avons décidé d'avoir un historique des coups joués, mais de ne pas implémenter les fonctions permettant d’annuler ou de rejouer des coups, ni de rejouer une partie à partir d’un historique (besoins F.34 et F.37).\\
-Pour l'interface graphique, nous n’avons pas de menus (F.45, F.46, F.47), et il n’est pas possible non plus d’éditer la configuration de la partie depuis l’interface graphique (F.50).\\
-Enfin, pour le mode IA, nous avons décidé de mettre de côté l’implémentation du MCTS (Monte Carlo Tree Search), ainsi que le calcul des pierres stables (besoins F.55, F.59).\\
+Au début du projet, il semblait peu probable que nous réussissions à réaliser
+tous les besoins du cahier des charges dans les temps.\\ Nous avons donc écarté
+certains besoins qui nous paraissaient trop chronophages ou trop spécifiques,
+et dont l’absence n'empêcherait pas le bon fonctionnement de notre logiciel.\\
+Nous avons alors supprimé l’internationalisation (F.13), notre logiciel étant
+uniquement en langue anglaise, ainsi que le mode verbose (F.18).\\ Nous avons
+décidé d'avoir un historique des coups joués, mais de ne pas implémenter les
+fonctions permettant d’annuler ou de rejouer des coups, ni de rejouer une
+partie à partir d’un historique (besoins F.34 et F.37).\\ Pour l'interface
+graphique, nous n’avons pas de menus (F.45, F.46, F.47), et il n’est pas
+possible non plus d’éditer la configuration de la partie depuis l’interface
+graphique (F.50).\\ Enfin, pour le mode IA, nous avons décidé de mettre de côté
+l’implémentation du MCTS (Monte Carlo Tree Search), ainsi que le calcul des
+pierres stables (besoins F.55, F.59).\\
 
-Parmi les besoins que nous avions prévu d’implémenter, mais qui ne figurent pas dans la version définitive de notre projet, il y a l’implémentation du mode contest (F.23) et l’exploration peu profonde préliminaire (F.54).\\
-Pour implémenter l’option \texttt{--ai-shallow} (F.54), il fallait implémenter une fonction \texttt{alphabeta with iterative deepening}. Cet algorithme est très similaire à \texttt{alphabeta} classique, mais il introduit une variable de profondeur actuelle qui est différente de la profondeur maximale à atteindre. Le but de cet algorithme est donc d’effectuer un \texttt{alphabeta} de la profondeur 1 à \texttt{n} (\texttt{n} étant la profondeur max). Après l’exploration de la profondeur actuelle terminée, on ordonne les coups en fonction du score renvoyé avant de poursuivre avec l’exploration à la profondeur actuelle~+~1. Ce qui a pour but de maximiser le nombre de branches élaguées par l’algorithme \texttt{alphabeta}.\\
-Afin de stocker les scores renvoyés à chaque profondeur, il fallait aussi implémenter une technique de hashing pour stocker des \texttt{boards} (1 hash = 1 \texttt{board state}, ce qui enlève les doublons) et une \texttt{hashtable}. La technique de hash utilisée était la méthode Zobrist, qui consiste à attribuer un nombre binaire unique pour chaque coup, et faire des \texttt{xor} des coups joués sur le hash du board de départ pour obtenir de nouveaux hash pour chaque \texttt{board}.\\
-À cause du manque de temps et des bugs/coverage à gérer en priorité, nous avons décidé de rejeter ce besoin pour le bien du projet, et donc de supprimer cette version de l’algorithme qui ne marchait pas.\\
-L’option du temps borné (F.60) dépend directement de \texttt{iterative deepening}. Cet algorithme enregistre le meilleur coup à jouer pour chaque profondeur, et le met à jour à chaque boucle. Il est alors possible de borner le temps de l’algo et ainsi stopper les boucles avant que l’algorithme ait atteint la profondeur maximale.\\
-Étant donné l’annulation de \texttt{--ai-shallow} (F54), il est donc impossible d’implémenter cette option.\\
+Parmi les besoins que nous avions prévu d’implémenter, mais qui ne figurent pas
+dans la version définitive de notre projet, il y a l’implémentation du mode
+contest (F.23) et l’exploration peu profonde préliminaire (F.54).\\ Pour
+implémenter l’option \texttt{--ai-shallow} (F.54), il fallait implémenter une
+fonction \texttt{alphabeta with iterative deepening}. Cet algorithme est très
+similaire à \texttt{alphabeta} classique, mais il introduit une variable de
+profondeur actuelle qui est différente de la profondeur maximale à atteindre.
+Le but de cet algorithme est donc d’effectuer un \texttt{alphabeta} de la
+profondeur 1 à \texttt{n} (\texttt{n} étant la profondeur max). Après
+l’exploration de la profondeur actuelle terminée, on ordonne les coups en
+fonction du score renvoyé avant de poursuivre avec l’exploration à la
+profondeur actuelle~+~1. Ce qui a pour but de maximiser le nombre de branches
+élaguées par l’algorithme \texttt{alphabeta}.\\ Afin de stocker les scores
+renvoyés à chaque profondeur, il fallait aussi implémenter une technique de
+hashing pour stocker des \texttt{boards} (1 hash = 1 \texttt{board state}, ce
+qui enlève les doublons) et une \texttt{hashtable}. La technique de hash
+utilisée était la méthode Zobrist, qui consiste à attribuer un nombre binaire
+unique pour chaque coup, et faire des \texttt{xor} des coups joués sur le hash
+du board de départ pour obtenir de nouveaux hash pour chaque \texttt{board}.\\
+À cause du manque de temps et des bugs/coverage à gérer en priorité, nous avons
+décidé de rejeter ce besoin pour le bien du projet, et donc de supprimer cette
+version de l’algorithme qui ne marchait pas.\\ L’option du temps borné (F.60)
+dépend directement de \texttt{iterative deepening}. Cet algorithme enregistre
+le meilleur coup à jouer pour chaque profondeur, et le met à jour à chaque
+boucle. Il est alors possible de borner le temps de l’algo et ainsi stopper les
+boucles avant que l’algorithme ait atteint la profondeur maximale.\\ Étant
+donné l’annulation de \texttt{--ai-shallow} (F54), il est donc impossible
+d’implémenter cette option.\\
 
-Et les besoins suivants ne sont pas complets, ou ont été modifiés par rapport à leur description donnée dans le cahier des charges.\\
-La représentation de l’historique (F.29) n’est pas complète, nous n’avons pas implémenté la possibilité de commenter un coup avec du texte entre accolades.\\
-L’affichage de messages à l’utilisateur (F.31) se fait très bien en interface en lignes de commande, mais dans l’interface graphique, nous n’avons pas de messages affichés au joueur.\\
-Seuls les timers des deux joueurs en mode blitz sont présents, ainsi que la validation pour des commandes telles que l’abandon de la partie.\\
-Un coup invalide n’est simplement pas pris en compte, il n’y a pas de message pour indiquer au joueur que là où il a cliqué n’est pas un coup jouable.\\
-Il n’y a pas la possibilité d’afficher les règles du jeu ni une aide.\\
-
-
-
+Et les besoins suivants ne sont pas complets, ou ont été modifiés par rapport à
+leur description donnée dans le cahier des charges.\\ La représentation de
+l’historique (F.29) n’est pas complète, nous n’avons pas implémenté la
+possibilité de commenter un coup avec du texte entre accolades.\\ L’affichage
+de messages à l’utilisateur (F.31) se fait très bien en interface en lignes de
+commande, mais dans l’interface graphique, nous n’avons pas de messages
+affichés au joueur.\\ Seuls les timers des deux joueurs en mode blitz sont
+présents, ainsi que la validation pour des commandes telles que l’abandon de la
+partie.\\ Un coup invalide n’est simplement pas pris en compte, il n’y a pas de
+message pour indiquer au joueur que là où il a cliqué n’est pas un coup
+jouable.\\ Il n’y a pas la possibilité d’afficher les règles du jeu ni une
+aide.\\
 
 \newpage
 
@@ -1528,52 +1617,72 @@ nécessaires en réalité. Nous n’avions donc pas les besoins nécessaires pou
 avoir un jeu jouable en un temps raisonnable — après la deuxième semaine du
 projet.\\ Nous avons suivi l’agenda prévisionnel la première et deuxième
 semaine, puis, nous rendant compte de notre erreur, nous avons réfléchi
-ensemble à quoi nous avions besoin dans l’immédiat.\\ Nous avons séparé
-les besoins — ou plutôt des groupements de besoins — en degrés d’importance,
+ensemble à quoi nous avions besoin dans l’immédiat.\\ Nous avons séparé les
+besoins — ou plutôt des groupements de besoins — en degrés d’importance,
 priorisant un jeu en mode normal fonctionnel. En besoins moins urgents, nous
 avons mis le mode Blitz et l’affinage de l’interface en lignes de commandes.
 Enfin, en besoins qui pouvaient attendre avec le mode IA et l’interface
-graphique.\\ C’est pourquoi l’agenda rétrospectif présenté ici ne
-respecte pas le premier agenda que nous vous avions soumis.\\
+graphique.\\ C’est pourquoi l’agenda rétrospectif présenté ici ne respecte pas
+le premier agenda que nous vous avions soumis.\\
 
 \begin{figure}[h]
+
+    \vspace{3cm}
+
     \centering
     \includegraphics[width=0.9\textwidth]{images/AR_week_01.png}
-    \caption{Exemple d'insertion d'image}
-    \title{fig:AR_week_0.png}
+    \caption{Tâches effectuées pendant la première semaine du projet}
+    \title{fig:AR_week_01.png}
+
+    \vspace{1cm}
+
 \end{figure}
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.9\textwidth]{images/AR_week_02.png}
-    \caption{Exemple d'insertion d'image}
+    \caption{Tâches effectuées pendant la seconde semaine du projet}
     \title{fig:AR_week_0.png}
 
+    \vspace{1cm}
+
     \includegraphics[width=0.9\textwidth]{images/AR_week_03.png}
-    \caption{Exemple d'insertion d'image}
+    \caption{Tâches effectuées pendant la troisième semaine du projet}
     \title{fig:AR_week_0.png}
 \end{figure}
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.9\textwidth]{images/AR_week_04.png}
-    \caption{Exemple d'insertion d'image}
+    \caption{Tâches effectuées pendant la quatrième semaine du projet}
     \title{fig:AR_week_0.png}
+
+    \vspace{1cm}
 
     \includegraphics[width=0.9\textwidth]{images/AR_week_05.png}
-    \caption{Exemple d'insertion d'image}
+    \caption{Tâches effectuées pendant la cinquième semaine du projet}
     \title{fig:AR_week_0.png}
 
+    \vspace{1cm}
+
     \includegraphics[width=0.9\textwidth]{images/AR_week_06.png}
-    \caption{Exemple d'insertion d'image}
+    \caption{Tâches effectuées pendant la sixième semaine du projet}
     \title{fig:AR_week_0.png}
 \end{figure}
 
 \begin{figure}[h]
     \includegraphics[width=0.9\textwidth]{images/AR_week_07.png}
-    \caption{Exemple d'insertion d'image}
+    \caption{Tâches effectuées pendant la septième semaine du projet}
+    \title{fig:AR_week_0.png}
+
+    \vspace{1cm}
+
+    \includegraphics[width=0.9\textwidth]{images/AR_week_08-09.png}
+    \caption{Tâches effectuées pendant les huitième et neuvième semaines du projet}
     \title{fig:AR_week_0.png}
 \end{figure}
+
+\FloatBarrier
 
 \newpage
 
