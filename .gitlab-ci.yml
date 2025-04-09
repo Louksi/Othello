@@ -139,12 +139,12 @@ pre-commit:
 
 test-job:
   tags:
-    - Docker
-      #- shell
+    # - Docker
+    - shell
   stage: test
-  before_script:
-    - apt update
-    - apt install -y libgirepository1.0-dev gcc libcairo2-dev pkg-config python3-dev gir1.2-gtk-4.0
+  script:
+    # - apt update
+    # - apt install -y libgirepository1.0-dev gcc libcairo2-dev pkg-config python3-dev gir1.2-gtk-4.0
     - python -mvenv venv
     - source venv/bin/activate
     - python -m pip install --upgrade pip
@@ -155,7 +155,6 @@ test-job:
     - cd othello
     - pip install "PyGObject==3.50.0" --no-build-isolation --no-deps || echo "Failed to install PyGObject, continuing anyway"
     - pip install ./ --no-deps
-  script:
     - python -m pytest
   coverage: '/TOTAL.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   needs:
