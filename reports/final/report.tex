@@ -171,6 +171,76 @@ lequels des joueurs peuvent se rencontrer, discuter du jeu et de stratégie.\\
 
 \section{Règles du jeu}
 
+Othello se joue sur un plateau unicolore de 64 cases : l’\textit{othellier}. \\
+Les cases de l’othellier sont notées avec les lettres de A à H pour les colonnes et les chiffres de 1 à 8 pour les lignes. \\
+Chaque joueur possède 64 pierres, de couleur blanche sur une face et noire sur l’autre.
+
+\vspace{0.4cm}
+
+Avant que la partie ne commence, 4 pierres sont déposées sur l'othellier : 2 pierres noires en \texttt{E4} et \texttt{D5}, et 2 pierres blanches en \texttt{E5} et \texttt{D4}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/othello_rules_start.png}
+    \caption{Position de départ de l'othellier.}
+    \title{fig:Début de partie.}
+\end{figure}
+
+
+\vspace{0.4cm}
+
+Le but du jeu est de terminer la partie en ayant plus de pierres de sa couleur que celle de l’adversaire sur l’othellier. \\
+Au début de la partie, les joueurs noir et blanc sont désignés. Chaque joueur doit poser ses pierres sur l’othellier avec la face de sa couleur visible.
+
+\vspace{0.4cm}
+
+Les joueurs jouent à tour de rôle, en commençant par le joueur noir. \\
+Un tour désigne une pierre posée de sorte à capturer au minimum une pierre adverse.
+
+\vspace{0.4cm}
+
+Pour capturer une (ou plusieurs) pierres, il faut positionner de part et d’autre des pierres adverses une pierre de sa propre couleur, sur une même ligne, colonne ou diagonale. \\
+Toutes les pierres ennemies capturées sont alors retournées, pour que la face visible soit de la couleur du joueur qui a initié la capture. \\
+
+\vspace{0.4cm}
+
+Il faut noter qu’une capture ne peut être initiée qu’à partir de la pierre qui vient d’être posée. \\
+Il ne peut donc pas y avoir de réaction en chaîne. \\
+Si la pierre posée permet de capturer dans plusieurs directions, alors toutes les pierres doivent être capturées, peu importe la direction.
+
+\vspace{0.4cm}
+
+Voici un exemple de capture : \\
+
+Les noirs souhaitent jouer le coup \texttt{C6}. On regarde alors dans toutes les directions en partant de cette pierre s'il y a des pierres blanches prises en "sandwich" par pierres noires.
+Les pierres \texttt{C5} et \texttt{D5} sont donc les 2 pierres capturées.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/othello_rules_before_move.png}
+    \caption{Coups possibles par le joueur noir.}
+    \title{fig:Coups possibles noirs.}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/othello_rules_after_move.png}
+    \caption{Capture des pierres \texttt{C5} et \texttt{D5} par le joueur noir.}
+    \title{fig:Capture noire.}
+\end{figure}
+
+La partie peut se terminer de deux manières :
+\begin{itemize}
+    \item L’othellier est complètement rempli (64 pierres posées).
+    \item Les deux joueurs n’ont plus de coup possible.
+\end{itemize}
+
+\vspace{0.2cm}
+
+Une fois la partie terminée, on compte le nombre de pierres possédées par chaque joueur. Le joueur possédant le plus de pierres remporte la partie. \\
+
+Les règles se fient à celles de la FFO (Fédération Française d'Othello \cite{FFOthelloRegles}).
+
 \section{Descriptions des algorithmes et structures de données}
 
 \newpage
