@@ -142,21 +142,20 @@ test-job:
     - Docker
       #- shell
   stage: test
-  before_script:
+  script:
     - apt update
     - apt install -y libgirepository1.0-dev gcc libcairo2-dev pkg-config python3-dev gir1.2-gtk-4.0
     - python -mvenv venv
     - source venv/bin/activate
     - python -m pip install --upgrade pip
     - python --version ; pip --version
-    - pip install "ninja==1.8.2"
+    - python -m pip install "ninja==1.8.2"
     - pip install pycairo
     - pip install pytest pytest-cov
     - pip install meson-python
     - cd othello
     - pip install "PyGObject==3.50.0" --no-build-isolation --no-deps || echo "Failed to install PyGObject, continuing anyway"
     - pip install ./
-  script:
     - python -m pytest
   coverage: '/TOTAL.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   needs:
