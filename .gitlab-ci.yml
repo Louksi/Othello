@@ -145,11 +145,11 @@ test-job:
   script:
     - apt update
     - apt install -y libgirepository1.0-dev gcc libcairo2-dev pkg-config python3-dev gir1.2-gtk-4.0
+    - apt update && apt install -y ninja-build 
     - python -mvenv venv
     - source venv/bin/activate
     - python -m pip install --upgrade "pip<25.0" "setuptools<70.0"
     - python --version ; pip --version
-    - python -m pip install "ninja==1.8.2"
     - pip install pycairo
     - pip install pytest pytest-cov
     - pip install meson-python
