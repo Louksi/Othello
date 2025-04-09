@@ -1544,6 +1544,172 @@ boucle de jeu (pour la CLI) ou le démarrage de GTK (pour la GUI).\\
 
 \vspace{1cm}
 
+\noindent
+\setlength{\arrayrulewidth}{1.5pt}
+\renewcommand{\arraystretch}{1.5}
+\arrayrulecolor{CornflowerBlue}
+\begin{tabularx}{\textwidth}{|X|}
+    \hline
+    \textbf{F.51 Heuristique d’évaluation de position} \\
+    \hline
+    Besoin fonctionnel \\
+    \hline
+    Terminé le 24/02 \\
+    Par Rémy \\
+    \hline
+    Le programme contient plusieurs heuristiques capables de prendre un état du board en entrée et de renvoyer un score en fonction de différents critères.
+    Les critères choisis pour évaluer un board sont les suivants : la capture des coins, le nombre de pierres de notre couleur, le nombre de coups possibles, ainsi que tous ces critères combinés.
+
+    Les fonctions d’heuristiques utilisées sont les suivantes : \\
+
+    \texttt{corners\_captured\_heuristic(board: OthelloBoard, max\_player: Color) -> int} \\
+    \texttt{coin\_parity\_heuristic(board: OthelloBoard, max\_player: Color) -> int} \\
+    \texttt{mobility\_heuristic(board: OthelloBoard, max\_player: Color) -> int} \\
+    \texttt{all\_in\_one\_heuristic(board: OthelloBoard, max\_player: Color) -> int} \\
+
+    qui renvoient toutes une évaluation en fonction des critères respectivement cités ci-dessus. \\
+    \arrayrulecolor{MediumAquamarine}\hline
+    \arrayrulecolor{CornflowerBlue}
+    La stratégie de validation de ce besoin est assez triviale, il nous suffit de créer des plateaux de jeu prédéfinis où l’on connaît déjà le score que chaque fonction doit attribuer. Il suffit donc de comparer le vrai score avec celui renvoyé par chaque heuristique. \\
+    \arrayrulecolor{MediumAquamarine}\hline
+    \arrayrulecolor{CornflowerBlue}
+    Nécessaire pour implémenter les algorithmes de recherche Minimax (F.52) et Alpha-Beta (F.53) \\
+    \hline
+\end{tabularx}
+
+\vspace{1cm}
+
+\noindent
+\setlength{\arrayrulewidth}{1.5pt}
+\renewcommand{\arraystretch}{1.5}
+\arrayrulecolor{CornflowerBlue}
+\begin{tabularx}{\textwidth}{|X|}
+    \hline
+    \textbf{F.52 Algorithme de recherche Minimax} \\
+    \hline
+    Besoin fonctionnel \\
+    \hline
+    Terminé le 24/02 \\
+    Par Rémy \\
+    \hline
+    L’option \texttt{--ai-mode minimax} permet de spécifier l’algorithme de recherche utilisé par l’IA, et utiliser Minimax pour trouver son meilleur coup.
+    Par défaut, le joueur IA utilise l’algorithme Minimax pour sa recherche.
+
+    L’algorithme Minimax est l’algorithme d’exploration de l’arbre de jeu utilisé par défaut. Il prend l’état d’un plateau, la profondeur de l’arbre à explorer, le joueur IA (qui souhaite jouer le meilleur coup), et la fonction heuristique qui évaluera les feuilles de l’arbre : \\
+
+    \texttt{minimax(board: OthelloBoard, depth: int, max\_player: Color, heuristic: Callable) -> float} \\
+    \arrayrulecolor{MediumAquamarine}\hline
+    \arrayrulecolor{CornflowerBlue}
+    Pour vérifier le bon fonctionnement, on prend un plateau dont on connaît le meilleur coup à jouer, ainsi que le score de ce dernier en fonction de l’heuristique choisie. On peut ensuite comparer le résultat de Minimax en profondeur 1 avec le véritable score calculé au préalable.
+
+    Pour vérifier les bugs à des profondeurs plus importantes, il est vite compliqué de prévoir quels sont les meilleurs coups à la main. On a donc fait jouer Minimax contre un joueur random (jouant des coups aléatoires) avec plusieurs profondeurs afin de s’assurer qu’aucun bug n’était caché. L’objectif était d’avoir un pourcentage élevé de victoire face à un joueur random. \\
+    \arrayrulecolor{MediumAquamarine}\hline
+    \arrayrulecolor{CornflowerBlue}
+    L'implémentation des heuristiques (F.51) est nécessaire pour l'évaluation des plateau dans l'algorithme minimax.\\
+    Minimax est nécessaire pour implémenter le mode IA (F.24) \\
+    \hline
+\end{tabularx}
+
+\vspace{1cm}
+
+\noindent
+\setlength{\arrayrulewidth}{1.5pt}
+\renewcommand{\arraystretch}{1.5}
+\arrayrulecolor{CornflowerBlue}
+\begin{tabularx}{\textwidth}{|X|}
+    \hline
+    \textbf{F.53 AlphaBeta pruning} \\
+    \hline
+    Besoin fonctionnel \\
+    \hline
+    Terminé le 18/03 \\
+    Par Rémy \\
+    \hline
+    L’option \texttt{--ai-mode ab} permet de spécifier l’algorithme de recherche utilisé par l’IA, et utiliser l’AlphaBeta pruning, une amélioration de l’algorithme Minimax, pour trouver son meilleur coup.
+
+    L’algorithme AlphaBeta est similaire à l’algorithme Minimax. Il renvoie donc le même résultat. La différence de cet algorithme est l’ajout de variables Alpha et Beta, permettant de garder en mémoire le meilleur coup ami et ennemi, ce qui permet de sauter l’exploration de certaines branches si l’on sait qu’elles ne permettront pas de trouver un meilleur coup.
+
+    L’implémentation de la fonction est donc également similaire : \\
+
+    \texttt{alphabeta(board: OthelloBoard, depth: int, alpha: int, beta: int, max\_player: Color, heuristic: Callable) -> float}
+
+    où alpha et beta sont les mémoires respectives du meilleur coup ami ou ennemi observé dans l’arbre.
+    Le reste des paramètres est similaire à ceux de Minimax (F.52). \\
+    \arrayrulecolor{MediumAquamarine}\hline
+    \arrayrulecolor{CornflowerBlue}
+    La stratégie de validation est elle aussi similaire à celle de Minimax. On compare en profondeur 1 le score envoyé par AlphaBeta avec le score théorique qu’il est censé renvoyer pour un board prédéfini.
+
+    Pour des profondeurs plus grandes, nous avons fait jouer AlphaBeta contre le joueur random en s’assurant que l’IA gagne la majorité du temps. \\
+    \arrayrulecolor{MediumAquamarine}\hline
+    \arrayrulecolor{CornflowerBlue}
+    L'implémentation des heuristiques (F.51) est nécessaire pour l'évaluation des plateau dans l'algorithme alphabeta-pruning.\\
+    Alphabeta est nécessaire pour implémenter le mode IA (F.24) \\
+    \hline
+\end{tabularx}
+
+\vspace{1cm}
+
+\noindent
+\setlength{\arrayrulewidth}{1.5pt}
+\renewcommand{\arraystretch}{1.5}
+\arrayrulecolor{CornflowerBlue}
+\begin{tabularx}{\textwidth}{|X|}
+    \hline
+    \textbf{F.56 Profondeur de recherche} \\
+    \hline
+    Besoin fonctionnel \\
+    \hline
+    Terminé le 25/03 \\
+    Par Rémy \\
+    \hline
+    L’option \texttt{--ai-depth [DEPTH]} permet de spécifier une limite de profondeur de recherche au joueur IA.
+
+    Par défaut, la profondeur maximale est fixée à 3.
+
+    La taille de l’arbre de recherche construit par le joueur IA dans sa recherche du meilleur coup ne dépasse pas la profondeur maximale spécifiée. \\
+    \arrayrulecolor{MediumAquamarine}\hline
+    \arrayrulecolor{CornflowerBlue}
+    Les algorithmes de recherche ont déjà été testés indépendamment à des profondeurs différentes, l’option \texttt{--ai-depth [DEPTH]} a donc simplement été testée en essayant de jouer contre une IA et en observant le mode debug. \\
+    \arrayrulecolor{MediumAquamarine}\hline
+    \arrayrulecolor{CornflowerBlue}
+    L'implémentation des algorithmes minimax (F.52) et AlphaBeta (F.53) est nécessaire pour l'ajout de cette option. \\
+    L'option \texttt{--ai-depth [DEPTH]} est une dépendance du mode IA (F.24) \\
+    \hline
+\end{tabularx}
+
+\vspace{1cm}
+
+\noindent
+\setlength{\arrayrulewidth}{1.5pt}
+\renewcommand{\arraystretch}{1.5}
+\arrayrulecolor{CornflowerBlue}
+\begin{tabularx}{\textwidth}{|X|}
+    \hline
+    \textbf{F.57 Choix des heuristiques} \\
+    \hline
+    Besoin fonctionnel \\
+    \hline
+    Terminé le 18/03 \\
+    Par Rémy \\
+    \hline
+    L’option \texttt{--ai-heuristic [HEURISTIC]} permet de spécifier l’heuristique utilisée par l’IA pour évaluer un coup.
+
+    Les heuristiques disponibles sont expliquées dans le besoin F.51. \\
+    \arrayrulecolor{MediumAquamarine}\hline
+    \arrayrulecolor{CornflowerBlue}
+    Les heuristiques ont déjà été testées individuellement. Il suffisait donc de lancer des parties avec les différentes IA et vérifier qu’elles jouaient en prenant en compte la bonne caractéristique (les coins, le nombre de pierres, le nombre de coups possibles ou toutes à la fois). \\
+    \arrayrulecolor{MediumAquamarine}\hline
+    \arrayrulecolor{CornflowerBlue}
+    L'implémentation de plusieurs heuristiques (F.51) est nécessaire pour  \\
+    Dépendances inversées \\
+    L'option \texttt{--ai-heuristic [HEURISTIC]} est une dépendance du mode IA (F.24) \\
+    \hline
+\end{tabularx}
+
+\vspace{1cm}
+
+
+
 \newpage
 
 \section{Liste des besoins non réalisés}
