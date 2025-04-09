@@ -1,13 +1,10 @@
 """Game Modes for Othello"""
 
 import logging
-import sys
 
-import othello.logger as log
 from othello.command_parser import CommandParser, CommandKind, CommandParserException
-from othello.parser import DEFAULT_BLITZ_TIME
 from othello.config import save_board_state_history
-from othello.othello_board import GameOverException, Color
+from othello.othello_board import Color
 from othello.controllers import (
     GameController,
 )
@@ -22,6 +19,7 @@ class OthelloCLI:
     """
 
     NB_PLAYS_IN_HISTORY = 5
+    parser: CommandParser
 
     def __init__(
         self,
@@ -79,7 +77,7 @@ class OthelloCLI:
             return True
 
         # If no moves for current player but game isn't over (other player can still move)
-        if possible_moves.bits == 0:
+        if not possible_moves.bits:
             logger.debug(
                 "   No moves available for %s player. Skipping turn.",
                 self.controller.get_current_player(),
@@ -115,7 +113,8 @@ class OthelloCLI:
                     print(f"{chr(ord('a') + x_coord)}{y_coord + 1}", end=" ")
         print()
 
-    def get_player_move(self):
+    @staticmethod
+    def get_player_move():
         """
         Prompts the current player to enter their move.
 
@@ -150,8 +149,6 @@ class OthelloCLI:
         :type x_coord: int
         :type y_coord: int
         :type possible_moves: Bitboard
-        :return: True if the move is successfully processed, False if the move is invalid.
-        :rtype: bool
         """
         logger.debug(
             "Entering process_move function from cli.py, with parameters x_coord:"
@@ -164,10 +161,7 @@ class OthelloCLI:
             print("Invalid move. Not a legal play. Try again.")
             return False
         logger.debug("   Move (%s, %s) is legal, playing.", x_coord, y_coord)
-        try:
-            self.controller.play(x_coord, y_coord)
-        except GameOverException:
-            print("game over")
+        self.controller.play(x_coord, y_coord)
         return True
 
     def check_parser_input(self, command_str, command_kind, *args):
@@ -184,8 +178,6 @@ class OthelloCLI:
         :type command_str: str
         :type command_kind: CommandKind
         :type args: tuple
-        :return: True if the command is valid, False if the command is invalid.
-        :rtype: bool
         """
         logger.debug(
             "Entering check_parser_input function from cli.py, with parameters"
@@ -214,7 +206,7 @@ class OthelloCLI:
                     self.parser.print_help()
                 case CommandKind.RULES:
                     logger.debug("   Executing %s command.", command_kind)
-                    self.parser.print_rules()
+                    CommandParser.print_rules()
                 case CommandKind.SAVE_AND_QUIT:
                     logger.debug("   Executing %s command.", command_kind)
                     save_board_state_history(self.controller)
@@ -275,8 +267,6 @@ class OthelloCLI:
         then processes the command based on the kind.
 
         The loop continues until the game is over, or the user quits.
-
-        :return: None
         """
         logger.debug("Entering play function from cli.py.")
         self.parser = CommandParser(board_size=self.controller.size.value)
@@ -294,9 +284,8 @@ class OthelloCLI:
                 command_kind, *args = self.parser.parse_str(command_str)
                 self.check_parser_input(command_str, command_kind, *args)
 
-            except CommandParserException as e:
-                context = "Failed to parse command %s", command_str
-                print(f"Error: {e}\nInvalid command. Please try again.")
+            except CommandParserException as err:
+                print(f"Error: {err}\nInvalid command. Please try again.")
                 self.parser.print_help()
 
         def turn_display():

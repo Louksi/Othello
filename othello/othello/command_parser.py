@@ -7,8 +7,6 @@ from typing import Literal
 import argparse
 import logging
 
-import othello.logger as log
-
 logger = logging.getLogger("Othello")
 
 
@@ -146,7 +144,8 @@ class CommandParser:
         print("  restart - Restart the game")
         print("\nCoordinate format: [column][row] (e.g., a1, b2)")
 
-    def print_rules(self):
+    @staticmethod
+    def print_rules():
         """
         Display the rules of Othello/Reversi
         """

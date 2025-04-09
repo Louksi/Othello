@@ -123,7 +123,8 @@ def create_parser() -> argparse.ArgumentParser:
         "-b",
         "--blitz",
         action="store_true",
-        help=f"Enable blitz game mode, (default time for each player: {DEFAULT_BLITZ_TIME} minutes)",
+        help=f"Enable blitz game mode, (default time for each player: \
+{DEFAULT_BLITZ_TIME} minutes)",
     )
 
     parser.add_argument(
@@ -131,7 +132,8 @@ def create_parser() -> argparse.ArgumentParser:
         "--time",
         type=int,
         metavar="TIME",
-        help=f"Set initial time (in minutes) for each player in Blitz mode, default is {DEFAULT_BLITZ_TIME} minutes",
+        help=f"Set initial time (in minutes) for each player in Blitz mode, default is \
+{DEFAULT_BLITZ_TIME} minutes",
     )
 
     parser.add_argument(
@@ -149,7 +151,8 @@ def create_parser() -> argparse.ArgumentParser:
         const=VALID_AICOLORS[0],
         choices=VALID_AICOLORS,
         metavar="COLOR",
-        help="Enable AI game mode with optional color specification: black: 'X' / white: 'O' / all: 'A', default is black",
+        help="Enable AI game mode with optional color specification: \
+black: 'X' / white: 'O' / all: 'A', default is black",
     )
 
     parser.add_argument(
@@ -163,7 +166,8 @@ def create_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--ai-shallow",
         action="store_true",
-        help="Enable shallow AI mode, allows for a preliminary shallow exploration of the move tree",
+        help="Enable shallow AI mode, allows for a preliminary shallow \
+exploration of the move tree",
     )
 
     parser.add_argument(
@@ -180,7 +184,8 @@ def create_parser() -> argparse.ArgumentParser:
         choices=VALID_AIHEURISTICS,
         default=DEFAULT_AI_HEURISTIC,
         metavar="HEURISTIC",
-        help=f"Set AI heuristic: default: 'default' / other: 'other', default is '{DEFAULT_AI_HEURISTIC}'",
+        help=f"Set AI heuristic: default: 'default' / other: 'other', \
+default is '{DEFAULT_AI_HEURISTIC}'",
     )
 
     parser.add_argument(
@@ -192,10 +197,11 @@ def create_parser() -> argparse.ArgumentParser:
     )
 
     parser.add_argument(
+        "-g",
         "--gui",
         action="store_true",
         default=DEFAULT_GUI,
-        help="Launch the GUI version instead of the CLI one.",
+        help="Launch the GUI version instead of the CLI one",
     )
 
     return parser
@@ -242,10 +248,12 @@ def parse_args() -> tuple[str, dict[str, Any]]:
     # starting a game from a file and changing specific options raises an error
     # illegal_options_with_file = ["size", "blitz", "contest", "ai"]
 
-    if args.filename and not (args.size or args.blitz or args.contest or args.ai):
+    any_args = args.size or args.blitz or args.contest or args.ai
+    if args.filename and not any_args:
         parse_error(
             parser,
-            "Cannot specify options that break the game configuration when loading a game from a file",
+            "Cannot specify options that break the game configuration \
+when loading a game from a file",
         )
 
     # setting time if GM is not blitz raises an error
@@ -260,7 +268,7 @@ def parse_args() -> tuple[str, dict[str, Any]]:
     if mode == GameMode.CONTEST.value and args.contest is None:
         parse_error(parser, "Contest mode requires a file (-c FILENAME)")
 
-    if args.contest is not None and args.contest == "":
+    if args.contest is not None and not args.contest:
         parse_error(parser, "Contest mode requires a valid filename")
 
     # specifying an invalid color for the ai player raises an error

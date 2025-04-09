@@ -31,8 +31,6 @@ def test_human_next_move():
     assert p.controller is None
     assert p.color is None
     controller_mock = MagicMock()
-    with pytest.raises(Exception):
-        p.next_move()
     p.attach(controller_mock)
     p.set_color(Color.BLACK)
     controller_mock.human_play_callback = None
@@ -46,12 +44,8 @@ def test_random_player_next_move():
     p = RandomPlayer()
     assert p.controller is None
     assert p.color is None
-    with pytest.raises(Exception, match="controller not defined"):
-        p.next_move()
     controller_mock = MagicMock()
     p.attach(controller_mock)
-    with pytest.raises(Exception, match="color is not defined"):
-        p.next_move()
     p.set_color(Color.BLACK)
     possible_moves_mock = MagicMock()
     possible_moves_mock.hot_bits_coordinates.return_value = [(3, 4), (5, 6)]

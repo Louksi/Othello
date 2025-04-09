@@ -2,7 +2,7 @@ from copy import deepcopy
 import pytest
 from copy import deepcopy
 
-from othello.othello_board import OthelloBoard, BoardSize, Color, GameOverException
+from othello.othello_board import OthelloBoard, BoardSize, Color
 from othello.ai_features import (
     corners_captured_heuristic,
     coin_parity_heuristic,
