@@ -157,7 +157,7 @@ def create_parser() -> argparse.ArgumentParser:
         "--time",
         type=int,
         metavar="TIME",
-        help=f"Set initial time (in minutes) for each player in Blitz mode, default is\
+        help=f"Set initial time (in minutes) for each player in Blitz mode, default is \
 {DEFAULT_BLITZ_TIME} minutes",
     )
 
@@ -222,10 +222,11 @@ default is '{DEFAULT_AI_HEURISTIC}'",
     )
 
     parser.add_argument(
+        "-g",
         "--gui",
         action="store_true",
         default=DEFAULT_GUI,
-        help="Launch the GUI version instead of the CLI one.",
+        help="Launch the GUI version instead of the CLI one",
     )
 
     parser.add_argument(
