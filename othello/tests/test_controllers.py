@@ -235,9 +235,7 @@ def test_current_player_is_human():
     board_mock.current_player = Color.BLACK
     controller = GameController(board_mock, human_player, ai_player)
     with patch("othello.controllers.isinstance", return_value=True):
-        # Check if current player is human
         result = controller.current_player_is_human()
-        # Verify result is True
         assert result
     board_mock.current_player = Color.WHITE
     with patch("othello.controllers.isinstance", return_value=False):
@@ -315,3 +313,195 @@ def test_str():
     result = str(controller)
     board_mock.__str__.assert_called_once()
     assert result == board_str
+
+
+def test_display_time_player():
+    board_mock = MagicMock(spec=OthelloBoard)
+    board_mock.size = BoardSize.EIGHT_BY_EIGHT
+    controller = GameController(
+        board_mock,
+        MagicMock(spec=Player),
+        MagicMock(spec=Player),
+        True,
+        30,
+    )
+    assert controller.display_time_player(Color.BLACK) == "29:59"
+    controller = GameController(
+        board_mock, MagicMock(spec=Player), MagicMock(spec=Player), False, 30
+    )
+    assert controller.display_time_player(Color.BLACK) is None
+
+
+def test_play_early_return_when_game_over():
+    board_mock = MagicMock(spec=OthelloBoard)
+    board_mock.size = BoardSize.EIGHT_BY_EIGHT
+    controller = GameController(
+        board_mock, MagicMock(spec=Player), MagicMock(spec=Player)
+    )
+    controller.logger = MagicMock()
+    controller._check_for_blit_game_over = MagicMock()
+    controller.is_game_over = True
+
+    controller.play(1, 2)
+
+    controller.logger.debug.assert_called_once_with(
+        "Tried to play (%d:%d) in a game over game", 1, 2
+    )
+    controller._check_for_blit_game_over.assert_not_called()
+    controller._board.play.assert_not_called()
+
+
+def test_blitz_game_over_black():
+    board_mock = MagicMock(spec=OthelloBoard)
+    board_mock.size = BoardSize.EIGHT_BY_EIGHT
+    board_mock.current_player = Color.BLACK
+    board_mock.black = MagicMock()
+    board_mock.white = MagicMock()
+    board_mock.black.popcount.return_value = 3
+    board_mock.white.popcount.return_value = 3
+    controller = GameController(
+        board_mock,
+        MagicMock(spec=Player),
+        MagicMock(spec=Player),
+        True,
+        30,
+    )
+    controller.blitz.remaining_time["black"] = 0
+    controller.play(0, 0)
+    assert controller.is_game_over
+    assert controller.game_over_message == "Black's time is up! White wins!"
+
+
+def test_blitz_game_over_white():
+    board_mock = MagicMock(spec=OthelloBoard)
+    board_mock.size = BoardSize.EIGHT_BY_EIGHT
+    board_mock.current_player = Color.BLACK
+    board_mock.black = MagicMock()
+    board_mock.white = MagicMock()
+    board_mock.black.popcount.return_value = 3
+    board_mock.white.popcount.return_value = 3
+    controller = GameController(
+        board_mock,
+        MagicMock(spec=Player),
+        MagicMock(spec=Player),
+        True,
+        30,
+    )
+    controller.blitz.remaining_time["white"] = 0
+    controller.play(0, 0)
+    assert controller.is_game_over
+    assert controller.game_over_message == "White's time is up! Black wins!"
+
+
+def test_blitz_timer_called_after_normal_game_over():
+    """Test that blitz.change_player is called after a play that ends the game normally in blitz mode."""
+    board_mock = MagicMock(spec=OthelloBoard)
+    board_mock.size = BoardSize.EIGHT_BY_EIGHT
+    board_mock.is_game_over.return_value = True
+    controller = GameController(
+        board_mock,
+        MagicMock(spec=Player),
+        MagicMock(spec=Player),
+        blitz_mode=True,
+        time_limit=30,
+    )
+    controller.logger = MagicMock()
+    post_callback = MagicMock()
+    controller.post_play_callback = post_callback
+    blitz_mock = MagicMock()
+    controller.blitz = blitz_mock
+    controller.get_current_player = MagicMock(return_value=Color.BLACK)
+
+    controller.play(3, 4)
+
+    board_mock.play.assert_called_once_with(3, 4)
+    assert controller.is_game_over is True
+    post_callback.assert_called_once()
+    blitz_mock.change_player.assert_called_once_with("black")
+
+
+def test_blitz_timer_callback_white_player():
+    """Test blitz.change_player is called with 'white' when current player is white."""
+    board_mock = MagicMock(spec=OthelloBoard)
+    board_mock.size = BoardSize.EIGHT_BY_EIGHT
+    board_mock.is_game_over.return_value = False
+    controller = GameController(
+        board_mock,
+        MagicMock(spec=Player),
+        MagicMock(spec=Player),
+        blitz_mode=True,
+        time_limit=30,
+    )
+    controller.logger = MagicMock()
+    post_callback = MagicMock()
+    controller.post_play_callback = post_callback
+    blitz_mock = MagicMock()
+    controller.blitz = blitz_mock
+    controller.get_current_player = MagicMock(return_value=Color.WHITE)
+
+    controller.play(2, 3)
+
+    board_mock.play.assert_called_once_with(2, 3)
+    blitz_mock.change_player.assert_called_once_with("white")
+    post_callback.assert_called_once()
+
+
+def test_blitz_timer_called_after_normal_game_over():
+    """Test that blitz.change_player is called after a play that ends the game normally in blitz mode."""
+    board_mock = MagicMock()
+    black_player_mock = MagicMock()
+    white_player_mock = MagicMock()
+    black_bitboard = MagicMock()
+    black_bitboard.popcount.return_value = 15
+    white_bitboard = MagicMock()
+    white_bitboard.popcount.return_value = 12
+    board_mock.black = black_bitboard
+    board_mock.white = white_bitboard
+    controller = GameController(
+        board_mock,
+        MagicMock(spec=Player),
+        MagicMock(spec=Player),
+        blitz_mode=True,
+        time_limit=30,
+    )
+    controller.logger = MagicMock()
+    post_callback = MagicMock()
+    controller.post_play_callback = post_callback
+    blitz_mock = MagicMock()
+    blitz_mock.is_time_up.return_value = False
+    controller.blitz = blitz_mock
+    controller.get_current_player = MagicMock(return_value=Color.BLACK)
+
+    controller.play(3, 4)
+
+    board_mock.play.assert_called_once_with(3, 4)
+    assert controller.is_game_over is True
+    post_callback.assert_called_once()
+    blitz_mock.change_player.assert_called_once_with("black")
+
+
+def test_blitz_timer_callback_white_player():
+    """Test blitz.change_player is called with 'white' when current player is white."""
+    board_mock = MagicMock(spec=OthelloBoard)
+    board_mock.size = BoardSize.EIGHT_BY_EIGHT
+    board_mock.is_game_over.return_value = False  # Game continues after play
+    controller = GameController(
+        board_mock,
+        MagicMock(spec=Player),
+        MagicMock(spec=Player),
+        blitz_mode=True,
+        time_limit=30,
+    )
+    controller.logger = MagicMock()
+    post_callback = MagicMock()
+    controller.post_play_callback = post_callback
+    blitz_mock = MagicMock()
+    blitz_mock.is_time_up.return_value = False
+    controller.blitz = blitz_mock
+    controller.get_current_player = MagicMock(return_value=Color.WHITE)
+
+    controller.play(2, 3)
+
+    board_mock.play.assert_called_once_with(2, 3)
+    blitz_mock.change_player.assert_called_once_with("white")
+    post_callback.assert_called_once()
