@@ -472,12 +472,11 @@ plateau en considérant différentes caractéristiques.\\ Il remonte ensuite les
 scores en alternant les coups "ami", qui cherchent à obtenir le meilleur score,
 et les coups "ennemis", qui cherchent à obtenir le pire score.\\
 \texttt{Minimax} renvoie le meilleur score atteignable depuis le \texttt{board}
-donné en entrée.\\
-\\
-Dans l'exemple ci-dessous, on peut voir que les scores des feuilles remontent en alternant
-les coups "ami" et "ennemi" (choisissant respectivement le meilleur et le pire score).
-Minimax renvoit donc 19, qui est le meilleur score atteignable depuis le plateau initial si les 2 joueurs
-jouent les meilleurs coups théoriques.
+donné en entrée.\\ \\ Dans l'exemple ci-dessous, on peut voir que les scores
+des feuilles remontent en alternant les coups "ami" et "ennemi" (choisissant
+respectivement le meilleur et le pire score). Minimax renvoit donc 19, qui est
+le meilleur score atteignable depuis le plateau initial si les 2 joueurs jouent
+les meilleurs coups théoriques.
 
 \begin{figure}[h]
     \centering
@@ -498,12 +497,12 @@ scores obtenus ne sont pas meilleurs que ceux déjà trouvés précédemment), a
 on élague la branche afin d’économiser du temps de calcul.\\
 \texttt{AlphaBeta-pruning} renvoie donc le même résultat que \texttt{Minimax}
 (avec une profondeur et une heuristique similaire) mais est bien plus efficace
-car il n’explore pas systématiquement l’entièreté de l’arbre de jeu.\\
-\\
-Dans l'exemple suivant, AlphaBeta remonte les scores des feuilles de la même manière
-que Minimax, mais stocke également le meilleur et le pire coup observé dans alpha et beta.
-On observe donc l'élagage de certaines branches qui n'amélioreront en aucun cas les scores
-alpha et beta. Le résultat est donc le même, mais l'exploration est plus rapide.
+car il n’explore pas systématiquement l’entièreté de l’arbre de jeu.\\ \\ Dans
+l'exemple suivant, AlphaBeta remonte les scores des feuilles de la même manière
+que Minimax, mais stocke également le meilleur et le pire coup observé dans
+alpha et beta. On observe donc l'élagage de certaines branches qui
+n'amélioreront en aucun cas les scores alpha et beta. Le résultat est donc le
+même, mais l'exploration est plus rapide.
 
 \begin{figure}[h]
     \centering
@@ -512,9 +511,9 @@ alpha et beta. Le résultat est donc le même, mais l'exploration est plus rapid
     \title{fig:Example de l'exécution d'AlphaBeta.}
 \end{figure}
 
-Ces deux algorithmes calculent le score des feuilles grâce à nos 4 heuristiques implémentées, décrites en
-détails dans le besoin F.51 - Heuristique d’évaluation de
-position.\cite{HeuristicPaper}
+Ces deux algorithmes calculent le score des feuilles grâce à nos 4 heuristiques
+implémentées, décrites en détails dans le besoin F.51 - Heuristique
+d’évaluation de position.\cite{HeuristicPaper}
 
 \newpage
 
@@ -654,6 +653,78 @@ boucle de jeu (pour la CLI) ou le démarrage de GTK (pour la GUI).\\
 \newpage
 
 \section{Performances et limitations}
+
+\textbf{Mesure des performances et problèmes initiaux}\\
+
+Les performances du code, ainsi que les temps de calcul des intelligences
+artificielles (IA) utilisant différentes heuristiques, ont été évalués à l’aide
+du module \texttt{time} de Python.\\ Cependant, lors des tests avec des
+profondeurs de recherche élevées (6, 7 et 8), des limitations significatives
+sont apparues, entraînant des temps d’exécution prohibitifs. Ces contraintes
+ont motivé une analyse approfondie des méthodes employées, en particulier
+celles reposant sur les \texttt{bitboards}.\\
+
+% \begin{figure}[h]
+
+%     \centering
+%     \includegraphics[width=0.9\textwidth]{images/perfs_tps_calcul.png}
+%     \caption{Temps de calcul par tour pour une configuration donnée.}
+%     \title{fig:tps_calcul_par_tour.png}
+
+% \end{figure}
+
+\textbf{Optimisations apportées}\\
+
+Un premier diagnostic, réalisé à l’aide de PyCharm et du profilé intégré
+(\texttt{cProfiler}), a révélé des inefficacités critiques dans la manipulation
+des \texttt{bitboards}. Parmi les problèmes identifiés :\\ - Une vérification
+bit-à-bit systématique lors de chaque opération sur le plateau, même dans les
+cas où aucun mouvement n’était joué.\\ - Une surcharge inutile dans la méthode
+\texttt{get(cls, size) -> int}, pénalisant les performances globales.\\ Après
+révision de ces méthodes, une optimisation majeure a été implémentée, réduisant
+drastiquement le temps de calcul. La \textbf{figure 9} illustre l’amélioration
+obtenue, comparant le coût temporel d’un tour avant et après cette
+modification.\\
+
+\textbf{Comparaison des algorithmes : Minimax vs Alpha-Beta}\\
+
+Pour affiner nos résultats, nous avons comparé les performances des algorithmes
+\texttt{Minimax} et \texttt{Alpha-Beta}. Comme attendu, ce dernier s’est avéré
+significativement plus rapide grâce à son mécanisme d’élagage. La
+\textbf{Figure 2} présente cette comparaison, confirmant que
+\texttt{Alpha-Beta} est mieux adapté à nos besoins.\\
+
+% \begin{figure}[h]
+
+%     \centering
+%     \includegraphics[width=0.9\textwidth]{images/perfs_m_vs_ab_p8.png}
+%     \caption{TFigure 2: Minimax vs Alpha-Beta à profondeur 8.}
+%     \title{fig:perfs_m_vs_ab_p8.png}
+
+% \end{figure}
+
+\noindent Suite à ces observations, \texttt{Alpha-Beta} a été retenue pour toutes
+les expériences suivantes.\\
+
+\textbf{Évaluation des heuristiques et biais potentiels}\\
+
+Enfin, nous avons mesuré l’impact des différentes heuristiques en fonction de
+la profondeur de recherche. Par ailleurs, une question cruciale a été
+investiguée : Othello présente-t-il un biais en fonction du côté (noir/blanc)
+avec lequel on débute ?\\ Pour y répondre, des tests ont été menés avec
+\texttt{coin\_parity} à une profondeur de 6, permettant de collecter des
+données statistiques sur les taux de victoire. En effet, environ 52\% du temps
+le deuxième joueur gagne, c’est dû au fait qu'il posera la dernière pièce en
+cas d’un tableau rempli.\\
+
+\textbf{Limitations:}\\
+
+Nous voyons avec nos résultats qu'à partir d’une profondeur 7, le jeu se
+ralentit considérablement, puis à une profondeur 9, le temps par coup est
+d'environ 40 secondes, ce qui est injouable.\\ De plus, en Python, les entiers
+n’ont pas de limite de grandeur. Nous avons mis la limite à un tableau de 10x10
+avant qu'une machine de configuration moyenne commence à attendre sa limite.\\
+
 \newpage
 
 \section{Critiques et perspectives}
