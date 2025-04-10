@@ -88,17 +88,30 @@ def line_graph_depth(csv_path="experiment4_results.csv"):
     plt.show()
 
 
-def plot_exp4(results, filename="alpha_beta_time_by_depth.png"):
+def plot_exp4(
+    csv_path="experiment4_results.csv", filename="alpha_beta_time_by_depth.png"
+):
     """
     Plot the Alpha-Beta time by depth for different heuristics
 
     Args:
-        results: Dictionary in format {heuristic: {depth: avg_time}}
+        csv_path: Path to the CSV results file
         filename: Where to save the plot image
     """
+    # Load and prepare data
+    df = pd.read_csv(csv_path)
+
+    # Calculate average times per heuristic and depth
+    results = (
+        df.groupby(["black_ai_heuristic", "depth"])
+        .agg({"avg_black_execution_time": "mean", "avg_white_execution_time": "mean"})
+        .reset_index()
+    )
+
+    # Create the plot
     plt.figure(figsize=(10, 6))
 
-    # Define colors/markers for each heuristic for consistent plotting
+    # Define styles for each heuristic
     styles = {
         "corners_captured": {"color": "blue", "marker": "o"},
         "coin_parity": {"color": "green", "marker": "s"},
@@ -106,13 +119,19 @@ def plot_exp4(results, filename="alpha_beta_time_by_depth.png"):
         "all_in_one": {"color": "purple", "marker": "D"},
     }
 
-    for heuristic in results:
-        depths = sorted(results[heuristic].keys())
-        times = [results[heuristic][d] for d in depths]
+    # Plot each heuristic's time curve
+    for heuristic in df["black_ai_heuristic"].unique():
+        heuristic_data = results[results["black_ai_heuristic"] == heuristic]
+
+        # Calculate combined average time (black and white)
+        heuristic_data["avg_time"] = (
+            heuristic_data["avg_black_execution_time"]
+            + heuristic_data["avg_white_execution_time"]
+        ) / 2
 
         plt.plot(
-            depths,
-            times,
+            heuristic_data["depth"],
+            heuristic_data["avg_time"],
             label=heuristic,
             marker=styles[heuristic]["marker"],
             color=styles[heuristic]["color"],
@@ -121,21 +140,21 @@ def plot_exp4(results, filename="alpha_beta_time_by_depth.png"):
             markersize=8,
         )
 
+    # Format the plot
     plt.title("Alpha-Beta Time by Depth", fontsize=14)
     plt.xlabel("Depth", fontsize=12)
-    plt.ylabel("Time (seconds)", fontsize=12)
-    plt.legend(fontsize=10)
+    plt.ylabel("Average Execution Time (seconds)", fontsize=12)
+    plt.legend(fontsize=10, bbox_to_anchor=(1.05, 1), loc="upper left")
     plt.grid(True, linestyle="--", alpha=0.7)
-
-    # Adjust x-axis to show integer depths only
     plt.xticks(range(1, 11))
 
-    # Save and show
+    # Adjust layout and save
     plt.tight_layout()
-    plt.savefig(filename, dpi=300)
+    plt.savefig(filename, dpi=300, bbox_inches="tight")
     plt.show()
 
 
 if __name__ == "__main__":
     create_experiment1_visualizations()
+    plot_exp4()
     print("Visualization complete!")
