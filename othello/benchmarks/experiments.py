@@ -359,13 +359,16 @@ def run_experiment3():
 def run_experiment4():
     """Run experiments to compare execution time of different heuristics at various depths"""
     # Configuration
-    board_size = 6  # Assuming same as in the graph
+    board_size = 6
     depths = list(range(1, 11))  # From depth 1 to 10
     heuristics = ["corners_captured", "coin_parity", "mobility", "all_in_one"]
-    trials_per_config = 5  # Number of games to average for each heuristic/depth
+    trials_per_config = 5
 
     # Store results: {heuristic: {depth: avg_time}}
-    results = []
+    time_results = {h: {d: 0 for d in depths} for h in heuristics}
+    # Also store all raw results for CSV
+    all_game_results = []
+    game_number = 1
 
     for heuristic in heuristics:
         print(f"\nTesting heuristic: {heuristic}")
@@ -375,7 +378,6 @@ def run_experiment4():
 
             for trial in range(trials_per_config):
                 print(".", end="", flush=True)
-                # Run game with same heuristic for both players
                 game_result = run_game(
                     white_ai_mode="ab",
                     white_ai_depth=depth,
@@ -386,15 +388,29 @@ def run_experiment4():
                     board_size=board_size,
                 )
 
-                # Record average execution time (average of both players)
+                # Store individual game results for CSV
+                game_result["game_number"] = game_number
+                game_result["depth"] = depth
+                all_game_results.append(game_result)
+                game_number += 1
+
+                # Calculate average execution time (just the AI thinking time)
                 avg_time = (
                     game_result["avg_black_execution_time"]
                     + game_result["avg_white_execution_time"]
-                    + game_result["total_runtime"]
                 ) / 2
                 execution_times.append(avg_time)
 
-    with open("experiment2_results.csv", "w", newline="") as csvfile:
+            # Store average across trials
+            if execution_times:
+                time_results[heuristic][depth] = mean(execution_times)
+                print(f" avg: {time_results[heuristic][depth]:.2f}s")
+            else:
+                time_results[heuristic][depth] = 0
+                print(" no valid results")
+
+    # Save raw results to CSV
+    with open("experiment4_results.csv", "w", newline="") as csvfile:
         fieldnames = [
             "game_number",
             "depth",
@@ -405,16 +421,16 @@ def run_experiment4():
             "black_score",
             "white_score",
             "winner",
-            "turns",
-            "execution_time",
+            "total_turns",
+            "avg_black_execution_time",
+            "avg_white_execution_time",
             "total_runtime",
         ]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
-        for result in results:
-            writer.writerow({field: result[field] for field in fieldnames})
+        writer.writerows(all_game_results)
 
-    return results
+    return time_results
 
     # Plot results
     plt.figure(figsize=(10, 6))
