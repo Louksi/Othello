@@ -3,6 +3,7 @@ from copy import deepcopy
 
 from othello.othello_board import OthelloBoard, BoardSize, Color
 from othello.ai_features import (
+    all_in_one_heuristic,
     corners_captured_heuristic,
     coin_parity_heuristic,
     find_best_move,
@@ -113,6 +114,17 @@ def board_6_game_over():
     return board
 
 
+@pytest.fixture
+def board_6_empty():
+    """Create an empty board with no possible moves."""
+    board = OthelloBoard(BoardSize.SIX_BY_SIX)
+    board.white.set(2, 2, False)
+    board.white.set(3, 3, False)
+    board.black.set(2, 3, False)
+    board.black.set(3, 2, False)
+    return board
+
+
 # endregion Fixtures
 
 # region Corners Captured
@@ -187,7 +199,31 @@ def test_mobility_start_pos(board_start_pos):
     assert mobility_heuristic(board_start_pos, Color.WHITE) == 0
 
 
+def test_mobility_no_move(board_6_empty):
+    assert mobility_heuristic(board_6_empty, Color.BLACK) == 0
+    assert mobility_heuristic(board_6_empty, Color.WHITE) == 0
+
+
+def test_mobility_no_color(board_start_pos):
+    assert mobility_heuristic(board_start_pos, Color.EMPTY) == Color.EMPTY
+
+
 # endregion Mobility
+
+# region All In One Heuristic
+
+
+def test_all_in_one_start_pos(board_start_pos):
+    assert all_in_one_heuristic(board_start_pos, Color.BLACK) == 0
+    assert all_in_one_heuristic(board_start_pos, Color.WHITE) == 0
+
+
+def test_all_in_one_advantage_black(board_with_corners):
+    assert all_in_one_heuristic(board_with_corners, Color.BLACK) > 0
+    assert all_in_one_heuristic(board_with_corners, Color.WHITE) < 0
+
+
+# endregion All In One Heuristic
 
 # region Minimax/Alphabeta
 
@@ -209,6 +245,54 @@ def test_minimax_ab_basic_evaluation(board_start_pos):
     )
 
 
+def test_minimax_ab_no_moves(board_6_empty):
+    board_copy_minimax = deepcopy(board_6_empty)
+    assert minimax(board_copy_minimax, 1, Color.BLACK, corners_captured_heuristic) == 0
+    board_copy_alphabeta = deepcopy(board_6_empty)
+    assert (
+        alphabeta(
+            board_copy_alphabeta,
+            1,
+            float("-inf"),
+            float("inf"),
+            Color.BLACK,
+            corners_captured_heuristic,
+        )
+        == 0
+    )
+
+
+def test_minimax_ab_min_player(board_start_pos):
+    board_copy_minimax = deepcopy(board_start_pos)
+    assert minimax(board_copy_minimax, 1, Color.WHITE, corners_captured_heuristic) == 0
+    board_copy_alphabeta = deepcopy(board_start_pos)
+    assert (
+        alphabeta(
+            board_copy_alphabeta,
+            1,
+            float("-inf"),
+            float("inf"),
+            Color.WHITE,
+            corners_captured_heuristic,
+        )
+        == 0
+    )
+
+
+def test_ab_beta_eq_alpha(board_start_pos):
+    assert (
+        alphabeta(
+            board_start_pos,
+            1,
+            0,
+            0,
+            Color.WHITE,
+            corners_captured_heuristic,
+        )
+        == 0
+    )
+
+
 # endregion Minimax/Alphabeta
 
 # region Find Best Move
@@ -224,9 +308,29 @@ def test_1_move_possible(board_6_one_move_possible):
     ) == (5, 5)
 
 
+def test_mobility(board_6_one_move_possible):
+    """Tests that the function returns the only possible move."""
+    assert find_best_move(
+        board_6_one_move_possible, 1, Color.WHITE, "minimax", "mobility"
+    ) == (5, 5)
+    assert find_best_move(
+        board_6_one_move_possible, 1, Color.WHITE, "alphabeta", "mobility"
+    ) == (5, 5)
+
+
+def test_all_in_one(board_6_one_move_possible):
+    """Tests that the function returns the only possible move."""
+    assert find_best_move(
+        board_6_one_move_possible, 1, Color.WHITE, "minimax", "all_in_one"
+    ) == (5, 5)
+    assert find_best_move(
+        board_6_one_move_possible, 1, Color.WHITE, "alphabeta", "all_in_one"
+    ) == (5, 5)
+
+
 def test_best_moves_corners_and_parity(board_6_test_best_moves):
     assert find_best_move(
-        board_6_test_best_moves, 1, Color.WHITE, "minimax", "corners_captured"
+        board_6_test_best_moves, 1, Color.WHITE, "minimax", "all_in_one"
     ) == (0, 0)
     assert find_best_move(
         board_6_test_best_moves, 1, Color.WHITE, "alphabeta", "corners_captured"

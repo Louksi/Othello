@@ -32,6 +32,7 @@ addopts = [
     "--cov-report=html",
     "--cov-report=term",
     "--cov-branch",
+    "--ignore=tests/test_gui.py"
 ]
 testpaths = [
     "tests",
@@ -40,4 +41,9 @@ testpaths = [
 disable = [
     "C0199",
     "C0305"
+]
+
+[tool.coverage.run]
+omit = [
+  "othello/gui.py"
 ]

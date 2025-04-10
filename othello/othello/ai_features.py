@@ -119,9 +119,9 @@ def alphabeta(
     if not depth or board.is_game_over():
         return heuristic(board, max_player)
 
-    if (
+    if not (
         valid_moves := board.line_cap_move(board.current_player).hot_bits_coordinates()
-    ) == []:
+    ):
         return minimax(board, depth - 1, max_player, heuristic)
 
     logger.debug("   Valid moves at depth %d: %s.", depth, valid_moves)
@@ -167,23 +167,6 @@ def alphabeta(
         evaluation,
     )
     return evaluation
-
-
-def create_hash():
-    """
-    Generate an hash for use in zobrist zobrist_table
-    """
-    zobrist_table = [
-        [[random.getrandbits(64) for _ in range(2)] for _ in range(8)] for _ in range(8)
-    ]
-    hash_value = 0
-    for r in range(8):
-        for c in range(8):
-            if board[r][c] == "B":
-                hash_value ^= zobrist_table[r][c][0]
-            elif board[r][c] == "W":
-                hash_value ^= zobrist_table[r][c][1]
-    return hash_value
 
 
 def find_best_move(

@@ -211,7 +211,7 @@ class GameController:
         """
         self.players[self._board.current_player].next_move()
 
-    def _check_for_blit_game_over(self):
+    def _check_for_blitz_game_over(self):
         if self.blitz is not None:
             if self.blitz.is_time_up("black"):
                 self.is_game_over = True
@@ -239,9 +239,11 @@ class GameController:
             )
             return
 
-        self._check_for_blit_game_over()
+        self._check_for_blitz_game_over()
         if not self.is_game_over:
             self._board.play(x_coord, y_coord)
+        else:
+            return
 
         if self._board.is_game_over():
             self.is_game_over = True

@@ -139,23 +139,23 @@ pre-commit:
 
 test-job:
   tags:
-    - Docker
-      #- shell
+    # - Docker
+    - shell
   stage: test
   script:
-    - apt update
-    - apt install -y libgirepository1.0-dev gcc libcairo2-dev pkg-config python3-dev gir1.2-gtk-4.0
-    - apt update && apt install -y ninja-build 
+    # - apt update
+    # - apt install -y libgirepository1.0-dev gcc libcairo2-dev pkg-config python3-dev gir1.2-gtk-4.0
     - python -mvenv venv
     - source venv/bin/activate
     - python -m pip install --upgrade "pip<25.0" "setuptools<70.0"
     - python --version ; pip --version
     - pip install pycairo
     - pip install pytest pytest-cov
+    - pip install ninja
     - pip install meson-python
     - cd othello
     - pip install "PyGObject==3.50.0" --no-build-isolation --no-deps || echo "Failed to install PyGObject, continuing anyway"
-    - pip install ./
+    - pip install ./ --no-deps
     - python -m pytest
   coverage: '/TOTAL.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   needs:
