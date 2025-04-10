@@ -22,6 +22,24 @@
 \definecolor{RoyalBlue}{RGB}{65,105,225}   % For non-functional needs
 \definecolor{MediumAquamarine}{RGB}{102,205,170} % For validation strategy
 
+\lstdefinelanguage{pseudocode}{
+    morekeywords={procedure,if,then,else,while,do,return,for,each,in,begin,end},
+    sensitive=false,
+    morecomment=[l]{//},
+    morestring=[b]",
+}
+
+\lstset{
+    language=pseudocode,
+    basicstyle=\ttfamily,
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{gray},
+    stringstyle=\color{red},
+    breaklines=true,
+    frame=single,
+    captionpos=b
+}
+
 \begin{document}
 
 \begin{titlepage}
@@ -289,6 +307,32 @@ Par exemple, l’ensemble des cases occupées serait l’union des pions noirs e
 blancs.\\ On peut également utiliser les propriétés des opérations bit à bit
 pour appliquer les algorithmes du jeu d’Othello efficacement, en travaillant
 sur l’ensemble du plateau à la fois.\\
+
+\begin{lstlisting}[caption={Pseeudocode pour l'initialisation des bitboards : classe BitboardProperties}, label={lst:bitboard_properties}]
+class BitboardProperties:
+    static instances := empty map
+    // instance variables: size, mask, west_mask, east_mask
+    // will be set in the get() method
+
+    static method get(size):
+        if size not in instances:
+            // create a new instance
+            structure := new BitboardProperties()
+            structure.size := size
+            structure.mask := 0
+            structure.west_mask := 0
+            structure.east_mask := 0
+
+            // compute the masks
+            for i from 0 to (size * size - 1):
+                structure.mask := structure.mask OR (1 shifted left by i)
+                if i mod size = 0:
+                    structure.west_mask := structure.west_mask OR (1 shifted left by i)
+                if i mod size = size - 1:
+                    structure.east_mask := structure.east_mask OR (1 shifted left by i)
+            instances[size] := structure
+        return instances[size]
+\end{lstlisting}
 
 Nous nous sommes servis de l'article de Cameron Browne: \textit{Bitboard
     methods for games}\cite{BitboardMethods} pour mieux comprendre les bitboards et
