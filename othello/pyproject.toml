@@ -11,7 +11,8 @@ authors = [
 readme = "README.md"
 dependencies = ["pycairo", "PyGObject==3.50.0", "importlib-metadata",
                 "sphinx", "sphinx_rtd_theme",
-                "pytest", "pytest-cov", "coverage", "autopep8", "pre-commit"]
+                "pytest", "pytest-cov", "coverage", "autopep8", "pre-commit", "pandas", "matplotlib",
+                "seaborn", "plotly", "pylint", "pathlib"]
 dynamic = ["version"]
 
 [project.scripts]

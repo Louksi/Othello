@@ -15,6 +15,7 @@ BASE_CONFIG = {
     "ai_depth": 3,
     "ai_heuristic": "corners_captured",
     "gui": False,
+    "benchmark": False,
 }
 
 

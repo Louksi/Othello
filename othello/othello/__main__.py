@@ -15,6 +15,7 @@ from othello.controllers import (
     AIPlayer,
     GameController,
     HumanPlayer,
+    RandomPlayer,
 )
 from othello.config import display_config
 
@@ -72,20 +73,84 @@ def main():
             raise
 
     # then we setup black and white, specifying if they are AI players or not
-    black_player = (
-        AIPlayer(board, config["ai_depth"], config["ai_mode"], config["ai_heuristic"])
-        if mode == parser.GameMode.AI.value
-        and config["ai_color"] == parser.AIColor.BLACK.value
-        else HumanPlayer()
-    )
-    white_player = (
-        AIPlayer(board, config["ai_depth"], config["ai_mode"], config["ai_heuristic"])
-        if mode == parser.GameMode.AI.value
-        and config["ai_color"] == parser.AIColor.WHITE.value
-        else HumanPlayer()
-    )
-    logger.debug("   Black player is of class %s", black_player.__class__)
-    logger.debug("   White player is of class %s.", white_player.__class__)
+    if config["benchmark"]:
+        # In benchmark mode, we can have different configurations for each player
+        if config["ai_color"] == "B":  # Both players with separate configs
+            black_player = AIPlayer(
+                board,
+                config["ai_depth"],
+                config["ai_mode"],
+                config["ai_heuristic"],
+                benchmark=True,
+            )
+            white_player = AIPlayer(
+                board,
+                config["white_ai_depth"],
+                config["white_ai_mode"],
+                config["white_ai_heuristic"],
+                benchmark=True,
+            )
+        elif config["ai_color"] == "A":  # Both players with same config
+            black_player = AIPlayer(
+                board,
+                config["ai_depth"],
+                config["ai_mode"],
+                config["ai_heuristic"],
+                benchmark=True,
+            )
+            white_player = AIPlayer(
+                board,
+                config["ai_depth"],
+                config["ai_mode"],
+                config["ai_heuristic"],
+                benchmark=True,
+            )
+        elif config["ai_color"] == "X":  # AI as black, random as white
+            black_player = AIPlayer(
+                board,
+                config["ai_depth"],
+                config["ai_mode"],
+                config["ai_heuristic"],
+                benchmark=True,
+            )
+            white_player = RandomPlayer()
+        elif config["ai_color"] == "O":  # AI as white, random as black
+            black_player = RandomPlayer()
+            white_player = AIPlayer(
+                board,
+                config["ai_depth"],
+                config["ai_mode"],
+                config["ai_heuristic"],
+                benchmark=True,
+            )
+    else:
+        black_player = (
+            AIPlayer(
+                board,
+                config["ai_depth"],
+                config["ai_mode"],
+                config["ai_heuristic"],
+                benchmark=True,
+            )
+            if mode == parser.GameMode.AI.value and config["ai_color"] == "X"
+            else HumanPlayer()
+        )
+        white_player = (
+            AIPlayer(
+                board,
+                config["ai_depth"],
+                config["ai_mode"],
+                config["ai_heuristic"],
+                benchmark=True,
+            )
+            if mode == parser.GameMode.AI.value and config["ai_color"] == "O"
+            else HumanPlayer()
+        )
+
+    # [Rest of the main function remains the same...]
+
+    logger.debug(f"   Black player is of class {black_player.__class__}.")
+    logger.debug(f"   White player is of class {white_player.__class__}.")
 
     # then we setup the game controller depenging of the gamemode given
     controller = (

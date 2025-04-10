@@ -147,7 +147,7 @@ test-job:
     # - apt install -y libgirepository1.0-dev gcc libcairo2-dev pkg-config python3-dev gir1.2-gtk-4.0
     - python -mvenv venv
     - source venv/bin/activate
-    - python -m pip install --upgrade pip
+    - python -m pip install --upgrade "pip<25.0" "setuptools<70.0"
     - python --version ; pip --version
     - pip install pycairo
     - pip install pytest pytest-cov

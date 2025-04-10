@@ -376,7 +376,7 @@ def test_err_AI_color(monkeypatch):
     raises a SystemExit exception with a non-zero exit status.
     """
     with pytest.raises(SystemExit):
-        monkeypatch.setattr(sys, "argv", ["othello", "-aB"])
+        monkeypatch.setattr(sys, "argv", ["othello", "-aF"])
         parse_args()
 
 

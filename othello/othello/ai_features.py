@@ -175,6 +175,7 @@ def find_best_move(
     max_player: Color = Color.BLACK,
     search_algo: str = "minimax",
     heuristic: str = "corners_captured",
+    benchmark: bool = False,
 ) -> tuple[int, int]:
     """
     Determine the best move for the current player on the Othello board.
@@ -243,6 +244,10 @@ def find_best_move(
         if score > best_score:
             best_score = score
             best_move = (move_x, move_y)
+
+    if benchmark:
+        end_time = time.time()
+        print(f"Time taken: {end_time - start_time} seconds")
 
     return best_move
 

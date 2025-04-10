@@ -29,6 +29,7 @@ class AIColor(Enum):
     BLACK = "X"
     WHITE = "O"
     ALL = "A"
+    BOTH_SEPERATE = "B"
 
 
 class AIMode(Enum):
@@ -72,6 +73,10 @@ default_config = {
     "ai_heuristic": "corners_captured",
     "ai_time": 5,
     "gui": DEFAULT_GUI,
+    "benchmark": False,
+    "white_ai_mode": "minimax",
+    "white_ai_depth": 3,
+    "white_ai_heuristic": "corners_captured",
 }
 
 
@@ -94,6 +99,26 @@ def create_parser() -> argparse.ArgumentParser:
     parser.add_argument("filename", nargs="?", help="Load game from specified file")
 
     # options
+
+    parser.add_argument(
+        "--white-ai-mode",
+        choices=VALID_AIMODES,
+        default=VALID_AIMODES[0],
+        help="AI algorithm mode for white player",
+    )
+    parser.add_argument(
+        "--white-ai-depth",
+        type=int,
+        default=DEFAULT_AI_DEPTH,
+        help="AI search depth for white player",
+    )
+    parser.add_argument(
+        "--white-ai-heuristic",
+        choices=VALID_AIHEURISTICS,
+        default=DEFAULT_AI_HEURISTIC,
+        help="AI heuristic for white player",
+    )
+
     parser.add_argument(
         "-V",
         "--version",
@@ -204,6 +229,13 @@ default is '{DEFAULT_AI_HEURISTIC}'",
         help="Launch the GUI version instead of the CLI one",
     )
 
+    parser.add_argument(
+        "--benchmark",
+        action="store_true",
+        default=False,
+        help="Benchark the AI performance.",
+    )
+
     return parser
 
 
@@ -297,6 +329,10 @@ when loading a game from a file",
         "ai_heuristic": DEFAULT_AI_HEURISTIC,
         "ai_time": DEFAULT_AI_TIME,
         "gui": args.gui,
+        "benchmark": args.benchmark,
+        "white_ai_mode": args.white_ai_mode,
+        "white_ai_depth": args.white_ai_depth,
+        "white_ai_heuristic": args.white_ai_heuristic,
     }
 
     # specify game mode
