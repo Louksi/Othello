@@ -2,7 +2,7 @@
 # https://gitlab.com/gitlab-org/gitlab-foss/-/blob/master/lib/gitlab/ci/templates/Python.gitlab-ci.yml
 # https://stackoverflow.com/collectives/articles/71270196/how-to-use-pre-commit-to-automatically-correct-commits-and-merge-requests-with-g
 # https://gitlab.com/yesolutions/gitlab-ci-templates/raw/main/templates/pre-commit-autofix.yaml
-image: python:3.7
+image: python:3.10
 
 stages:
   - pre-commit
@@ -139,21 +139,23 @@ pre-commit:
 
 test-job:
   tags:
-    - Debian
+    # - Docker
     - shell
   stage: test
-  before_script:
+  script:
+    # - apt update
+    # - apt install -y libgirepository1.0-dev gcc libcairo2-dev pkg-config python3-dev gir1.2-gtk-4.0
     - python -mvenv venv
     - source venv/bin/activate
     - python -m pip install --upgrade pip
     - python --version ; pip --version
     - pip install pycairo
     - pip install pytest pytest-cov
+    - pip install ninja
     - pip install meson-python
     - cd othello
     - pip install "PyGObject==3.50.0" --no-build-isolation --no-deps || echo "Failed to install PyGObject, continuing anyway"
     - pip install ./ --no-deps
-  script:
     - python -m pytest
   coverage: '/TOTAL.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   needs:
