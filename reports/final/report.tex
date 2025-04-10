@@ -473,6 +473,18 @@ scores en alternant les coups "ami", qui cherchent à obtenir le meilleur score,
 et les coups "ennemis", qui cherchent à obtenir le pire score.\\
 \texttt{Minimax} renvoie le meilleur score atteignable depuis le \texttt{board}
 donné en entrée.\\
+\\
+Dans l'exemple ci-dessous, on peut voir que les scores des feuilles remontent en alternant
+les coups "ami" et "ennemi" (choisissant respectivement le meilleur et le pire score).
+Minimax renvoit donc 19, qui est le meilleur score atteignable depuis le plateau initial si les 2 joueurs
+jouent les meilleurs coups théoriques.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\textwidth]{images/minimax_example.png}
+    \caption{Example de l'exécution de Minimax.}
+    \title{fig:Example de l'exécution de Minimax.}
+\end{figure}
 
 L’algorithme \texttt{AlphaBeta-pruning} est un algorithme qui a la même
 approche que \texttt{Minimax}.\\ Il crée un arbre des coups possibles à une
@@ -487,8 +499,20 @@ on élague la branche afin d’économiser du temps de calcul.\\
 \texttt{AlphaBeta-pruning} renvoie donc le même résultat que \texttt{Minimax}
 (avec une profondeur et une heuristique similaire) mais est bien plus efficace
 car il n’explore pas systématiquement l’entièreté de l’arbre de jeu.\\
+\\
+Dans l'exemple suivant, AlphaBeta remonte les scores des feuilles de la même manière
+que Minimax, mais stocke également le meilleur et le pire coup observé dans alpha et beta.
+On observe donc l'élagage de certaines branches qui n'amélioreront en aucun cas les scores
+alpha et beta. Le résultat est donc le même, mais l'exploration est plus rapide.
 
-Ces deux algorithmes utilisent nos 4 heuristiques implémentées, décrites en
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\textwidth]{images/alphabeta_example.png}
+    \caption{Example de l'exécution d'AlphaBeta.}
+    \title{fig:Example de l'exécution d'AlphaBeta.}
+\end{figure}
+
+Ces deux algorithmes calculent le score des feuilles grâce à nos 4 heuristiques implémentées, décrites en
 détails dans le besoin F.51 - Heuristique d’évaluation de
 position.\cite{HeuristicPaper}
 
