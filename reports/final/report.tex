@@ -680,14 +680,14 @@ sont apparues, entraînant des temps d’exécution prohibitifs. Ces contraintes
 ont motivé une analyse approfondie des méthodes employées, en particulier
 celles reposant sur les \texttt{bitboards}.\\
 
-% \begin{figure}[h]
+ \begin{figure}[h]
 
-%     \centering
-%     \includegraphics[width=0.9\textwidth]{images/perfs_tps_calcul.png}
-%     \caption{Temps de calcul par tour pour une configuration donnée.}
-%     \title{fig:tps_calcul_par_tour.png}
+     \centering
+     \includegraphics[width=0.9\textwidth]{images/time_comparison_config.png}
+     \caption{Temps de calcul par tour pour une configuration donnée.}
+     \title{fig:time_comparison_config.png}
 
-% \end{figure}
+ \end{figure}
 
 \textbf{Optimisations apportées}\\
 
@@ -710,14 +710,12 @@ significativement plus rapide grâce à son mécanisme d’élagage. La
 \textbf{Figure 2} présente cette comparaison, confirmant que
 \texttt{Alpha-Beta} est mieux adapté à nos besoins.\\
 
-% \begin{figure}[h]
-
-%     \centering
-%     \includegraphics[width=0.9\textwidth]{images/perfs_m_vs_ab_p8.png}
-%     \caption{TFigure 2: Minimax vs Alpha-Beta à profondeur 8.}
-%     \title{fig:perfs_m_vs_ab_p8.png}
-
-% \end{figure}
+ \begin{figure}[h]
+     \centering
+     \includegraphics[width=0.9\textwidth]{images/algoritm_time_comparison.png}
+     \caption{TFigure 2: Minimax vs Alpha-Beta à profondeur 8.}
+     \title{fig:algoritm_time_comparison.png}
+ \end{figure}
 
 \noindent Suite à ces observations, \texttt{Alpha-Beta} a été retenue pour toutes
 les expériences suivantes.\\
@@ -725,7 +723,16 @@ les expériences suivantes.\\
 \textbf{Évaluation des heuristiques et biais potentiels}\\
 
 Enfin, nous avons mesuré l’impact des différentes heuristiques en fonction de
-la profondeur de recherche. Par ailleurs, une question cruciale a été
+la profondeur de recherche. 
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/heuristic_comparison_depth.png}
+    \caption{TFigure 2: Minimax vs Alpha-Beta à profondeur 8.}
+    \title{fig:heuristic_comparison_depth.png}
+\end{figure}
+
+Par ailleurs, une question cruciale a été
 investiguée : Othello présente-t-il un biais en fonction du côté (noir/blanc)
 avec lequel on débute ?\\ Pour y répondre, des tests ont été menés avec
 \texttt{coin\_parity} à une profondeur de 6, permettant de collecter des
