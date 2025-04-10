@@ -323,6 +323,22 @@ retournant pour changer leur couleur.\\
 
 \newpage
 
+Afin de changer les pions capturés dans la couleur du joueur courant, nous
+avons créé un algorithme en se basant sur l’algorithme \texttt{Line Cap Moves}
+ci-dessus.\\ En partant de la case sur laquelle le dernier pion a été placé, on
+se déplace sur tous les pions ennemis en les retournant pour changer leur
+couleur.\\ Tout d’abord, on récupère le dernier pion placé par le joueur
+courant, puis on itère dans toutes les directions : Nord, Nord-Est, Est,
+Sud-Est, Sud, Sud-West, West, Nord-West.\\ On \texttt{shift} le pion de 1 dans
+la direction courante, le pion est donc un pion maintenant Ennemi.\\ Tant que
+le pion n’est pas un pion Ami (pion de la couleur du joueur courant), on
+effectue les opérations suivantes :\\ Le pion est changé de Ennemi à Ami : on
+retourne le pion pour que sa couleur soit celle du joueur courant.\\ Puis on
+\texttt{shift} le pion de 1 dans la direction courante.\\ Lorsque le pion sur
+lequel on s’est déplacé est un pion Ami, on peut changer de direction et
+recommencer.\\ Et quand toutes les directions ont été explorées, tous les pions
+à capturer ont été changés en pions du joueur courant.\\
+
 Nous avons également implémenté un \texttt{popcount} en utilisant l’algorithme
 \texttt{SWAR}, décrit dans l'article de Sanjoy Das: \textit{A SWAR Algorithm
     for Popcount}\cite{SWARPointers}, sur des blocs de 64 bits, qui fonctionne sur
@@ -361,7 +377,8 @@ on élague la branche afin d’économiser du temps de calcul.\\
 car il n’explore pas systématiquement l’entièreté de l’arbre de jeu.\\
 
 Ces deux algorithmes utilisent nos 4 heuristiques implémentées, décrites en
-détails dans le besoin F.51 - Heuristique d’évaluation de position.\cite{HeuristicPaper}
+détails dans le besoin F.51 - Heuristique d’évaluation de
+position.\cite{HeuristicPaper}
 
 \newpage
 
