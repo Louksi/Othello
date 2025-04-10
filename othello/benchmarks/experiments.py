@@ -377,10 +377,10 @@ def run_experiment4():
                 print(".", end="", flush=True)
                 # Run game with same heuristic for both players
                 game_result = run_game(
-                    white_ai_mode="alphabeta",
+                    white_ai_mode="ab",
                     white_ai_depth=depth,
                     white_ai_heuristic=heuristic,
-                    black_ai_mode="alphabeta",
+                    black_ai_mode="ab",
                     black_ai_depth=depth,
                     black_ai_heuristic=heuristic,
                     board_size=board_size,
@@ -388,13 +388,33 @@ def run_experiment4():
 
                 # Record average execution time (average of both players)
                 avg_time = (
-                    game_result["execution_time"] + game_result["total_runtime"]
+                    game_result["avg_black_execution_time"]
+                    + game_result["avg_white_execution_time"]
+                    + game_result["total_runtime"]
                 ) / 2
                 execution_times.append(avg_time)
 
-            # Store average across trials
-            results[heuristic][depth] = mean(execution_times)
-            print(f" avg: {results[heuristic][depth]:.2f}s")
+    with open("experiment2_results.csv", "w", newline="") as csvfile:
+        fieldnames = [
+            "game_number",
+            "depth",
+            "black_ai_mode",
+            "black_ai_heuristic",
+            "white_ai_mode",
+            "white_ai_heuristic",
+            "black_score",
+            "white_score",
+            "winner",
+            "turns",
+            "execution_time",
+            "total_runtime",
+        ]
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        for result in results:
+            writer.writerow({field: result[field] for field in fieldnames})
+
+    return results
 
     # Plot results
     plt.figure(figsize=(10, 6))
