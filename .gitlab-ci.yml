@@ -2,7 +2,7 @@
 # https://gitlab.com/gitlab-org/gitlab-foss/-/blob/master/lib/gitlab/ci/templates/Python.gitlab-ci.yml
 # https://stackoverflow.com/collectives/articles/71270196/how-to-use-pre-commit-to-automatically-correct-commits-and-merge-requests-with-g
 # https://gitlab.com/yesolutions/gitlab-ci-templates/raw/main/templates/pre-commit-autofix.yaml
-image: python:3.7
+image: python:3.10
 
 stages:
   - pre-commit
