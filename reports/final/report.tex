@@ -532,7 +532,6 @@ d’évaluation de position.\cite{HeuristicPaper}
 
 \end{figure}
 
-
 Nous avons décidé d’adopter une architecture MVC. Ici, nous commencerons par
 rappeler brièvement ce que cela implique et comment cela se traduit dans notre
 implémentation, avant de détailler le cycle de vie de notre application.\\
@@ -627,7 +626,8 @@ courant pour la gestion du timer de blitz.\\
 Cette méthode est invoquée par les vues lorsqu’un joueur humain est en capacité
 de jouer.\\
 
-Le contrôlleur se place donc en homme du milieu entre les vues et les modèles. De fait, nous avons implémentés une architecture Model-View-Presenter.
+Le contrôlleur se place donc en homme du milieu entre les vues et les modèles.
+De fait, nous avons implémentés une architecture Model-View-Presenter.
 
 \textbf{Les Joueurs}\\
 
@@ -680,14 +680,14 @@ sont apparues, entraînant des temps d’exécution prohibitifs. Ces contraintes
 ont motivé une analyse approfondie des méthodes employées, en particulier
 celles reposant sur les \texttt{bitboards}.\\
 
- \begin{figure}[h]
+\begin{figure}[h]
 
-     \centering
-     \includegraphics[width=0.9\textwidth]{images/time_comparison_config.png}
-     \caption{Temps de calcul par tour pour une configuration donnée.}
-     \title{fig:time_comparison_config.png}
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/time_comparison_config.png}
+    \caption{Temps de calcul par tour pour une configuration donnée.}
+    \title{fig:time_comparison_config.png}
 
- \end{figure}
+\end{figure}
 
 \textbf{Optimisations apportées}\\
 
@@ -702,6 +702,8 @@ drastiquement le temps de calcul. La \textbf{figure 9} illustre l’amélioratio
 obtenue, comparant le coût temporel d’un tour avant et après cette
 modification.\\
 
+\newpage
+
 \textbf{Comparaison des algorithmes : Minimax vs Alpha-Beta}\\
 
 Pour affiner nos résultats, nous avons comparé les performances des algorithmes
@@ -710,20 +712,22 @@ significativement plus rapide grâce à son mécanisme d’élagage. La
 \textbf{Figure 2} présente cette comparaison, confirmant que
 \texttt{Alpha-Beta} est mieux adapté à nos besoins.\\
 
- \begin{figure}[h]
-     \centering
-     \includegraphics[width=0.9\textwidth]{images/algorithm_time_comparison.png}
-     \caption{TFigure 2: Minimax vs Alpha-Beta à profondeur 8.}
-     \title{fig:algoritm_time_comparison.png}
- \end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/algorithm_time_comparison.png}
+    \caption{TFigure 2: Minimax vs Alpha-Beta à profondeur 8.}
+    \title{fig:algoritm_time_comparison.png}
+\end{figure}
 
 \noindent Suite à ces observations, \texttt{Alpha-Beta} a été retenue pour toutes
 les expériences suivantes.\\
 
+\newpage
+
 \textbf{Évaluation des heuristiques et biais potentiels}\\
 
 Enfin, nous avons mesuré l’impact des différentes heuristiques en fonction de
-la profondeur de recherche. 
+la profondeur de recherche.
 
 \begin{figure}[h]
     \centering
@@ -732,13 +736,14 @@ la profondeur de recherche.
     \title{fig:alpha_beta_time_by_depth.png}
 \end{figure}
 
-Par ailleurs, une question cruciale a été
-investiguée : Othello présente-t-il un biais en fonction du côté (noir/blanc)
-avec lequel on débute ?\\ Pour y répondre, des tests ont été menés avec
-\texttt{coin\_parity} à une profondeur de 6, permettant de collecter des
-données statistiques sur les taux de victoire. En effet, environ 52\% du temps
-le deuxième joueur gagne, c’est dû au fait qu'il posera la dernière pièce en
-cas d’un tableau rempli.\\
+\FloatBarrier
+
+Par ailleurs, une question cruciale a été investiguée : Othello présente-t-il
+un biais en fonction du côté (noir/blanc) avec lequel on débute ?\\ Pour y
+répondre, des tests ont été menés avec \texttt{coin\_parity} à une profondeur
+de 6, permettant de collecter des données statistiques sur les taux de
+victoire. En effet, environ 52\% du temps le deuxième joueur gagne, c’est dû au
+fait qu'il posera la dernière pièce en cas d’un tableau rempli.\\
 
 \textbf{Limitations:}\\
 
