@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
-from othello.othello.parser import AIHeuristic
+from othello.parser import AIHeuristic
 
 
 def create_experiment1_visualizations(csv_path="experiment1_results.csv"):
@@ -57,7 +57,7 @@ def create_experiment1_visualizations(csv_path="experiment1_results.csv"):
     # Add labels and title
     plt.xlabel("Algorithm")
     plt.ylabel("Average Execution Time (seconds)")
-    plt.title("Average Execution Time Comparison: Minimax vs Alpha-Beta")
+    plt.title("Average Execution Time Comparison: Minimax vs Alpha-Beta at depth 8")
 
     # Add the actual values on top of each bar
     for i, v in enumerate(avg_times):
@@ -85,6 +85,54 @@ def line_graph_depth(csv_path="experiment4_results.csv"):
     plt.legend()
     plt.grid(True)
     plt.savefig("alpha_beta_time_by_depth.png")
+    plt.show()
+
+
+def plot_exp4(results, filename="alpha_beta_time_by_depth.png"):
+    """
+    Plot the Alpha-Beta time by depth for different heuristics
+
+    Args:
+        results: Dictionary in format {heuristic: {depth: avg_time}}
+        filename: Where to save the plot image
+    """
+    plt.figure(figsize=(10, 6))
+
+    # Define colors/markers for each heuristic for consistent plotting
+    styles = {
+        "corners_captured": {"color": "blue", "marker": "o"},
+        "coin_parity": {"color": "green", "marker": "s"},
+        "mobility": {"color": "red", "marker": "^"},
+        "all_in_one": {"color": "purple", "marker": "D"},
+    }
+
+    for heuristic in results:
+        depths = sorted(results[heuristic].keys())
+        times = [results[heuristic][d] for d in depths]
+
+        plt.plot(
+            depths,
+            times,
+            label=heuristic,
+            marker=styles[heuristic]["marker"],
+            color=styles[heuristic]["color"],
+            linestyle="-",
+            linewidth=2,
+            markersize=8,
+        )
+
+    plt.title("Alpha-Beta Time by Depth", fontsize=14)
+    plt.xlabel("Depth", fontsize=12)
+    plt.ylabel("Time (seconds)", fontsize=12)
+    plt.legend(fontsize=10)
+    plt.grid(True, linestyle="--", alpha=0.7)
+
+    # Adjust x-axis to show integer depths only
+    plt.xticks(range(1, 11))
+
+    # Save and show
+    plt.tight_layout()
+    plt.savefig(filename, dpi=300)
     plt.show()
 
 

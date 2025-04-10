@@ -124,10 +124,10 @@ def run_experiment1(num_games=200):
         if i < num_games // 2:
             game_result = run_game(
                 white_ai_mode="ab",
-                white_ai_depth=8,
+                white_ai_depth=4,
                 white_ai_heuristic="corners_captured",
                 black_ai_mode="minimax",
-                black_ai_depth=8,
+                black_ai_depth=4,
                 black_ai_heuristic="corners_captured",
                 board_size=6,
             )
@@ -135,10 +135,10 @@ def run_experiment1(num_games=200):
         else:
             game_result = run_game(
                 white_ai_mode="minimax",
-                white_ai_depth=8,
+                white_ai_depth=4,
                 white_ai_heuristic="corners_captured",
                 black_ai_mode="ab",
-                black_ai_depth=8,
+                black_ai_depth=4,
                 black_ai_heuristic="corners_captured",
                 board_size=6,
             )
@@ -199,7 +199,8 @@ def run_experiment1(num_games=200):
     with open("experiment1_results.csv", "w", newline="") as csvfile:
         fieldnames = [
             "game_number",
-            "depth",
+            "black_ai_depth",
+            "white_ai_depth",
             "black_ai_mode",
             "black_ai_heuristic",
             "white_ai_mode",
@@ -207,8 +208,9 @@ def run_experiment1(num_games=200):
             "black_score",
             "white_score",
             "winner",
-            "turns",
-            "execution_time",
+            "total_turns",
+            "avg_black_execution_time",
+            "avg_white_execution_time",
             "total_runtime",
         ]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
@@ -458,8 +460,8 @@ def main():
     print("Starting Othello AI experiments...")
 
     # Experiment 1
-    # exp1_results = run_experiment1(num_games=20)
-    # print(f"Experiment 1 completed with {len(exp1_results)} games.")
+    exp1_results = run_experiment1(num_games=2)
+    print(f"Experiment 1 completed with {len(exp1_results)} games.")
 
     # Experiment 2
     # exp2_results = run_experiment2()
@@ -470,8 +472,8 @@ def main():
     # print(f"Experiment 3 completed with {len(exp3_results)} games.")
 
     # Experiment 4
-    exp4_results = run_experiment4()
-    print(f"Experiment 4 completed with {len(exp4_results)} games.")
+    # exp4_results = run_experiment4()
+    # print(f"Experiment 4 completed with {len(exp4_results)} games.")
 
     print("All experiments completed! Run visualize.py to create appropriate graphs")
 
