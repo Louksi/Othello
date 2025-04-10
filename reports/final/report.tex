@@ -308,30 +308,30 @@ blancs.\\ On peut également utiliser les propriétés des opérations bit à bi
 pour appliquer les algorithmes du jeu d’Othello efficacement, en travaillant
 sur l’ensemble du plateau à la fois.\\
 
-\begin{lstlisting}[caption={Pseeudocode pour l'initialisation des bitboards : classe BitboardProperties}, label={lst:bitboard_properties}]
+\begin{lstlisting}[caption={Pseudocode pour l'initialisation des bitboards : classe BitboardProperties}, label={lst:bitboard_properties}]
 class BitboardProperties:
-    static instances := empty map
-    // instance variables: size, mask, west_mask, east_mask
-    // will be set in the get() method
+  static instances := empty map
+  // instance variables: size, mask, west_mask, east_mask
+  // will be set in the get() method
 
-    static method get(size):
-        if size not in instances:
-            // create a new instance
-            structure := new BitboardProperties()
-            structure.size := size
-            structure.mask := 0
-            structure.west_mask := 0
-            structure.east_mask := 0
+  static method get(size):
+  if size not in instances:
+    // create a new instance
+    structure := new BitboardProperties()
+    structure.size := size
+    structure.mask := 0
+    structure.west_mask := 0
+    structure.east_mask := 0
 
-            // compute the masks
-            for i from 0 to (size * size - 1):
-                structure.mask := structure.mask OR (1 shifted left by i)
-                if i mod size = 0:
-                    structure.west_mask := structure.west_mask OR (1 shifted left by i)
-                if i mod size = size - 1:
-                    structure.east_mask := structure.east_mask OR (1 shifted left by i)
-            instances[size] := structure
-        return instances[size]
+    // compute the masks
+    for i from 0 to (size * size - 1):
+      structure.mask := structure.mask OR (1 shifted left by i)
+      if i mod size = 0:
+        structure.west_mask := structure.west_mask OR (1 shifted left by i)
+      if i mod size = size - 1:
+        structure.east_mask := structure.east_mask OR (1 shifted left by i)
+    instances[size] := structure
+  return instances[size]
 \end{lstlisting}
 
 \newpage
@@ -340,7 +340,7 @@ Nous nous sommes servis de l'article de Cameron Browne: \textit{Bitboard
     methods for games}\cite{BitboardMethods} pour mieux comprendre les bitboards et
 leur utilisation, ainsi que les algorithmes qui les utilisent.\\
 
-\vspace{1cm}
+\vspace{0.5cm}
 
 Pour la partie calcul des coups, nous utilisons l’algorithme \texttt{Line Cap
     Moves}, présenté dans \textit{Bitboard Methods for Games}, par Cameron Browne
@@ -367,6 +367,22 @@ du joueur courant, nous avons créé un algorithme en se basant sur l’algorith
 dernier pion a été placé, on se déplace sur tous les pions ennemis en les
 retournant pour changer leur couleur.\\
 
+\begin{lstlisting}[caption={Pseudocode pour l'algorithme line\_cap\_move\ : fonction CalculatePossibleMoves}, label={lst:calculate_possible_moves}]
+function CalculatePossibleMoves(playerPieces, opponentPieces, emptySquares):
+  possibleMoves := empty set
+  directions := [North, NorthEast, East, SouthEast, South, SouthWest, West, NorthWest]
+
+  for each direction in directions:
+    // find candidate squares
+    candidateSquares := opponentPieces AND (playerPieces shift by 1 in direction)
+    while candidateSquares is not empty:
+      possibleMoves := possibleMoves OR (emptySquares AND (candidateSquares shift by 1 in direction))
+      // update candidate squares
+      candidateSquares := (candidateSquares shift by 1 in direction) AND opponentPieces
+
+  return possibleMoves
+\end{lstlisting}
+
 \newpage
 
 Afin de changer les pions capturés dans la couleur du joueur courant, nous
@@ -385,6 +401,33 @@ lequel on s’est déplacé est un pion Ami, on peut changer de direction et
 recommencer.\\ Et quand toutes les directions ont été explorées, tous les pions
 à capturer ont été changés en pions du joueur courant.\\
 
+\begin{lstlisting}[caption={Pseudocode pour l'algorithme de capture de pions : FlipCapturedPieces}, label={lst:flip_captured_pieces}]
+function FlipCapturedPieces(board, lastMovePlayed, currentPlayer):
+  // starting position : last piece placed
+  startPosition := lastMovePlayed
+  directions := [North, NorthEast, East, SouthEast, South, SouthWest, West, NorthWest]
+
+  for each direction in directions:
+    // move one step in the current direction
+    currentPosition := Shift(startPosition, direction, 1)
+
+    if board[currentPosition] is opponent's piece:
+      // store positions that might need to be flipped
+      piecesToFlip := empty list
+
+      // keep moving in this direction as long as we find opponent pieces
+      while board[currentPosition] is opponent's piece:
+        piecesToFlip.Add(currentPosition)
+        currentPosition := Shift(currentPosition, direction, 1)
+
+      // if we found a friendly piece at the end, flip all in between
+      if board[currentPosition] is currentPlayer's piece:
+        for each position in piecesToFlip:
+          board[position] := currentPlayer's piece
+\end{lstlisting}
+
+\newpage
+
 Nous avons également implémenté un \texttt{popcount} en utilisant l’algorithme
 \texttt{SWAR}, décrit dans l'article de Sanjoy Das: \textit{A SWAR Algorithm
     for Popcount}\cite{SWARPointers}, sur des blocs de 64 bits, qui fonctionne sur
@@ -392,7 +435,30 @@ la base d’un diviser pour mieux régner sur des mots de 64 bits, permettant de
 faire le \texttt{popcount} efficacement, ainsi qu’un algorithme permettant de
 récupérer les positions à \texttt{1} dans le \texttt{bitboard} efficacement.\\
 
-\vspace{1cm}
+\begin{lstlisting}[caption={Pseudocode pour le popcount (implémentation de l'algorithme SWAR): PopCount}, label={lst:popcount}]
+function PopCount(bits):
+  summed := 0
+  remainingBits := bits
+
+  while remainingBits > 0:
+    // Process each 64-bit chunk
+    chunk := remainingBits AND 0xFFFFFFFFFFFFFFFF
+
+    // Apply SWAR algorithm with progressive bit masking and shifting
+    chunk := (chunk AND 0x5555555555555555) + ((chunk >> 1) AND 0x5555555555555555)
+    chunk := (chunk AND 0x3333333333333333) + ((chunk >> 2) AND 0x3333333333333333)
+    chunk := (chunk AND 0x0F0F0F0F0F0F0F0F) + ((chunk >> 4) AND 0x0F0F0F0F0F0F0F0F)
+    chunk := (chunk AND 0x00FF00FF00FF00FF) + ((chunk >> 8) AND 0x00FF00FF00FF00FF)
+    chunk := (chunk AND 0x0000FFFF0000FFFF) + ((chunk >> 16) AND 0x0000FFFF0000FFFF)
+    chunk := (chunk AND 0x00000000FFFFFFFF) + ((chunk >> 32) AND 0x00000000FFFFFFFF)
+
+    summed := summed + chunk
+    remainingBits := remainingBits >> 64
+
+  return summed
+\end{lstlisting}
+
+\newpage
 
 Notre IA utilise deux algorithmes d’exploration de l’arbre des coups possibles
 : \texttt{Minimax} et \texttt{Alpha-Beta pruning}.\\
