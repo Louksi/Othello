@@ -110,6 +110,125 @@ def run_game(
     }
 
 
+def run_game_debug(
+    white_ai_mode,
+    white_ai_depth,
+    white_ai_heuristic,
+    black_ai_mode,
+    black_ai_depth,
+    black_ai_heuristic,
+    board_size=6,
+    debug=False,
+):
+    """Run a single game with live output and full capture"""
+    cmd = ["othello", "-a", "A", "--size", str(board_size), "--benchmark"]
+    cmd.extend(["--white-ai-mode", white_ai_mode])
+    cmd.extend(["--white-ai-depth", str(white_ai_depth)])
+    cmd.extend(["--white-ai-heuristic", white_ai_heuristic])
+    cmd.extend(["--ai-mode", black_ai_mode])
+    cmd.extend(["--ai-depth", str(black_ai_depth)])
+    cmd.extend(["--ai-heuristic", black_ai_heuristic])
+
+    if debug:
+        cmd.append("--debug")
+
+    print("\n=== STARTING GAME EXECUTION ===")
+    print(f"Command: {' '.join(cmd)}\n")
+
+    # Execute with live output
+    start_time = time.time()
+    process = subprocess.Popen(
+        cmd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        bufsize=1,  # Line buffering
+        universal_newlines=True,
+    )
+
+    # Capture and display output in real-time
+    output_lines = []
+    print("=== LIVE OUTPUT ===")
+    while True:
+        line = process.stdout.readline()
+        if not line and process.poll() is not None:
+            break
+        if line:
+            print(line.strip())  # Print live
+            output_lines.append(line)
+    print("=== END OF OUTPUT ===")
+
+    end_time = time.time()
+    output = "".join(output_lines)
+    returncode = process.poll()
+
+    # Parse output
+    print("\n=== PARSING RESULTS ===")
+
+    # Score parsing
+    score_match = re.search(r"Final score - Black: (\d+), White: (\d+)", output)
+    if score_match:
+        black_score = int(score_match.group(1))
+        white_score = int(score_match.group(2))
+        winner = (
+            "Black"
+            if black_score > white_score
+            else "White" if white_score > black_score else "Draw"
+        )
+        print(
+            f"Parsed scores - Black: {black_score}, White: {white_score}, Winner: {winner}"
+        )
+    else:
+        black_score = white_score = 0
+        winner = "Draw"
+        print("Warning: Could not parse final score")
+
+    # Turn parsing
+    turns_matches = re.findall(r"=== turn (\d+) ===", output)
+    total_turns = int(turns_matches[-1]) if turns_matches else 0
+    print(f"Total turns played: {total_turns}")
+
+    # Time parsing
+    execution_times = re.findall(r"Execution time: ([\d.]+) seconds", output)
+    if execution_times:
+        execution_times = [float(t) for t in execution_times]
+        print(f"Found {len(execution_times)} move times")
+
+        black_times = execution_times[::2]  # Odd turns
+        white_times = execution_times[1::2]  # Even turns
+        avg_black = mean(black_times) if black_times else 0
+        avg_white = mean(white_times) if white_times else 0
+
+        print(f"Black move times: {black_times}")
+        print(f"White move times: {white_times}")
+        print(f"Average - Black: {avg_black:.4f}s, White: {avg_white:.4f}s")
+    else:
+        avg_black = avg_white = 0
+        print("Warning: No execution times found")
+
+    return {
+        "black_ai_mode": black_ai_mode,
+        "black_ai_depth": black_ai_depth,
+        "black_ai_heuristic": black_ai_heuristic,
+        "white_ai_mode": white_ai_mode,
+        "white_ai_depth": white_ai_depth,
+        "white_ai_heuristic": white_ai_heuristic,
+        "black_score": black_score,
+        "white_score": white_score,
+        "winner": winner,
+        "total_turns": total_turns,
+        "avg_black_execution_time": avg_black,
+        "avg_white_execution_time": avg_white,
+        "total_runtime": end_time - start_time,
+        "faster_algorithm": (
+            black_ai_mode
+            if avg_black < avg_white
+            else white_ai_mode if avg_white < avg_black else "Same"
+        ),
+        "raw_output": output,
+    }
+
+
 def run_experiment1(num_games=200):
     """
     Run experiment 1: minimax d6 corners_captured vs AB d6 corners_captured
@@ -122,7 +241,7 @@ def run_experiment1(num_games=200):
         print(f"Running game {i+1}/{num_games}")
         # First half: minimax is black, AB is white
         if i < num_games // 2:
-            game_result = run_game(
+            game_result = run_game_debug(
                 white_ai_mode="ab",
                 white_ai_depth=4,
                 white_ai_heuristic="corners_captured",
@@ -133,7 +252,7 @@ def run_experiment1(num_games=200):
             )
         # Second half: AB is black, minimax is white
         else:
-            game_result = run_game(
+            game_result = run_game_debug(
                 white_ai_mode="minimax",
                 white_ai_depth=4,
                 white_ai_heuristic="corners_captured",
@@ -463,8 +582,8 @@ def main():
     print("Starting Othello AI experiments...")
 
     # Experiment 1
-    # exp1_results = run_experiment1(num_games=2)
-    # print(f"Experiment 1 completed with {len(exp1_results)} games.")
+    exp1_results = run_experiment1(num_games=2)
+    print(f"Experiment 1 completed with {len(exp1_results)} games.")
 
     # Experiment 2
     # exp2_results = run_experiment2()
@@ -475,8 +594,8 @@ def main():
     # print(f"Experiment 3 completed with {len(exp3_results)} games.")
 
     # Experiment 4
-    exp4_results = run_experiment4()
-    print(f"Experiment 4 completed with {len(exp4_results)} games.")
+    # exp4_results = run_experiment4()
+    # print(f"Experiment 4 completed with {len(exp4_results)} games.")
 
     print("All experiments completed! Run visualize.py to create appropriate graphs")
 
