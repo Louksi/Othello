@@ -519,6 +519,20 @@ d’évaluation de position.\cite{HeuristicPaper}
 
 \section{Architecture du projet}
 
+\begin{figure}[h]
+
+    \vspace{3cm}
+
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/diag_mvp.png}
+    \caption{Tâches effectuées pendant la première semaine du projet}
+    \title{fig:Diagramme UML de l'architecture du projet}
+
+    \vspace{1cm}
+
+\end{figure}
+
+
 Nous avons décidé d’adopter une architecture MVC. Ici, nous commencerons par
 rappeler brièvement ce que cela implique et comment cela se traduit dans notre
 implémentation, avant de détailler le cycle de vie de notre application.\\
@@ -588,7 +602,7 @@ Nous obtenons ainsi une modélisation évolutive d’un plateau d’Othello,
 respectant les règles de placement de pions, sans pour autant implémenter
 d’autres fonctionnalités de base.\\
 
-\textbf{Le Contrôleur}\\
+\textbf{Le Contrôleur (Presenter)}\\
 
 Passons maintenant au contrôleur. \texttt{GameController} se construit à partir
 d’un \texttt{OthelloBoard} déjà configuré et de deux joueurs (objets issus
@@ -612,6 +626,8 @@ courant pour la gestion du timer de blitz.\\
 
 Cette méthode est invoquée par les vues lorsqu’un joueur humain est en capacité
 de jouer.\\
+
+Le contrôlleur se place donc en homme du milieu entre les vues et les modèles. De fait, nous avons implémentés une architecture Model-View-Presenter.
 
 \textbf{Les Joueurs}\\
 
