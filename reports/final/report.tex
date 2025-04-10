@@ -208,6 +208,8 @@ pierres doivent être capturées, peu importe la direction.
 
 \vspace{0.4cm}
 
+\newpage
+
 Voici un exemple de capture : \\
 
 Les noirs souhaitent jouer le coup \texttt{C6}. On regarde alors dans toutes
@@ -267,6 +269,99 @@ certaines cases.\\
 \newpage
 
 \section{Descriptions des algorithmes et structures de données}
+
+Nous utilisons des \texttt{Bitboards} pour représenter l’état du plateau –
+modulo le joueur courant qui est un membre de l’énumération \texttt{Color}.\\
+Nous nous basons sur le fonctionnement des entiers en Python, pouvant être de
+taille arbitrairement longue, pour encoder nos plateaux sur un seul entier.\\
+On linéarise notre plateau, autrement dit, on le représente en dimension 1
+comme si l’on représentait une image dans un tableau à une dimension.\\ En
+regardant les bits composant notre nombre, on peut savoir si une case est
+occupée ou non, selon si le bit à la position de cette case est à 1 ou non.\\
+
+Étant donné la simplicité du plateau — à savoir que chaque joueur a des pions
+tous identiques — il n’est nécessaire d’utiliser que deux \texttt{bitboards}
+pour représenter l’état du plateau de jeu : un pour les pions noirs et un pour
+les pions blancs.\\ On peut, à partir de ces deux \texttt{bitboards}, modéliser
+tout le plateau.\\
+
+Par exemple, l’ensemble des cases occupées serait l’union des pions noirs et
+blancs.\\ On peut également utiliser les propriétés des opérations bit à bit
+pour appliquer les algorithmes du jeu d’Othello efficacement, en travaillant
+sur l’ensemble du plateau à la fois.\\
+
+Nous nous sommes servis de l'article de Cameron Browne: \textit{Bitboard
+    methods for games}\cite{BitboardMethods} pour mieux comprendre les bitboards et
+leur utilisation, ainsi que les algorithmes qui les utilisent.\\
+
+\vspace{1cm}
+
+Pour la partie calcul des coups, nous utilisons l’algorithme \texttt{Line Cap
+    Moves}, présenté dans \textit{Bitboard Methods for Games}, par Cameron Browne
+(cité plus haut) :\\ Cet algorithme permet de générer un ensemble de coups
+possibles dans chaque direction. C’est-à-dire, donner les emplacements pour
+lesquels le joueur courant pourrait capturer des pions adverses dans une
+direction à la fois.\\
+
+D’abord, un ensemble de coups vide est créé, puis on itère sur toutes les
+directions :\\ Nord, Nord-Est, Est, Sud-Est, Sud, Sud-Ouest, Ouest,
+Nord-Ouest.\\ Ensuite, on génère un ensemble de cases \textit{candidates} par
+intersection entre les pions ennemis et les pions amis \texttt{shift} de 1 dans
+la direction courante.\\ Tant que cet ensemble de cases n’est pas vide, on
+effectue les opérations suivantes :\\ L’ensemble de coups est actualisé en
+ajoutant l’intersection entre l’ensemble vide, et les cases candidates
+\texttt{shift} de 1 dans la direction.\\ Puis l’ensemble des cases candidates
+est réécrit en l’intersection entre lui-même \texttt{shift} de 1 dans la
+direction courante, et les pions adverses.\\ Lorsque l’ensemble de cases
+candidates est vide, on peut changer de direction et recommencer. Et quand
+toutes les directions ont été explorées, l’ensemble de coups contient tous les
+coups possibles et légaux.\\ Afin de changer les pions capturés dans la couleur
+du joueur courant, nous avons créé un algorithme en se basant sur l’algorithme
+\texttt{Line Cap Moves} ci-dessus.\\ En partant de la case sur laquelle le
+dernier pion a été placé, on se déplace sur tous les pions ennemis en les
+retournant pour changer leur couleur.\\
+
+\newpage
+
+Nous avons également implémenté un \texttt{popcount} en utilisant l’algorithme
+\texttt{SWAR}, décrit dans l'article de Sanjoy Das: \textit{A SWAR Algorithm
+    for Popcount}\cite{SWARPointers}, sur des blocs de 64 bits, qui fonctionne sur
+la base d’un diviser pour mieux régner sur des mots de 64 bits, permettant de
+faire le \texttt{popcount} efficacement, ainsi qu’un algorithme permettant de
+récupérer les positions à \texttt{1} dans le \texttt{bitboard} efficacement.\\
+
+\vspace{1cm}
+
+Notre IA utilise deux algorithmes d’exploration de l’arbre des coups possibles
+: \texttt{Minimax} et \texttt{Alpha-Beta pruning}.\\
+
+L’algorithme \texttt{Minimax} est un algorithme qui, à partir d’un
+\texttt{board} donné en entrée, crée un arbre de tous les coups possibles à une
+profondeur définie. Il explore récursivement tous les coups possibles jusqu’à
+arriver à une feuille de l’arbre.\\ Pour chaque feuille de l’arbre, un score
+est calculé en utilisant une heuristique qui permet d’évaluer l’état d’un
+plateau en considérant différentes caractéristiques.\\ Il remonte ensuite les
+scores en alternant les coups "ami", qui cherchent à obtenir le meilleur score,
+et les coups "ennemis", qui cherchent à obtenir le pire score.\\
+\texttt{Minimax} renvoie le meilleur score atteignable depuis le \texttt{board}
+donné en entrée.\\
+
+L’algorithme \texttt{AlphaBeta-pruning} est un algorithme qui a la même
+approche que \texttt{Minimax}.\\ Il crée un arbre des coups possibles à une
+profondeur donnée et l’explore pour remonter le meilleur score atteignable. La
+différence majeure est l’ajout de 2 variables \texttt{Alpha} et \texttt{Beta},
+qui mémorisent respectivement le score du meilleur et du pire coup déjà observé
+dans la partie explorée de l’arbre.\\ Grâce à ces deux variables, il est
+possible de savoir à l’avance s’il est intéressant ou non d’explorer une
+branche de l’arbre.\\ S’il n’est pas nécessaire d’explorer une branche (car les
+scores obtenus ne sont pas meilleurs que ceux déjà trouvés précédemment), alors
+on élague la branche afin d’économiser du temps de calcul.\\
+\texttt{AlphaBeta-pruning} renvoie donc le même résultat que \texttt{Minimax}
+(avec une profondeur et une heuristique similaire) mais est bien plus efficace
+car il n’explore pas systématiquement l’entièreté de l’arbre de jeu.\\
+
+Ces deux algorithmes utilisent nos 4 heuristiques implémentées, décrites en
+détails dans le besoin F.51 - Heuristique d’évaluation de position.\cite{HeuristicPaper}
 
 \newpage
 
@@ -477,61 +572,7 @@ que nous décidions de le faire évoluer de notre côté.\\
 \appendix
 \section{Liste des besoins étendus}
 
-% For a functional need - border in CornflowerBlue
-\noindent
-\setlength{\arrayrulewidth}{1.5pt}
-\renewcommand{\arraystretch}{1.5}
-\arrayrulecolor{CornflowerBlue}
-\begin{tabularx}{\textwidth}{|X|}
-    \hline
-    \textbf{F.xx NOM DU BESOIN} \\
-    \hline
-    Besoin fonctionnel          \\
-    \hline
-    Terminé le DATE             \\
-    Par NOM                     \\
-    \hline
-    Explication du              \\
-    besoin                      \\
-    \arrayrulecolor{MediumAquamarine}\hline
-    \arrayrulecolor{CornflowerBlue}
-    Stratégie de validation     \\
-    \arrayrulecolor{MediumAquamarine}\hline
-    \arrayrulecolor{CornflowerBlue}
-    Dépendances                 \\
-    \hline
-\end{tabularx}
-
 \vspace{1cm}
-
-% For a non-functional need (RoyalBlue)
-\noindent
-\setlength{\arrayrulewidth}{1.5pt}
-\renewcommand{\arraystretch}{1.5}
-\arrayrulecolor{RoyalBlue}
-\begin{tabularx}{\textwidth}{|X|}
-    \hline
-    \textbf{F.xx NOM DU BESOIN} \\
-    \hline
-    Besoin non fonctionnel      \\
-    \hline
-    Terminé le DATE             \\
-    Par NOM                     \\
-    \hline
-    Explication du              \\
-    besoin                      \\
-    \arrayrulecolor{MediumAquamarine}\hline
-    \arrayrulecolor{RoyalBlue}
-    Stratégie de validation     \\
-    \arrayrulecolor{MediumAquamarine}\hline
-    \arrayrulecolor{RoyalBlue}
-    Dépendances                 \\
-    \hline
-\end{tabularx}
-
-\vspace{1cm}
-
-\newpage
 
 \noindent
 \setlength{\arrayrulewidth}{1.5pt}
@@ -1325,9 +1366,10 @@ que nous décidions de le faire évoluer de notre côté.\\
     Quitter et sauvegarder la partie enregistre la partie dans un fichier \texttt{name.sav}, avec le nom choisi par l’utilisateur, puis ferme le programme.                           \\
     \arrayrulecolor{MediumAquamarine}\hline
     \arrayrulecolor{CornflowerBlue}
-    Stratégie de validation                                                                                                                                                           \\
+    Validation en vérifiant que la fonction de sauvegarde est bien appelée lors de l’appel à la commande correspondante.                                                              \\
     \arrayrulecolor{MediumAquamarine}\hline
     \arrayrulecolor{CornflowerBlue}
+    Nécessite l’implémentation du plateau de jeu et de la logique du jeu (F.41, F.43).                                                                                                \\
     Nécessaire pour l’implémentation complète de la CLI et de la GUI (F.25, F.26).                                                                                                    \\
     \hline
 \end{tabularx}
@@ -1340,22 +1382,23 @@ que nous décidions de le faire évoluer de notre côté.\\
 \arrayrulecolor{CornflowerBlue}
 \begin{tabularx}{\textwidth}{|X|}
     \hline
-    \textbf{F.33 - Sauvegarde de l’historique}                                                                   \\
+    \textbf{F.33 - Sauvegarde de l’historique}                                                                                                                      \\
     \hline
-    Besoin fonctionnel                                                                                           \\
+    Besoin fonctionnel                                                                                                                                              \\
     \hline
-    Terminé le 12/02                                                                                             \\
-    Par Lucas                                                                                                    \\
+    Terminé le 12/02                                                                                                                                                \\
+    Par Lucas                                                                                                                                                       \\
     \hline
-    À tout moment dans la partie, le joueur peut sauvegarder l’historique des coups joués.                       \\
-    Dans l’interface graphique, le joueur peut cliquer sur le bouton associé à l’enregistrement de l’historique. \\
-    Dans l’interface en lignes de commande, pour sauvegarder l’historique, il peut entrer \texttt{sh}.           \\
+    À tout moment dans la partie, le joueur peut sauvegarder l’historique des coups joués.                                                                          \\
+    Dans l’interface graphique, le joueur peut cliquer sur le bouton associé à l’enregistrement de l’historique.                                                    \\
+    Dans l’interface en lignes de commande, pour sauvegarder l’historique, il peut entrer \texttt{sh}.                                                              \\
     \arrayrulecolor{MediumAquamarine}\hline
     \arrayrulecolor{CornflowerBlue}
-    Stratégie de validation                                                                                      \\
+    Validation en simulant différents coups joués sur des boards et vérifiant que la chaîne de caractères générée par l’export correspond bien au résultat attendu. \\
     \arrayrulecolor{MediumAquamarine}\hline
     \arrayrulecolor{CornflowerBlue}
-    Nécessaire pour l’implémentation complète de la CLI et de la GUI (F.25, F.26).                               \\
+    Nécessite l’implémentation du plateau de jeu et de la logique du jeu (F.41, F.43).                                                                              \\
+    Nécessaire pour l’implémentation complète de la CLI et de la GUI (F.25, F.26).                                                                                  \\
     \hline
 \end{tabularx}
 
@@ -1367,23 +1410,24 @@ que nous décidions de le faire évoluer de notre côté.\\
 \arrayrulecolor{CornflowerBlue}
 \begin{tabularx}{\textwidth}{|X|}
     \hline
-    \textbf{F.35 - Recommencer une partie}                                                                                                                             \\
+    \textbf{F.35 - Recommencer une partie}                                                                                                                                                                                                                              \\
     \hline
-    Besoin fonctionnel                                                                                                                                                 \\
+    Besoin fonctionnel                                                                                                                                                                                                                                                  \\
     \hline
-    Terminé le 12/02                                                                                                                                                   \\
-    Par Lucas                                                                                                                                                          \\
+    Terminé le 12/02                                                                                                                                                                                                                                                    \\
+    Par Lucas                                                                                                                                                                                                                                                           \\
     \hline
-    À tout moment dans la partie, le joueur peut recommencer une partie.                                                                                               \\
-    La partie en cours est arrêtée, et une nouvelle partie débute. La configuration de la partie précédente est gardée, et le plateau de jeu reprend son état initial. \\
-    Dans l’interface graphique, le joueur peut cliquer sur le bouton associé à recommencer la partie.                                                                  \\
-    Dans l’interface en lignes de commande, pour recommencer la partie, il peut entrer \texttt{restart}.                                                               \\
+    À tout moment dans la partie, le joueur peut recommencer une partie.                                                                                                                                                                                                \\
+    La partie en cours est arrêtée, et une nouvelle partie débute. La configuration de la partie précédente est gardée, et le plateau de jeu reprend son état initial.                                                                                                  \\
+    Dans l’interface graphique, le joueur peut cliquer sur le bouton associé à recommencer la partie.                                                                                                                                                                   \\
+    Dans l’interface en lignes de commande, pour recommencer la partie, il peut entrer \texttt{restart}.                                                                                                                                                                \\
     \arrayrulecolor{MediumAquamarine}\hline
     \arrayrulecolor{CornflowerBlue}
-    Stratégie de validation                                                                                                                                            \\
+    Validation en générant des plateaux dans un état contrôlé, puis on vérifie que le plateau est différent du plateau initial. Après l’appel à la fonction restart, on vérifie que le plateau, ainsi que l’historique des coups sont bien revenus à leur état initial. \\
     \arrayrulecolor{MediumAquamarine}\hline
     \arrayrulecolor{CornflowerBlue}
-    Nécessaire pour l’implémentation complète de la CLI et de la GUI (F.25, F.26).                                                                                     \\
+    Nécessite l’implémentation du plateau de jeu et de la logique du jeu (F.41, F.43).                                                                                                                                                                                  \\
+    Nécessaire pour l’implémentation complète de la CLI et de la GUI (F.25, F.26).                                                                                                                                                                                      \\
     \hline
 \end{tabularx}
 
@@ -1407,9 +1451,12 @@ que nous décidions de le faire évoluer de notre côté.\\
     Le gagnant est le joueur ayant le plus de pions sur l’othellier. Dans le cas où les deux joueurs auraient le même nombre de points, la partie se termine en une égalité. \\
     \arrayrulecolor{MediumAquamarine}\hline
     \arrayrulecolor{CornflowerBlue}
-    Stratégie de validation                                                                                                                                                  \\
+    Vérification que le contrôleur est bien dans un état de fin de partie si le chronomètre du blitz est arrivé à zéro pour un des deux joueurs.                             \\
+    Vérification que si la partie est déjà finie, jouer un tour ne fait rien.                                                                                                \\
+    Vérification que si le plateau est en game over, le joueur gagnant est bien celui qui a le plus de pions sur l’othellier.                                                \\
     \arrayrulecolor{MediumAquamarine}\hline
     \arrayrulecolor{CornflowerBlue}
+    Nécessite l’implémentation du plateau de jeu et de la logique du jeu (F.41, F.43).                                                                                       \\
     Nécessite l’implémentation du mode blitz (F.21).                                                                                                                         \\
     Nécessaire pour l’implémentation complète de la CLI et de la GUI (F.25, F.26).                                                                                           \\
     \hline
@@ -1434,11 +1481,8 @@ que nous décidions de le faire évoluer de notre côté.\\
     Les fichiers peuvent être chargés afin de reprendre la partie depuis l’état décrit dans le fichier.                                                                                            \\
     Le fichier de sauvegarde d’une partie contient la couleur du joueur auquel c’est le tour de jouer, le plateau de jeu dans son dernier état, et l’historique des coups joués lors de la partie. \\
     En cas d’erreur (caractère inattendu ou fin de fichier avant d’avoir terminé la lecture), une erreur est remontée contenant la ligne ainsi qu’un message décrivant ce dernier.                 \\
-    \arrayrulecolor{MediumAquamarine}\hline
-    \arrayrulecolor{RoyalBlue}
-    Stratégie de validation                                                                                                                                                                        \\
-    \arrayrulecolor{MediumAquamarine}\hline
-    \arrayrulecolor{RoyalBlue}
+    \hline
+    Nécessite l’implémentation du plateau de jeu (F.41).                                                                                                                                           \\
     Nécessaire pour le bon fonctionnement du jeu (F.15).                                                                                                                                           \\
     \hline
 \end{tabularx}
@@ -1463,11 +1507,8 @@ que nous décidions de le faire évoluer de notre côté.\\
     Une ligne du fichier représentant l’historique se présente de façon suivante~: \texttt{[Numéro du tour]. X [coup joué] O [coup joué]}.                                                                                                                                                   \\
     \texttt{[coup joué]} vaut soit un coup valide (e.g. \texttt{a1}, \texttt{e3} \ldots) soit \texttt{-1-1} en cas de tour passé. Un coup pas encore joué dans un tour (e.g. noir a joué, mais pas blanc) sera représenté de la manière suivante~: \texttt{[Numéro du tour]. X [coup joué]}. \\
     En cas d’erreur (caractère inattendu ou fin de fichier avant d’avoir terminé la lecture), une erreur est remontée contenant la ligne ainsi qu’un message décrivant ce dernier.                                                                                                           \\
-    \arrayrulecolor{MediumAquamarine}\hline
-    \arrayrulecolor{RoyalBlue}
-    Stratégie de validation                                                                                                                                                                                                                                                                  \\
-    \arrayrulecolor{MediumAquamarine}\hline
-    \arrayrulecolor{RoyalBlue}
+    \hline
+    Nécessite l’implémentation du plateau de jeu (F.41).                                                                                                                                                                                                                                     \\
     Nécessaire pour le bon fonctionnement du jeu (F.15).                                                                                                                                                                                                                                     \\
     \hline
 \end{tabularx}
@@ -1735,7 +1776,7 @@ que nous décidions de le faire évoluer de notre côté.\\
     comparer le vrai score avec celui renvoyé par chaque heuristique.                     \\
     \arrayrulecolor{MediumAquamarine}\hline \arrayrulecolor{CornflowerBlue}
     Nécessaire pour implémenter les algorithmes de recherche Minimax (F.52) et
-    Alpha-Beta (F.53)                                                                     \\ \hline
+    Alpha-Beta (F.53).                                                                    \\ \hline
 \end{tabularx}
 
 \vspace{1cm}
@@ -1774,7 +1815,7 @@ que nous décidions de le faire évoluer de notre côté.\\
     \arrayrulecolor{MediumAquamarine}\hline \arrayrulecolor{CornflowerBlue}
     L'implémentation des heuristiques (F.51) est nécessaire pour l'évaluation des
     plateau dans l'algorithme minimax.                                                                  \\ Minimax est nécessaire pour implémenter
-    le mode IA (F.24) .                                                                                 \\ \hline
+    le mode IA (F.24).                                                                                  \\ \hline
 \end{tabularx}
 
 \vspace{1cm}
@@ -1860,25 +1901,25 @@ que nous décidions de le faire évoluer de notre côté.\\
 \arrayrulecolor{CornflowerBlue}
 \begin{tabularx}{\textwidth}{|X|}
     \hline
-    \textbf{F.57 Choix des heuristiques}                                  \\
+    \textbf{F.57 Choix des heuristiques}                              \\
     \hline
-    Besoin fonctionnel                                                    \\
+    Besoin fonctionnel                                                \\
     \hline
-    Terminé le 18/03                                                      \\
-    Par Rémy                                                              \\
+    Terminé le 18/03                                                  \\
+    Par Rémy                                                          \\
     \hline
     L’option \texttt{-}\texttt{-ai-heuristic [HEURISTIC]} permet de spécifier l’heuristique utilisée par l’IA pour évaluer un coup.
 
-    Les heuristiques disponibles sont expliquées dans le besoin F.51.     \\
+    Les heuristiques disponibles sont expliquées dans le besoin F.51. \\
     \arrayrulecolor{MediumAquamarine}\hline \arrayrulecolor{CornflowerBlue} Les
     heuristiques ont déjà été testées individuellement. Il suffisait donc de lancer
     des parties avec les différentes IA et vérifier qu’elles jouaient en prenant en
     compte la bonne caractéristique (les coins, le nombre de pierres, le nombre de
-    coups possibles ou toutes à la fois).                                 \\
+    coups possibles ou toutes à la fois).                             \\
     \arrayrulecolor{MediumAquamarine}\hline \arrayrulecolor{CornflowerBlue}
-    L'implémentation de plusieurs heuristiques (F.51) est nécessaire pour \\
-    L'option \texttt{-}\texttt{-ai-heuristic [HEURISTIC]} est une dépendance du
-    mode IA (F.24).                                                       \\ \hline
+    L'implémentation de plusieurs heuristiques (F.51) est nécessaire pour ce
+    besoin.                                                           \\ L'option \texttt{-}\texttt{-ai-heuristic [HEURISTIC]} est une
+    dépendance du mode IA (F.24).                                     \\ \hline
 \end{tabularx}
 
 \vspace{1cm}
@@ -1932,8 +1973,18 @@ que nous décidions de le faire évoluer de notre côté.\\
     \hline
     Le joueur est l’abstraction permettant au contrôleur de s’affranchir des spécificités selon le type de joueur (humain, IA, Random).                      \\
     On peut lui définir une couleur et un contrôleur, et l’appel à \texttt{next\_move} permet de décharger l’appel à la méthode \texttt{play} du contrôleur. \\
-    \hline
-    Dépendances                                                                                                                                              \\
+    \arrayrulecolor{MediumAquamarine}\hline
+    \arrayrulecolor{CornflowerBlue}
+    Vérification que le \texttt{Player} s’initialise correctement.                                                                                           \\
+    Vérification que la fonction \texttt{next\_move} réalise bien le travail qui lui est confié selon le type de joueur.                                     \\
+    Pour le joueur IA, \texttt{next\_move} récupère le meilleur coup calculé grâce aux fonctions du mode IA.                                                 \\
+    Pour le joueur \texttt{Random}, elle prend un coup aléatoire parmi la liste de coups possibles.                                                          \\
+    Pour le joueur humain, elle appelle une fonction de rappel qui délègue à la vue la récupération du coup entré par le joueur.                             \\
+    \arrayrulecolor{MediumAquamarine}\hline
+    \arrayrulecolor{CornflowerBlue}
+    Nécessite l’implémentation du contrôleur.                                                                                                                \\
+    Nécessite l’implémentation du plateau de jeu (F.41).                                                                                                     \\
+    Nécessaire pour l’implémentation de l’interface graphique et l’interface en ligne de commandes (F.25, F.26).                                             \\
     \hline
 \end{tabularx}
 
