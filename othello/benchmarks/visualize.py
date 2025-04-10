@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
+from othello.othello.parser import AIHeuristic
+
 
 def create_experiment1_visualizations(csv_path="experiment1_results.csv"):
     """
@@ -64,6 +66,25 @@ def create_experiment1_visualizations(csv_path="experiment1_results.csv"):
     # Save the plot if needed
     plt.tight_layout()
     plt.savefig("algorithm_time_comparison.png")
+    plt.show()
+
+
+def line_graph_depth(csv_path="experiment4_results.csv"):
+    df = pd.read_csv(csv_path)
+    results = []
+    results.extend(df[df["black_ai_mode"] == "ab"]["avg_black_execution_time"].tolist())
+    plt.figure(figsize=(10, 6))
+    for heuristic in AIHeuristic:
+        depths_tested = list(results[heuristic].keys())
+        times = [results[heuristic][d] for d in depths_tested]
+        plt.plot(depths_tested, times, label=heuristic, marker="o")
+
+    plt.title("Alpha-Beta Time by Depth")
+    plt.xlabel("Depth")
+    plt.ylabel("Time (s)")
+    plt.legend()
+    plt.grid(True)
+    plt.savefig("alpha_beta_time_by_depth.png")
     plt.show()
 
 

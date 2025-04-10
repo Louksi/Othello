@@ -5,6 +5,7 @@ import os
 from concurrent.futures import ProcessPoolExecutor
 import re
 
+from matplotlib import pyplot as plt
 from numpy import mean
 
 
@@ -123,10 +124,10 @@ def run_experiment1(num_games=200):
         if i < num_games // 2:
             game_result = run_game(
                 white_ai_mode="ab",
-                white_ai_depth=4,
+                white_ai_depth=8,
                 white_ai_heuristic="corners_captured",
                 black_ai_mode="minimax",
-                black_ai_depth=4,
+                black_ai_depth=8,
                 black_ai_heuristic="corners_captured",
                 board_size=6,
             )
@@ -134,10 +135,10 @@ def run_experiment1(num_games=200):
         else:
             game_result = run_game(
                 white_ai_mode="minimax",
-                white_ai_depth=4,
+                white_ai_depth=8,
                 white_ai_heuristic="corners_captured",
                 black_ai_mode="ab",
-                black_ai_depth=4,
+                black_ai_depth=8,
                 black_ai_heuristic="corners_captured",
                 board_size=6,
             )
@@ -150,7 +151,11 @@ def run_experiment1(num_games=200):
         fieldnames = [
             "game_number",
             "black_ai_mode",
+            "black_ai_depth",
+            "black_ai_heuristic",
             "white_ai_mode",
+            "white_ai_depth",
+            "white_ai_heuristic",
             "black_score",
             "white_score",
             "winner",
@@ -191,6 +196,25 @@ def run_experiment1(num_games=200):
         if ab_avg > 0
         else ""
     )
+    with open("experiment1_results.csv", "w", newline="") as csvfile:
+        fieldnames = [
+            "game_number",
+            "depth",
+            "black_ai_mode",
+            "black_ai_heuristic",
+            "white_ai_mode",
+            "white_ai_heuristic",
+            "black_score",
+            "white_score",
+            "winner",
+            "turns",
+            "execution_time",
+            "total_runtime",
+        ]
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        for result in results:
+            writer.writerow({field: result[field] for field in fieldnames})
 
     return results
 
@@ -332,6 +356,64 @@ def run_experiment3():
     return results
 
 
+def run_experiment4():
+    """Run experiments to compare execution time of different heuristics at various depths"""
+    # Configuration
+    board_size = 6  # Assuming same as in the graph
+    depths = list(range(1, 11))  # From depth 1 to 10
+    heuristics = ["corners_captured", "coin_parity", "mobility", "all_in_one"]
+    trials_per_config = 5  # Number of games to average for each heuristic/depth
+
+    # Store results: {heuristic: {depth: avg_time}}
+    results = []
+
+    for heuristic in heuristics:
+        print(f"\nTesting heuristic: {heuristic}")
+        for depth in depths:
+            print(f"  Depth: {depth}", end=" ", flush=True)
+            execution_times = []
+
+            for trial in range(trials_per_config):
+                print(".", end="", flush=True)
+                # Run game with same heuristic for both players
+                game_result = run_game(
+                    white_ai_mode="alphabeta",
+                    white_ai_depth=depth,
+                    white_ai_heuristic=heuristic,
+                    black_ai_mode="alphabeta",
+                    black_ai_depth=depth,
+                    black_ai_heuristic=heuristic,
+                    board_size=board_size,
+                )
+
+                # Record average execution time (average of both players)
+                avg_time = (
+                    game_result["execution_time"] + game_result["total_runtime"]
+                ) / 2
+                execution_times.append(avg_time)
+
+            # Store average across trials
+            results[heuristic][depth] = mean(execution_times)
+            print(f" avg: {results[heuristic][depth]:.2f}s")
+
+    # Plot results
+    plt.figure(figsize=(10, 6))
+    for heuristic in heuristics:
+        depths_tested = list(results[heuristic].keys())
+        times = [results[heuristic][d] for d in depths_tested]
+        plt.plot(depths_tested, times, label=heuristic, marker="o")
+
+    plt.title("Alpha-Beta Time by Depth")
+    plt.xlabel("Depth")
+    plt.ylabel("Time (s)")
+    plt.legend()
+    plt.grid(True)
+    plt.savefig("alpha_beta_time_by_depth.png")
+    plt.show()
+
+    return results
+
+
 def main():
     # Create output directory if it doesn't exist
     os.makedirs("results", exist_ok=True)
@@ -340,16 +422,20 @@ def main():
     print("Starting Othello AI experiments...")
 
     # Experiment 1
-    exp1_results = run_experiment1(num_games=20)
-    print(f"Experiment 1 completed with {len(exp1_results)} games.")
+    # exp1_results = run_experiment1(num_games=20)
+    # print(f"Experiment 1 completed with {len(exp1_results)} games.")
 
     # Experiment 2
-    exp2_results = run_experiment2()
-    print(f"Experiment 2 completed with {len(exp2_results)} games.")
+    # exp2_results = run_experiment2()
+    # print(f"Experiment 2 completed with {len(exp2_results)} games.")
 
     # Experiment 3
-    exp3_results = run_experiment3()
-    print(f"Experiment 3 completed with {len(exp3_results)} games.")
+    # exp3_results = run_experiment3()
+    # print(f"Experiment 3 completed with {len(exp3_results)} games.")
+
+    # Experiment 4
+    exp4_results = run_experiment4()
+    print(f"Experiment 4 completed with {len(exp4_results)} games.")
 
     print("All experiments completed! Run visualize.py to create appropriate graphs")
 
