@@ -151,6 +151,7 @@ test-job:
     - python --version ; pip --version
     - pip install pycairo
     - pip install pytest pytest-cov
+    - pip install ninja
     - pip install meson-python
     - cd othello
     - pip install "PyGObject==3.50.0" --no-build-isolation --no-deps || echo "Failed to install PyGObject, continuing anyway"
