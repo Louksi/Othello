@@ -1,7 +1,7 @@
 # Programming Project
 
-- `reports/preliminary`: Code LaTeX du rapport préliminaire.
-- `reports/final`: Code LaTeX du rapport final.
+- `reports/preliminary`: LaTeX code fo the preliminary report.
+- `reports/final`: LaTeX code of the final report.
 
 # Othello Game
 
