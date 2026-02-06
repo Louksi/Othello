@@ -1,4 +1,4 @@
-# Projet de Programmation
+# Programming Project
 
 - `reports/preliminary`: Code LaTeX du rapport préliminaire.
 - `reports/final`: Code LaTeX du rapport final.
